@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import dotenv from 'dotenv';
-import BettingPoolABI from './BettingPoolABI.json' assert { type: 'json' };
+import BettingPoolABI from './BettingPoolABI.json' with { type: 'json' };
 
 dotenv.config();
 
