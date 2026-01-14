@@ -152,6 +152,7 @@ function App() {
 
       showToast('Recording bet...');
       await api.recordBet({
+        contractQuestionId: question.contractQuestionId,
         questionId: questionId,
         userAddress: walletAddress,
         outcome: side,

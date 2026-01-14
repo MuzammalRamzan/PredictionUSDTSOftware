@@ -1,335 +1,208 @@
-import { createClient } from '@supabase/supabase-js';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const handleResponse = async (response) => {
+  const data = await response.json();
+  if (!data.success) {
+    throw new Error(data.error || 'API request failed');
+  }
+  return data.data;
+};
 
 export const api = {
   async getAllQuestions(status = null, category = null) {
-    let query = supabase
-      .from('questions')
-      .select(`
-        *,
-        bets (
-          outcome,
-          ocro_amount,
-          usdt_amount
-        )
-      `);
+    const response = await fetch(`${API_BASE_URL}/questions`);
+    const questions = await handleResponse(response);
 
+    let filtered = questions;
     if (status) {
-      query = query.eq('status', status);
+      filtered = filtered.filter(q => {
+        if (status === 'open') return !q.isSettled;
+        if (status === 'settled') return q.isSettled;
+        return true;
+      });
     }
     if (category) {
-      query = query.eq('category', category);
+      filtered = filtered.filter(q => q.category === category);
     }
 
-    const { data, error } = await query.order('created_at', { ascending: false });
-
-    if (error) throw new Error(error.message);
-
-    return data.map(q => ({
-      _id: q.id,
-      contractQuestionId: q.contract_question_id,
-      title: q.title,
+    return filtered.map(q => ({
+      _id: q._id,
+      contractQuestionId: q.contractQuestionId,
+      title: q.question,
       description: q.description,
-      category: q.category,
-      deadline: q.deadline,
-      status: q.status,
-      result: q.result,
-      totalYesOcro: q.bets?.filter(b => b.outcome === 'yes').reduce((sum, b) => sum + parseFloat(b.ocro_amount || 0), 0) || 0,
-      totalYesUsdt: q.bets?.filter(b => b.outcome === 'yes').reduce((sum, b) => sum + parseFloat(b.usdt_amount || 0), 0) || 0,
-      totalNoOcro: q.bets?.filter(b => b.outcome === 'no').reduce((sum, b) => sum + parseFloat(b.ocro_amount || 0), 0) || 0,
-      totalNoUsdt: q.bets?.filter(b => b.outcome === 'no').reduce((sum, b) => sum + parseFloat(b.usdt_amount || 0), 0) || 0,
-      yesCount: q.bets?.filter(b => b.outcome === 'yes').length || 0,
-      noCount: q.bets?.filter(b => b.outcome === 'no').length || 0,
+      category: q.category || 'General',
+      deadline: q.endTime,
+      status: q.isSettled ? 'settled' : 'open',
+      result: q.answer !== null ? (q.answer ? 'yes' : 'no') : null,
+      totalYesOcro: parseFloat(q.totalYesAmount || 0),
+      totalYesUsdt: parseFloat(q.totalYesAmount || 0),
+      totalNoOcro: parseFloat(q.totalNoAmount || 0),
+      totalNoUsdt: parseFloat(q.totalNoAmount || 0),
+      yesCount: parseInt(q.yesCount || 0),
+      noCount: parseInt(q.noCount || 0),
     }));
   },
 
   async getQuestion(id) {
-    const { data, error } = await supabase
-      .from('questions')
-      .select(`
-        *,
-        bets (
-          outcome,
-          ocro_amount,
-          usdt_amount,
-          user_address
-        )
-      `)
-      .eq('id', id)
-      .maybeSingle();
-
-    if (error) throw new Error(error.message);
-    if (!data) throw new Error('Question not found');
+    const response = await fetch(`${API_BASE_URL}/questions/${id}`);
+    const question = await handleResponse(response);
 
     return {
-      _id: data.id,
-      contractQuestionId: data.contract_question_id,
-      title: data.title,
-      description: data.description,
-      category: data.category,
-      deadline: data.deadline,
-      status: data.status,
-      result: data.result,
-      bets: data.bets || [],
+      _id: question._id,
+      contractQuestionId: question.contractQuestionId,
+      title: question.question,
+      description: question.description,
+      category: question.category || 'General',
+      deadline: question.endTime,
+      status: question.isSettled ? 'settled' : 'open',
+      result: question.answer !== null ? (question.answer ? 'yes' : 'no') : null,
     };
   },
 
   async createQuestion(data) {
-    const { data: question, error } = await supabase
-      .from('questions')
-      .insert([{
-        title: data.title,
+    const response = await fetch(`${API_BASE_URL}/questions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contractQuestionId: data.contractQuestionId,
+        question: data.title,
         description: data.description,
         category: data.category,
-        deadline: data.deadline,
-        contract_question_id: data.contractQuestionId,
-        status: 'open',
-      }])
-      .select()
-      .single();
-
-    if (error) throw new Error(error.message);
-    return question;
+        endTime: data.deadline,
+        creator: data.creator,
+        minBetAmount: data.minBetAmount || '1',
+      }),
+    });
+    return handleResponse(response);
   },
 
   async recordBet(data) {
-    const { data: bet, error } = await supabase
-      .from('bets')
-      .insert([{
-        question_id: data.questionId,
-        user_address: data.userAddress.toLowerCase(),
-        outcome: data.outcome,
-        ocro_amount: data.ocroAmount || '0',
-        usdt_amount: data.usdtAmount || '0',
-        transaction_hash: data.transactionHash,
-      }])
-      .select()
-      .single();
-
-    if (error) throw new Error(error.message);
-    return bet;
+    const response = await fetch(`${API_BASE_URL}/bets`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        questionId: data.contractQuestionId || data.questionId,
+        userAddress: data.userAddress,
+        answer: data.outcome === 'yes',
+        amount: data.amount || '1',
+        txHash: data.transactionHash,
+      }),
+    });
+    return handleResponse(response);
   },
 
   async getUserBets(userAddress) {
-    const { data, error } = await supabase
-      .from('bets')
-      .select(`
-        *,
-        questionId:questions (
-          id,
-          title,
-          status,
-          result,
-          deadline
-        )
-      `)
-      .eq('user_address', userAddress.toLowerCase())
-      .order('created_at', { ascending: false });
+    const response = await fetch(`${API_BASE_URL}/bets/user/${userAddress}`);
+    const bets = await handleResponse(response);
 
-    if (error) throw new Error(error.message);
-
-    return data.map(bet => ({
-      ...bet,
-      ocroAmount: bet.ocro_amount,
-      usdtAmount: bet.usdt_amount,
-      createdAt: bet.created_at,
+    return bets.map(bet => ({
+      questionId: {
+        _id: bet.question?._id,
+        title: bet.question?.question,
+        status: bet.question?.isSettled ? 'settled' : 'open',
+        result: bet.question?.answer !== null ? (bet.question?.answer ? 'yes' : 'no') : null,
+        deadline: bet.question?.endTime,
+      },
+      outcome: bet.answer ? 'yes' : 'no',
+      ocroAmount: bet.amount,
+      usdtAmount: bet.amount,
+      createdAt: bet.timestamp,
     }));
   },
 
   async getQuestionBets(questionId) {
-    const { data, error } = await supabase
-      .from('bets')
-      .select('*')
-      .eq('question_id', questionId)
-      .order('created_at', { ascending: false });
-
-    if (error) throw new Error(error.message);
-    return data;
+    const response = await fetch(`${API_BASE_URL}/bets/question/${questionId}`);
+    return handleResponse(response);
   },
 
   async calculateWinnings(questionId, userAddress) {
-    const { data: question, error: qError } = await supabase
-      .from('questions')
-      .select('*, bets(*)')
-      .eq('id', questionId)
-      .maybeSingle();
-
-    if (qError) throw new Error(qError.message);
-    if (!question || question.status !== 'settled') {
-      return { ocro: '0', usdt: '0' };
-    }
-
-    const userBets = question.bets.filter(
-      b => b.user_address.toLowerCase() === userAddress.toLowerCase() && b.outcome === question.result
-    );
-
-    if (userBets.length === 0) return { ocro: '0', usdt: '0' };
-
-    const totalUserOcro = userBets.reduce((sum, b) => sum + parseFloat(b.ocro_amount || 0), 0);
-    const totalUserUsdt = userBets.reduce((sum, b) => sum + parseFloat(b.usdt_amount || 0), 0);
-
-    const winningBets = question.bets.filter(b => b.outcome === question.result);
-    const losingBets = question.bets.filter(b => b.outcome !== question.result);
-
-    const totalWinningOcro = winningBets.reduce((sum, b) => sum + parseFloat(b.ocro_amount || 0), 0);
-    const totalWinningUsdt = winningBets.reduce((sum, b) => sum + parseFloat(b.usdt_amount || 0), 0);
-    const totalLosingOcro = losingBets.reduce((sum, b) => sum + parseFloat(b.ocro_amount || 0), 0);
-    const totalLosingUsdt = losingBets.reduce((sum, b) => sum + parseFloat(b.usdt_amount || 0), 0);
-
-    const winningsOcro = totalUserOcro + (totalLosingOcro * totalUserOcro / totalWinningOcro);
-    const winningsUsdt = totalUserUsdt + (totalLosingUsdt * totalUserUsdt / totalWinningUsdt);
+    const response = await fetch(`${API_BASE_URL}/bets/winnings/${questionId}/${userAddress}`);
+    const data = await handleResponse(response);
 
     return {
-      ocro: winningsOcro.toFixed(2),
-      usdt: winningsUsdt.toFixed(2),
+      ocro: data.potentialWinnings || '0',
+      usdt: data.potentialWinnings || '0',
     };
   },
 
   async recordWithdrawal(data) {
-    const { data: withdrawal, error } = await supabase
-      .from('withdrawals')
-      .insert([{
-        question_id: data.questionId,
-        user_address: data.userAddress.toLowerCase(),
-        ocro_amount: data.ocroAmount || '0',
-        usdt_amount: data.usdtAmount || '0',
-        transaction_hash: data.transactionHash,
-      }])
-      .select()
-      .single();
-
-    if (error) throw new Error(error.message);
-
-    await supabase
-      .from('bets')
-      .update({ withdrawn: true })
-      .eq('question_id', data.questionId)
-      .eq('user_address', data.userAddress.toLowerCase());
-
-    return withdrawal;
+    const response = await fetch(`${API_BASE_URL}/bets/withdraw`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        questionId: data.contractQuestionId || data.questionId,
+        userAddress: data.userAddress,
+        amount: data.amount || (parseFloat(data.ocroAmount || 0) + parseFloat(data.usdtAmount || 0)).toString(),
+        txHash: data.transactionHash,
+      }),
+    });
+    return handleResponse(response);
   },
 
   async getUserWithdrawals(userAddress) {
-    const { data, error } = await supabase
-      .from('withdrawals')
-      .select('*, questions(*)')
-      .eq('user_address', userAddress.toLowerCase())
-      .order('created_at', { ascending: false });
-
-    if (error) throw new Error(error.message);
-    return data;
+    const response = await fetch(`${API_BASE_URL}/bets/withdrawals/${userAddress}`);
+    return handleResponse(response);
   },
 
   async getPoolStats(questionId) {
-    const { data, error } = await supabase
-      .from('questions')
-      .select('*, bets(*)')
-      .eq('id', questionId)
-      .maybeSingle();
-
-    if (error) throw new Error(error.message);
-    if (!data) throw new Error('Question not found');
-
-    const yesBets = data.bets.filter(b => b.outcome === 'yes');
-    const noBets = data.bets.filter(b => b.outcome === 'no');
+    const response = await fetch(`${API_BASE_URL}/stats/pool/${questionId}`);
+    const stats = await handleResponse(response);
 
     return {
-      totalYesOcro: yesBets.reduce((sum, b) => sum + parseFloat(b.ocro_amount || 0), 0),
-      totalYesUsdt: yesBets.reduce((sum, b) => sum + parseFloat(b.usdt_amount || 0), 0),
-      totalNoOcro: noBets.reduce((sum, b) => sum + parseFloat(b.ocro_amount || 0), 0),
-      totalNoUsdt: noBets.reduce((sum, b) => sum + parseFloat(b.usdt_amount || 0), 0),
-      yesCount: yesBets.length,
-      noCount: noBets.length,
-      totalParticipants: new Set(data.bets.map(b => b.user_address)).size,
+      totalYesOcro: parseFloat(stats.totalYesAmount || 0),
+      totalYesUsdt: parseFloat(stats.totalYesAmount || 0),
+      totalNoOcro: parseFloat(stats.totalNoAmount || 0),
+      totalNoUsdt: parseFloat(stats.totalNoAmount || 0),
+      yesCount: stats.yesBettors || 0,
+      noCount: stats.noBettors || 0,
+      totalParticipants: stats.uniqueBettors || 0,
     };
   },
 
   async getPlatformStats() {
-    const { data: questions, error: qError } = await supabase
-      .from('questions')
-      .select('*, bets(*)');
-
-    if (qError) throw new Error(qError.message);
-
-    const allBets = questions.flatMap(q => q.bets || []);
-    const uniqueParticipants = new Set(allBets.map(b => b.user_address)).size;
+    const response = await fetch(`${API_BASE_URL}/stats/platform`);
+    const stats = await handleResponse(response);
 
     return {
-      totalVolumeOcro: allBets.reduce((sum, b) => sum + parseFloat(b.ocro_amount || 0), 0),
-      totalVolumeUsdt: allBets.reduce((sum, b) => sum + parseFloat(b.usdt_amount || 0), 0),
-      totalQuestions: questions.length,
-      activeQuestions: questions.filter(q => q.status === 'open').length,
-      totalParticipants: uniqueParticipants,
+      totalVolumeOcro: parseFloat(stats.totalVolume || 0),
+      totalVolumeUsdt: parseFloat(stats.totalVolume || 0),
+      totalQuestions: stats.totalQuestions || 0,
+      activeQuestions: stats.activeQuestions || 0,
+      totalParticipants: stats.totalUsers || 0,
     };
   },
 
   async getUserStats(userAddress) {
-    const { data: bets, error } = await supabase
-      .from('bets')
-      .select('*, questions(*)')
-      .eq('user_address', userAddress.toLowerCase());
-
-    if (error) throw new Error(error.message);
-
-    const totalBets = bets.length;
-    const wonBets = bets.filter(b => b.questions.status === 'settled' && b.questions.result === b.outcome).length;
-    const lostBets = bets.filter(b => b.questions.status === 'settled' && b.questions.result !== b.outcome).length;
-    const activeBets = bets.filter(b => b.questions.status === 'open').length;
-
-    const totalStakedOcro = bets.reduce((sum, b) => sum + parseFloat(b.ocro_amount || 0), 0);
-    const totalStakedUsdt = bets.reduce((sum, b) => sum + parseFloat(b.usdt_amount || 0), 0);
+    const response = await fetch(`${API_BASE_URL}/stats/user/${userAddress}`);
+    const stats = await handleResponse(response);
 
     return {
-      totalBets,
-      wonBets,
-      lostBets,
-      activeBets,
-      winRate: totalBets > 0 ? ((wonBets / (wonBets + lostBets)) * 100).toFixed(2) : 0,
-      totalStakedOcro,
-      totalStakedUsdt,
+      totalBets: stats.totalBets || 0,
+      wonBets: 0,
+      lostBets: 0,
+      activeBets: stats.totalBets || 0,
+      winRate: stats.winRate || '0',
+      totalStakedOcro: parseFloat(stats.totalBetAmount || 0),
+      totalStakedUsdt: parseFloat(stats.totalBetAmount || 0),
     };
   },
 
   async getLeaderboard() {
-    const { data: bets, error } = await supabase
-      .from('bets')
-      .select('*, questions(*)');
+    const response = await fetch(`${API_BASE_URL}/stats/leaderboard?limit=10`);
+    const leaders = await handleResponse(response);
 
-    if (error) throw new Error(error.message);
-
-    const userStats = {};
-
-    bets.forEach(bet => {
-      const addr = bet.user_address;
-      if (!userStats[addr]) {
-        userStats[addr] = { address: addr, won: 0, lost: 0, totalStaked: 0 };
-      }
-
-      if (bet.questions.status === 'settled') {
-        if (bet.questions.result === bet.outcome) {
-          userStats[addr].won++;
-        } else {
-          userStats[addr].lost++;
-        }
-      }
-
-      userStats[addr].totalStaked += parseFloat(bet.ocro_amount || 0) + parseFloat(bet.usdt_amount || 0);
-    });
-
-    return Object.values(userStats)
-      .map(u => ({
-        ...u,
-        winRate: u.won + u.lost > 0 ? ((u.won / (u.won + u.lost)) * 100).toFixed(2) : 0,
-      }))
-      .sort((a, b) => parseFloat(b.winRate) - parseFloat(a.winRate))
-      .slice(0, 10);
+    return leaders.map(l => ({
+      address: l.userAddress,
+      won: 0,
+      lost: 0,
+      totalStaked: parseFloat(l.totalWinnings || 0),
+      winRate: l.winRate || '0',
+    }));
   },
 };
