@@ -1,6 +1,32 @@
-import { Wallet, TrendingUp, Trophy, Shield, Coins, Target, ArrowRight, Users, Sparkles, TrendingDown } from 'lucide-react';
+import { Wallet, TrendingUp, Trophy, Shield, Coins, Target, ArrowRight, Users, Sparkles, TrendingDown, Calculator } from 'lucide-react';
+import { useState } from 'react';
 
 export default function HowItWorks() {
+  const [yesParticipants, setYesParticipants] = useState(30);
+  const [noParticipants, setNoParticipants] = useState(70);
+  const [adminFee, setAdminFee] = useState(10);
+  const [yourBets, setYourBets] = useState(1);
+
+  // Calculations
+  const totalYesOcro = yesParticipants;
+  const totalYesUsdt = yesParticipants;
+  const totalNoOcro = noParticipants;
+  const totalNoUsdt = noParticipants;
+
+  const adminFeeOcro = (totalNoOcro * adminFee / 100).toFixed(2);
+  const adminFeeUsdt = (totalNoUsdt * adminFee / 100).toFixed(2);
+
+  const remainingOcro = (totalNoOcro - adminFeeOcro).toFixed(2);
+  const remainingUsdt = (totalNoUsdt - adminFeeUsdt).toFixed(2);
+
+  const yourShare = ((yourBets / totalYesOcro) * 100).toFixed(2);
+  const yourWinningsOcro = (remainingOcro * yourBets / totalYesOcro).toFixed(2);
+  const yourWinningsUsdt = (remainingUsdt * yourBets / totalYesUsdt).toFixed(2);
+
+  const totalPayoutOcro = (parseFloat(yourBets) + parseFloat(yourWinningsOcro)).toFixed(2);
+  const totalPayoutUsdt = (parseFloat(yourBets) + parseFloat(yourWinningsUsdt)).toFixed(2);
+
+  const profitPercentage = ((parseFloat(yourWinningsOcro) / yourBets) * 100).toFixed(0);
   const steps = [
     {
       icon: <Wallet className="w-7 h-7" />,
@@ -79,12 +105,21 @@ export default function HowItWorks() {
           <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-gray-900 px-8 py-6">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
-                <h3 className="text-2xl font-bold text-white mb-1">Reward Distribution Breakdown</h3>
-                <p className="text-blue-100">Clear example of how payouts are calculated</p>
+                <div className="flex items-center space-x-3 mb-2">
+                  <Calculator className="w-7 h-7 text-white" />
+                  <h3 className="text-2xl font-bold text-white">Profit Calculator</h3>
+                </div>
+                <p className="text-blue-100">Adjust values to estimate your potential winnings</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2">
-                <div className="text-white/70 text-xs font-semibold mb-0.5">Admin Fee</div>
-                <div className="text-white text-xl font-bold">10%</div>
+              <div className="bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-3">
+                <div className="text-white/70 text-xs font-semibold mb-1">Admin Fee</div>
+                <input
+                  type="number"
+                  value={adminFee}
+                  onChange={(e) => setAdminFee(Math.max(0, Math.min(100, Number(e.target.value))))}
+                  className="bg-white/20 text-white text-xl font-bold w-20 text-center rounded px-2 py-1 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
+                />
+                <span className="text-white text-xl font-bold ml-1">%</span>
               </div>
             </div>
           </div>
@@ -108,13 +143,18 @@ export default function HowItWorks() {
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-white/70 rounded-lg p-3">
-                        <div className="text-xs text-green-700 font-medium mb-1">Total Participants</div>
-                        <div className="text-2xl font-bold text-green-900">30</div>
+                        <div className="text-xs text-green-700 font-medium mb-2">Total Participants</div>
+                        <input
+                          type="number"
+                          value={yesParticipants}
+                          onChange={(e) => setYesParticipants(Math.max(1, Number(e.target.value)))}
+                          className="text-2xl font-bold text-green-900 bg-white border-2 border-green-300 rounded-lg px-3 py-1 w-full text-center focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
                       </div>
                       <div className="bg-white/70 rounded-lg p-3">
                         <div className="text-xs text-green-700 font-medium mb-1">Total Staked</div>
-                        <div className="text-sm font-bold text-green-900">30 OCRO</div>
-                        <div className="text-sm font-bold text-green-900">30 USDT</div>
+                        <div className="text-sm font-bold text-green-900">{totalYesOcro} OCRO</div>
+                        <div className="text-sm font-bold text-green-900">{totalYesUsdt} USDT</div>
                       </div>
                     </div>
                   </div>
@@ -129,26 +169,42 @@ export default function HowItWorks() {
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-white/70 rounded-lg p-3">
-                        <div className="text-xs text-gray-700 font-medium mb-1">Total Participants</div>
-                        <div className="text-2xl font-bold text-gray-900">70</div>
+                        <div className="text-xs text-gray-700 font-medium mb-2">Total Participants</div>
+                        <input
+                          type="number"
+                          value={noParticipants}
+                          onChange={(e) => setNoParticipants(Math.max(1, Number(e.target.value)))}
+                          className="text-2xl font-bold text-gray-900 bg-white border-2 border-gray-400 rounded-lg px-3 py-1 w-full text-center focus:outline-none focus:ring-2 focus:ring-gray-500"
+                        />
                       </div>
                       <div className="bg-white/70 rounded-lg p-3">
                         <div className="text-xs text-gray-700 font-medium mb-1">Total Staked</div>
-                        <div className="text-sm font-bold text-gray-900">70 OCRO</div>
-                        <div className="text-sm font-bold text-gray-900">70 USDT</div>
+                        <div className="text-sm font-bold text-gray-900">{totalNoOcro} OCRO</div>
+                        <div className="text-sm font-bold text-gray-900">{totalNoUsdt} USDT</div>
                       </div>
                     </div>
                   </div>
 
                   <div className="bg-blue-50 border-2 border-blue-300 rounded-xl p-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Coins className="w-4 h-4 text-blue-700" />
-                      <span className="font-bold text-blue-900">Your Position</span>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-2">
+                        <Coins className="w-4 h-4 text-blue-700" />
+                        <span className="font-bold text-blue-900">Your Position</span>
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 mb-2">
+                      <div className="text-xs text-blue-700 font-medium mb-2">Your Bets on YES</div>
+                      <input
+                        type="number"
+                        value={yourBets}
+                        onChange={(e) => setYourBets(Math.max(1, Math.min(yesParticipants, Number(e.target.value))))}
+                        className="text-xl font-bold text-blue-900 bg-blue-50 border-2 border-blue-300 rounded-lg px-3 py-1 w-full text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
                     </div>
                     <div className="text-sm text-blue-800">
-                      You bet <span className="font-bold">1 OCRO + 1 USDT</span> on <span className="font-bold text-green-700">YES</span>
+                      You bet <span className="font-bold">{yourBets} OCRO + {yourBets} USDT</span> on <span className="font-bold text-green-700">YES</span>
                     </div>
-                    <div className="text-xs text-blue-700 mt-1">You are 1 of 30 winners</div>
+                    <div className="text-xs text-blue-700 mt-1">You are {yourBets} of {yesParticipants} winners</div>
                   </div>
                 </div>
               </div>
@@ -168,7 +224,7 @@ export default function HowItWorks() {
                     <div className="ml-8">
                       <div className="text-sm text-gray-700 mb-2">All funds from NO pool are collected:</div>
                       <div className="bg-gray-50 rounded-lg p-3 inline-block">
-                        <div className="text-lg font-bold text-gray-900">70 OCRO + 70 USDT</div>
+                        <div className="text-lg font-bold text-gray-900">{totalNoOcro} OCRO + {totalNoUsdt} USDT</div>
                       </div>
                     </div>
                   </div>
@@ -183,15 +239,15 @@ export default function HowItWorks() {
                       <span className="font-bold text-gray-900">Deduct Admin Fee</span>
                     </div>
                     <div className="ml-8">
-                      <div className="text-sm text-gray-700 mb-2">10% fee is taken from losing pool:</div>
+                      <div className="text-sm text-gray-700 mb-2">{adminFee}% fee is taken from losing pool:</div>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Admin fee (10%):</span>
-                          <span className="font-bold text-red-700">7 OCRO + 7 USDT</span>
+                          <span className="text-gray-600">Admin fee ({adminFee}%):</span>
+                          <span className="font-bold text-red-700">{adminFeeOcro} OCRO + {adminFeeUsdt} USDT</span>
                         </div>
                         <div className="border-t-2 border-gray-200 pt-2 flex items-center justify-between">
                           <span className="text-gray-700 font-medium">Remaining:</span>
-                          <span className="text-lg font-bold text-gray-900">63 OCRO + 63 USDT</span>
+                          <span className="text-lg font-bold text-gray-900">{remainingOcro} OCRO + {remainingUsdt} USDT</span>
                         </div>
                       </div>
                     </div>
@@ -210,12 +266,12 @@ export default function HowItWorks() {
                       <div className="text-sm text-gray-700 mb-2">Your proportion of winning pool:</div>
                       <div className="bg-green-50 rounded-lg p-3 mb-3">
                         <div className="text-sm text-green-800 mb-1">Your stake / Total YES pool = Your share</div>
-                        <div className="text-base font-bold text-green-900">1 / 30 = 3.33%</div>
+                        <div className="text-base font-bold text-green-900">{yourBets} / {totalYesOcro} = {yourShare}%</div>
                       </div>
                       <div className="text-sm text-gray-700 mb-2">Your winnings from losing pool:</div>
                       <div className="bg-green-50 rounded-lg p-3">
-                        <div className="text-sm text-green-800 mb-1">63 OCRO × 3.33% = 2.1 OCRO</div>
-                        <div className="text-sm text-green-800">63 USDT × 3.33% = 2.1 USDT</div>
+                        <div className="text-sm text-green-800 mb-1">{remainingOcro} OCRO × {yourShare}% = {yourWinningsOcro} OCRO</div>
+                        <div className="text-sm text-green-800">{remainingUsdt} USDT × {yourShare}% = {yourWinningsUsdt} USDT</div>
                       </div>
                     </div>
                   </div>
@@ -229,31 +285,31 @@ export default function HowItWorks() {
                   <span className="bg-gray-900 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3">3</span>
                   Final Payout Summary
                 </h4>
-                <Trophy className="w-8 h-8 text-green-600" />
+                <Sparkles className="w-8 h-8 text-green-600" />
               </div>
 
               <div className="grid md:grid-cols-3 gap-4 mb-4">
                 <div className="bg-white/80 rounded-xl p-4 border-2 border-green-200">
                   <div className="text-xs font-semibold text-green-700 mb-2 uppercase tracking-wide">Original Stake</div>
-                  <div className="text-xl font-bold text-gray-900">1 OCRO</div>
-                  <div className="text-xl font-bold text-gray-900">1 USDT</div>
+                  <div className="text-xl font-bold text-gray-900">{yourBets} OCRO</div>
+                  <div className="text-xl font-bold text-gray-900">{yourBets} USDT</div>
                   <div className="text-xs text-gray-600 mt-1">Returned to you</div>
                 </div>
 
                 <div className="bg-white/80 rounded-xl p-4 border-2 border-green-200">
                   <div className="text-xs font-semibold text-green-700 mb-2 uppercase tracking-wide">Your Winnings</div>
-                  <div className="text-xl font-bold text-green-700">+ 2.1 OCRO</div>
-                  <div className="text-xl font-bold text-green-700">+ 2.1 USDT</div>
+                  <div className="text-xl font-bold text-green-700">+ {yourWinningsOcro} OCRO</div>
+                  <div className="text-xl font-bold text-green-700">+ {yourWinningsUsdt} USDT</div>
                   <div className="text-xs text-gray-600 mt-1">From losing pool</div>
                 </div>
 
                 <div className="bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl p-4 border-2 border-green-700 text-white">
                   <div className="text-xs font-semibold text-green-100 mb-2 uppercase tracking-wide">Total Payout</div>
-                  <div className="text-2xl font-bold">3.1 OCRO</div>
-                  <div className="text-2xl font-bold">3.1 USDT</div>
+                  <div className="text-2xl font-bold">{totalPayoutOcro} OCRO</div>
+                  <div className="text-2xl font-bold">{totalPayoutUsdt} USDT</div>
                   <div className="text-xs text-green-100 mt-1 flex items-center justify-between">
                     <span>Net profit</span>
-                    <span className="bg-green-500 px-2 py-0.5 rounded font-bold text-white">+210%</span>
+                    <span className="bg-green-500 px-2 py-0.5 rounded font-bold text-white">+{profitPercentage}%</span>
                   </div>
                 </div>
               </div>
