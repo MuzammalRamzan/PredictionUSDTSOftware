@@ -1,0 +1,311 @@
+{
+  "info": {
+    "name": "Betting Pool API",
+    "description": "Complete API collection for the Decentralized Betting Pool application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "betting-pool-api"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "userAddress",
+      "value": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+      "type": "string"
+    },
+    {
+      "key": "questionId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Info",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Check if the API is running"
+          }
+        },
+        {
+          "name": "API Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Get API information and available endpoints"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Questions",
+      "item": [
+        {
+          "name": "Get All Questions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "questions"]
+            },
+            "description": "Retrieve all betting questions"
+          }
+        },
+        {
+          "name": "Get Question by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/questions/{{questionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "questions", "{{questionId}}"]
+            },
+            "description": "Get details of a specific question"
+          }
+        },
+        {
+          "name": "Create Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contractQuestionId\": 1,\n  \"question\": \"Will Bitcoin reach $100,000 by end of 2024?\",\n  \"description\": \"This bet will be settled based on the BTC/USD price on major exchanges\",\n  \"endTime\": \"2024-12-31T23:59:59.000Z\",\n  \"creator\": \"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb\",\n  \"minBetAmount\": \"0.01\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "questions"]
+            },
+            "description": "Create a new betting question"
+          }
+        },
+        {
+          "name": "Settle Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answer\": true,\n  \"txHash\": \"0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/questions/{{questionId}}/settle",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "questions", "{{questionId}}", "settle"]
+            },
+            "description": "Settle a question with the correct answer"
+          }
+        },
+        {
+          "name": "Sync Question from Blockchain",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/questions/sync/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "questions", "sync", "1"]
+            },
+            "description": "Sync question data from the blockchain smart contract"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bets",
+      "item": [
+        {
+          "name": "Record Bet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"questionId\": 1,\n  \"userAddress\": \"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb\",\n  \"answer\": true,\n  \"amount\": \"0.1\",\n  \"txHash\": \"0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bets",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bets"]
+            },
+            "description": "Record a new bet for a question"
+          }
+        },
+        {
+          "name": "Get User Bets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bets/user/{{userAddress}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bets", "user", "{{userAddress}}"]
+            },
+            "description": "Get all bets placed by a specific user"
+          }
+        },
+        {
+          "name": "Get Question Bets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bets/question/{{questionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bets", "question", "{{questionId}}"]
+            },
+            "description": "Get all bets for a specific question"
+          }
+        },
+        {
+          "name": "Calculate Winnings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bets/winnings/{{questionId}}/{{userAddress}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bets", "winnings", "{{questionId}}", "{{userAddress}}"]
+            },
+            "description": "Calculate potential winnings for a user on a specific question"
+          }
+        },
+        {
+          "name": "Record Withdrawal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"questionId\": 1,\n  \"userAddress\": \"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb\",\n  \"amount\": \"0.15\",\n  \"txHash\": \"0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bets/withdraw",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bets", "withdraw"]
+            },
+            "description": "Record a withdrawal of winnings"
+          }
+        },
+        {
+          "name": "Get User Withdrawals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bets/withdrawals/{{userAddress}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bets", "withdrawals", "{{userAddress}}"]
+            },
+            "description": "Get all withdrawals for a specific user"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Statistics",
+      "item": [
+        {
+          "name": "Get Pool Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/pool/{{questionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats", "pool", "{{questionId}}"]
+            },
+            "description": "Get statistics for a specific betting pool/question"
+          }
+        },
+        {
+          "name": "Get Platform Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/platform",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats", "platform"]
+            },
+            "description": "Get overall platform statistics"
+          }
+        },
+        {
+          "name": "Get User Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/user/{{userAddress}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats", "user", "{{userAddress}}"]
+            },
+            "description": "Get statistics for a specific user"
+          }
+        },
+        {
+          "name": "Get Leaderboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/leaderboard?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats", "leaderboard"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of top users to return"
+                }
+              ]
+            },
+            "description": "Get the leaderboard of top users"
+          }
+        }
+      ]
+    }
+  ]
+}
