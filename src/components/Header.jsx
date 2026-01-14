@@ -67,7 +67,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
                   <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2">
                     <div className="px-4 py-3 border-b border-gray-100">
                       <p className="text-xs text-gray-500 mb-1">Wallet Address</p>
-                      <p className="text-sm font-mono text-gray-900">{walletAddress}</p>
+                      <p className="text-sm font-mono text-gray-900 break-all">{walletAddress}</p>
                     </div>
                     <div className="px-4 py-3 border-b border-gray-100">
                       <p className="text-xs text-gray-500 mb-1">My Positions</p>
@@ -141,7 +141,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
                         <span className="text-xs font-medium text-blue-900">Connected</span>
                       </div>
                     </div>
-                    <p className="text-sm font-mono text-gray-900 mb-2">{walletAddress}</p>
+                    <p className="text-sm font-mono text-gray-900 mb-2 break-all">{walletAddress}</p>
                     <p className="text-xs text-gray-500">{positionsCount} Active Positions</p>
                   </div>
                   <button
