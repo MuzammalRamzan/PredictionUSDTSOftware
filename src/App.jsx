@@ -127,6 +127,12 @@ function App() {
     }
   };
 
+  const handleDisconnectWallet = () => {
+    setWalletAddress(null);
+    setUserPositions([]);
+    showToast('Wallet disconnected');
+  };
+
   const handlePlaceBet = async (questionId, side) => {
     if (!walletAddress) {
       showToast('Please connect your wallet first');
@@ -223,6 +229,7 @@ function App() {
       <Header
         walletAddress={walletAddress}
         onConnectWallet={handleConnectWallet}
+        onDisconnectWallet={handleDisconnectWallet}
         positionsCount={activePositionsCount}
         isLoading={isLoading}
       />
