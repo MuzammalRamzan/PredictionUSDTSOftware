@@ -113,6 +113,8 @@ export const api = {
       ocroAmount: bet.ocro_amount,
       usdtAmount: bet.usdt_amount,
       createdAt: bet.created_at,
+      payout: bet.payout,
+      withdrawn: bet.withdrawn,
     }));
   },
 

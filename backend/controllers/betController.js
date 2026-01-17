@@ -81,9 +81,42 @@ export const getUserBets = async (req, res) => {
         const question = await Question.findById(bet.question_id).lean();
         const stats = question ? await PoolStat.findOne({ question_id: question._id }).lean() : null;
 
+        let payout = null;
+        let withdrawn = false;
+
+        // If question is settled and user won, calculate payout
+        if (question && question.status === 'settled' && question.result === bet.outcome) {
+          try {
+            const contract = getContract();
+            if (question.contract_question_id !== undefined && question.contract_question_id !== null) {
+              const [ocroWinnings, usdtWinnings] = await contract.calculateWinnings(
+                question.contract_question_id,
+                userAddress
+              );
+
+              payout = {
+                ocro: parseFloat(ethers.formatEther(ocroWinnings)),
+                usdt: parseFloat(ethers.formatEther(usdtWinnings))
+              };
+
+              // Check if user has withdrawn
+              const withdrawal = await Withdrawal.findOne({
+                question_id: bet.question_id,
+                user_address: userAddress.toLowerCase()
+              });
+
+              withdrawn = !!withdrawal;
+            }
+          } catch (error) {
+            console.error('Error calculating winnings for bet:', error);
+          }
+        }
+
         return {
           ...bet,
           id: bet._id,
+          payout,
+          withdrawn,
           questions: question ? {
             ...question,
             id: question._id,

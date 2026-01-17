@@ -210,27 +210,27 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
             </span>
           </div>
         </div>
-
-        {position.status === 'won' && position.payout && (
-          <div className="px-5 pb-5">
-            {position.withdrawn ? (
-              <div className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-600 px-4 py-2.5 rounded-lg text-sm font-semibold">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Withdrawn</span>
-              </div>
-            ) : (
-              <button
-                onClick={() => onWithdraw(position.questionId)}
-                disabled={isLoading}
-                className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed"
-              >
-                <Trophy className="w-4 h-4" />
-                <span>{isLoading ? 'Processing...' : 'Withdraw Winnings'}</span>
-              </button>
-            )}
-          </div>
-        )}
       </div>
+
+      {position.status === 'won' && position.payout && (
+        <div className="px-5 pb-5 border-t border-gray-100 pt-4">
+          {position.withdrawn ? (
+            <div className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-600 px-4 py-2.5 rounded-lg text-sm font-semibold">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Withdrawn</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => onWithdraw(position.questionId)}
+              disabled={isLoading}
+              className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed"
+            >
+              <Trophy className="w-4 h-4" />
+              <span>{isLoading ? 'Processing...' : 'Withdraw Winnings'}</span>
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
