@@ -165,35 +165,37 @@ export default function HowItWorks() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Trophy className="w-4 h-4 text-green-400" />
-                  <span className="text-xs text-white/80 font-medium">YES Participants</span>
+            <div className="space-y-3 mb-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Trophy className="w-4 h-4 text-green-400" />
+                    <span className="text-xs text-white/80 font-medium">YES Participants</span>
+                  </div>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={yesParticipants}
+                    onChange={(e) => setYesParticipants(Math.max(1, Number(e.target.value)))}
+                    className="w-full text-2xl font-bold text-white bg-white/5 border-2 border-white/20 rounded-lg px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent cursor-pointer hover:bg-white/10 transition-colors"
+                  />
                 </div>
-                <input
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={yesParticipants}
-                  onChange={(e) => setYesParticipants(Math.max(1, Number(e.target.value)))}
-                  className="w-full text-2xl font-bold text-white bg-white/5 border-2 border-white/20 rounded-lg px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent cursor-pointer hover:bg-white/10 transition-colors"
-                />
-              </div>
 
-              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-                <div className="flex items-center space-x-2 mb-2">
-                  <TrendingDown className="w-4 h-4 text-red-400" />
-                  <span className="text-xs text-white/80 font-medium">NO Participants</span>
+                <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <TrendingDown className="w-4 h-4 text-red-400" />
+                    <span className="text-xs text-white/80 font-medium">NO Participants</span>
+                  </div>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={noParticipants}
+                    onChange={(e) => setNoParticipants(Math.max(1, Number(e.target.value)))}
+                    className="w-full text-2xl font-bold text-white bg-white/5 border-2 border-white/20 rounded-lg px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent cursor-pointer hover:bg-white/10 transition-colors"
+                  />
                 </div>
-                <input
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={noParticipants}
-                  onChange={(e) => setNoParticipants(Math.max(1, Number(e.target.value)))}
-                  className="w-full text-2xl font-bold text-white bg-white/5 border-2 border-white/20 rounded-lg px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent cursor-pointer hover:bg-white/10 transition-colors"
-                />
               </div>
 
               <div className="bg-white/10 backdrop-blur rounded-xl p-4">
