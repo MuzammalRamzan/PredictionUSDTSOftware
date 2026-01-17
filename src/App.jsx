@@ -353,7 +353,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <Header
         walletAddress={walletAddress}
         onConnectWallet={handleConnectWallet}
@@ -365,30 +365,35 @@ function App() {
 
       {showNotification && (
         <div className="fixed top-20 right-4 z-50 animate-slide-in-right">
-          <div className="bg-white border-l-4 border-blue-900 rounded-lg shadow-xl p-4 flex items-center space-x-3 max-w-md">
-            <AlertCircle className="w-5 h-5 text-blue-900 flex-shrink-0" />
-            <p className="text-sm text-gray-900 font-medium">{notificationMessage}</p>
+          <div className="bg-slate-800 border-l-4 border-cyan-400 rounded-lg shadow-2xl p-4 flex items-center space-x-3 max-w-md backdrop-blur-xl">
+            <AlertCircle className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+            <p className="text-sm text-white font-medium">{notificationMessage}</p>
           </div>
         </div>
       )}
 
       <Hero stats={platformStats} />
 
-      <section id="active" className="py-16 bg-white">
+      <section id="active" className="py-20 bg-gradient-to-b from-slate-900 to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Active Prediction Pools</h2>
-            <p className="text-gray-600">
-              Place your predictions with transparent settlement powered by BSC
+          <div className="text-center mb-16">
+            <div className="inline-block mb-4">
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 text-transparent bg-clip-text text-sm font-bold tracking-wider uppercase">Live Pools</span>
+            </div>
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">Active Prediction Markets</h2>
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+              Place your predictions with transparent settlement powered by BSC blockchain
             </p>
           </div>
 
           {questions.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">No active questions at the moment. Check back soon!</p>
+            <div className="text-center py-20">
+              <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl border border-slate-700 p-12 max-w-md mx-auto">
+                <p className="text-slate-400 text-lg">No active questions at the moment. Check back soon!</p>
+              </div>
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {questions.map((question) => (
                 <BettingQuestionCard
                   key={question.id}
@@ -418,41 +423,41 @@ function App() {
 
       <HowItWorks />
 
-      <footer className="bg-gray-900 text-gray-300 py-12">
+      <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+          <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div className="md:col-span-2">
-              <h3 className="text-xl font-bold text-white mb-4">OCRO Predict</h3>
-              <p className="text-gray-400 mb-4">
-                Decentralized prediction pools on Binance Smart Chain with transparent settlements.
+              <h3 className="text-2xl font-bold text-white mb-4 bg-gradient-to-r from-cyan-400 to-blue-500 text-transparent bg-clip-text">OCRO Predict</h3>
+              <p className="text-slate-400 mb-6 leading-relaxed">
+                Decentralized prediction pools on Binance Smart Chain with transparent, trustless settlements.
               </p>
-              <div className="flex items-center space-x-2 text-sm">
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
-                <span>Powered by BSC</span>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium text-slate-300">Powered by BSC</span>
               </div>
             </div>
 
             <div>
-              <h4 className="font-bold text-white mb-4">Markets</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#active" className="hover:text-blue-400 transition-colors">Active Markets</a></li>
-                <li><a href="#positions" className="hover:text-blue-400 transition-colors">My Positions</a></li>
-                <li><a href="#how" className="hover:text-blue-400 transition-colors">How It Works</a></li>
+              <h4 className="font-bold text-white mb-6 text-lg">Markets</h4>
+              <ul className="space-y-3">
+                <li><a href="#active" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Active Markets</a></li>
+                <li><a href="#positions" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">My Positions</a></li>
+                <li><a href="#how" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">How It Works</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-bold text-white mb-4">Resources</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Documentation</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Smart Contract</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">FAQ</a></li>
+              <h4 className="font-bold text-white mb-6 text-lg">Resources</h4>
+              <ul className="space-y-3">
+                <li><a href="#" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Documentation</a></li>
+                <li><a href="#" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Smart Contract</a></li>
+                <li><a href="#" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">FAQ</a></li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2026 OCRO Predict. All rights reserved. Built on Binance Smart Chain.</p>
+          <div className="border-t border-slate-800 pt-8 text-center">
+            <p className="text-slate-500 text-sm">&copy; 2026 OCRO Predict. All rights reserved. Built on Binance Smart Chain.</p>
           </div>
         </div>
       </footer>
