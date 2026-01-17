@@ -1,10 +1,12 @@
-import { Wallet, Menu, X, TrendingUp, ChevronDown, LogOut } from 'lucide-react';
+import { Wallet, Menu, X, TrendingUp, ChevronDown, LogOut, Sun, Moon } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function Header({ walletAddress, onConnectWallet, onDisconnectWallet, positionsCount = 0, isLoading = false, isAdmin = false }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletMenuOpen, setWalletMenuOpen] = useState(false);
   const walletMenuRef = useRef(null);
+  const { isDark, toggleTheme } = useTheme();
 
   const formatAddress = (address) => {
     return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
@@ -27,7 +29,11 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
   }, [walletMenuOpen]);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-slate-700/50">
+    <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b ${
+      isDark
+        ? 'bg-slate-900/80 border-slate-700/50'
+        : 'bg-white/80 border-gray-200'
+    }`}>
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <div className="flex items-center space-x-3">
@@ -39,21 +45,41 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
             </span>
           </div>
 
-          <div className="hidden md:flex items-center space-x-10">
-            <a href="#active" className="text-slate-300 hover:text-cyan-400 transition-colors font-semibold text-sm">
+          <div className="hidden md:flex items-center space-x-8">
+            <a href="#active" className={`transition-colors font-semibold text-sm ${
+              isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+            }`}>
               Markets
             </a>
-            <a href="#positions" className="text-slate-300 hover:text-cyan-400 transition-colors font-semibold text-sm">
+            <a href="#positions" className={`transition-colors font-semibold text-sm ${
+              isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+            }`}>
               Positions
             </a>
             {isAdmin && (
-              <a href="#admin" className="text-slate-300 hover:text-cyan-400 transition-colors font-semibold text-sm">
+              <a href="#admin" className={`transition-colors font-semibold text-sm ${
+                isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+              }`}>
                 Admin
               </a>
             )}
-            <a href="#how" className="text-slate-300 hover:text-cyan-400 transition-colors font-semibold text-sm">
+            <a href="#how" className={`transition-colors font-semibold text-sm ${
+              isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+            }`}>
               How It Works
             </a>
+
+            <button
+              onClick={toggleTheme}
+              className={`p-2.5 rounded-lg transition-all duration-300 ${
+                isDark
+                  ? 'bg-slate-800 hover:bg-slate-700 text-yellow-400'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+              }`}
+              aria-label="Toggle theme"
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
           </div>
 
           <div className="hidden md:block">
@@ -69,13 +95,17 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
                 </button>
 
                 {walletMenuOpen && (
-                  <div className="absolute right-0 mt-3 w-72 bg-slate-800 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 py-2 overflow-hidden">
-                    <div className="px-5 py-4 border-b border-slate-700">
-                      <p className="text-xs text-slate-400 mb-2 font-medium">Wallet Address</p>
-                      <p className="text-sm font-mono text-white break-all">{walletAddress}</p>
+                  <div className={`absolute right-0 mt-3 w-72 backdrop-blur-xl rounded-xl shadow-2xl py-2 overflow-hidden ${
+                    isDark
+                      ? 'bg-slate-800 border border-slate-700'
+                      : 'bg-white border border-gray-200'
+                  }`}>
+                    <div className={`px-5 py-4 border-b ${isDark ? 'border-slate-700' : 'border-gray-200'}`}>
+                      <p className={`text-xs mb-2 font-medium ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Wallet Address</p>
+                      <p className={`text-sm font-mono break-all ${isDark ? 'text-white' : 'text-gray-900'}`}>{walletAddress}</p>
                     </div>
-                    <div className="px-5 py-4 border-b border-slate-700">
-                      <p className="text-xs text-slate-400 mb-2 font-medium">My Positions</p>
+                    <div className={`px-5 py-4 border-b ${isDark ? 'border-slate-700' : 'border-gray-200'}`}>
+                      <p className={`text-xs mb-2 font-medium ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>My Positions</p>
                       <p className="text-2xl font-bold text-cyan-400">{positionsCount} Active</p>
                     </div>
                     <button
@@ -105,7 +135,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-slate-300 hover:text-cyan-400"
+            className={`md:hidden p-2 ${isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'}`}
           >
             {mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
           </button>
@@ -113,18 +143,26 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
       </nav>
 
       {mobileMenuOpen && (
-        <div className="md:hidden bg-slate-900/95 backdrop-blur-xl border-t border-slate-700/50">
+        <div className={`md:hidden backdrop-blur-xl border-t ${
+          isDark
+            ? 'bg-slate-900/95 border-slate-700/50'
+            : 'bg-white/95 border-gray-200'
+        }`}>
           <div className="px-4 py-6 space-y-4">
             <a
               href="#active"
-              className="block py-3 text-slate-300 hover:text-cyan-400 transition-colors font-semibold"
+              className={`block py-3 transition-colors font-semibold ${
+                isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+              }`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Markets
             </a>
             <a
               href="#positions"
-              className="block py-3 text-slate-300 hover:text-cyan-400 transition-colors font-semibold"
+              className={`block py-3 transition-colors font-semibold ${
+                isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+              }`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Positions
@@ -132,7 +170,9 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
             {isAdmin && (
               <a
                 href="#admin"
-                className="block py-3 text-slate-300 hover:text-cyan-400 transition-colors font-semibold"
+                className={`block py-3 transition-colors font-semibold ${
+                  isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+                }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Admin
@@ -140,23 +180,51 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
             )}
             <a
               href="#how"
-              className="block py-3 text-slate-300 hover:text-cyan-400 transition-colors font-semibold"
+              className={`block py-3 transition-colors font-semibold ${
+                isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+              }`}
               onClick={() => setMobileMenuOpen(false)}
             >
               How It Works
             </a>
+
+            <button
+              onClick={toggleTheme}
+              className={`w-full flex items-center justify-center space-x-2 py-3 rounded-lg transition-all duration-300 font-semibold ${
+                isDark
+                  ? 'bg-slate-800 hover:bg-slate-700 text-yellow-400'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+              }`}
+            >
+              {isDark ? (
+                <>
+                  <Sun className="w-5 h-5" />
+                  <span>Light Mode</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-5 h-5" />
+                  <span>Dark Mode</span>
+                </>
+              )}
+            </button>
+
             <div className="pt-4 space-y-4">
               {walletAddress ? (
                 <>
-                  <div className="bg-slate-800/50 backdrop-blur-xl px-5 py-4 rounded-xl border border-slate-700">
+                  <div className={`backdrop-blur-xl px-5 py-4 rounded-xl border ${
+                    isDark
+                      ? 'bg-slate-800/50 border-slate-700'
+                      : 'bg-gray-50 border-gray-200'
+                  }`}>
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-2">
                         <div className="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse"></div>
                         <span className="text-xs font-bold text-cyan-400">Connected</span>
                       </div>
                     </div>
-                    <p className="text-sm font-mono text-white mb-3 break-all">{walletAddress}</p>
-                    <p className="text-xs text-slate-400">{positionsCount} Active Positions</p>
+                    <p className={`text-sm font-mono mb-3 break-all ${isDark ? 'text-white' : 'text-gray-900'}`}>{walletAddress}</p>
+                    <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>{positionsCount} Active Positions</p>
                   </div>
                   <button
                     onClick={() => {

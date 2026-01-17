@@ -9,8 +9,10 @@ import { AlertCircle } from 'lucide-react';
 import { api } from './services/api';
 import { web3Service } from './services/web3';
 import { isAdminAddress } from './config/admin';
+import { useTheme } from './contexts/ThemeContext';
 
 function App() {
+  const { isDark } = useTheme();
   const [walletAddress, setWalletAddress] = useState();
   const [questions, setQuestions] = useState([]);
   const [userPositions, setUserPositions] = useState([]);
@@ -353,7 +355,11 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className={`min-h-screen ${
+      isDark
+        ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'
+        : 'bg-gradient-to-br from-white via-gray-50 to-white'
+    }`}>
       <Header
         walletAddress={walletAddress}
         onConnectWallet={handleConnectWallet}
@@ -365,31 +371,35 @@ function App() {
 
       {showNotification && (
         <div className="fixed top-20 right-4 z-50 animate-slide-in-right">
-          <div className="bg-slate-800 border-l-4 border-cyan-400 rounded-lg shadow-2xl p-4 flex items-center space-x-3 max-w-md backdrop-blur-xl">
+          <div className={`border-l-4 border-cyan-400 rounded-lg shadow-2xl p-4 flex items-center space-x-3 max-w-md backdrop-blur-xl ${
+            isDark ? 'bg-slate-800' : 'bg-white'
+          }`}>
             <AlertCircle className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-            <p className="text-sm text-white font-medium">{notificationMessage}</p>
+            <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{notificationMessage}</p>
           </div>
         </div>
       )}
 
       <Hero stats={platformStats} />
 
-      <section id="active" className="py-16 bg-gray-50">
+      <section id="active" className={`py-16 ${isDark ? 'bg-slate-800' : 'bg-gray-50'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <div className="inline-block mb-4">
               <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-transparent bg-clip-text text-sm font-bold tracking-wider uppercase">Live Pools</span>
             </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Active Prediction Markets</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <h2 className={`text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Active Prediction Markets</h2>
+            <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
               Place your predictions with transparent settlement powered by BSC blockchain
             </p>
           </div>
 
           {questions.length === 0 ? (
             <div className="text-center py-12">
-              <div className="bg-white rounded-xl border-2 border-gray-200 p-12 max-w-md mx-auto">
-                <p className="text-gray-600">No active questions at the moment. Check back soon!</p>
+              <div className={`rounded-xl border-2 p-12 max-w-md mx-auto ${
+                isDark ? 'bg-slate-700 border-slate-600' : 'bg-white border-gray-200'
+              }`}>
+                <p className={isDark ? 'text-slate-300' : 'text-gray-600'}>No active questions at the moment. Check back soon!</p>
               </div>
             </div>
           ) : (
@@ -423,41 +433,57 @@ function App() {
 
       <HowItWorks />
 
-      <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-800">
+      <footer className={`py-16 border-t ${
+        isDark
+          ? 'bg-slate-950 text-slate-400 border-slate-800'
+          : 'bg-gray-50 text-gray-600 border-gray-200'
+      }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div className="md:col-span-2">
-              <h3 className="text-2xl font-bold text-white mb-4 bg-gradient-to-r from-cyan-400 to-blue-500 text-transparent bg-clip-text">OCRO Predict</h3>
-              <p className="text-slate-400 mb-6 leading-relaxed">
+              <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-500 text-transparent bg-clip-text">OCRO Predict</h3>
+              <p className={`mb-6 leading-relaxed ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>
                 Decentralized prediction pools on Binance Smart Chain with transparent, trustless settlements.
               </p>
               <div className="flex items-center space-x-3">
                 <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium text-slate-300">Powered by BSC</span>
+                <span className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Powered by BSC</span>
               </div>
             </div>
 
             <div>
-              <h4 className="font-bold text-white mb-6 text-lg">Markets</h4>
+              <h4 className={`font-bold mb-6 text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>Markets</h4>
               <ul className="space-y-3">
-                <li><a href="#active" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Active Markets</a></li>
-                <li><a href="#positions" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">My Positions</a></li>
-                <li><a href="#how" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">How It Works</a></li>
+                <li><a href="#active" className={`transition-colors text-sm ${
+                  isDark ? 'text-slate-400 hover:text-cyan-400' : 'text-gray-600 hover:text-cyan-600'
+                }`}>Active Markets</a></li>
+                <li><a href="#positions" className={`transition-colors text-sm ${
+                  isDark ? 'text-slate-400 hover:text-cyan-400' : 'text-gray-600 hover:text-cyan-600'
+                }`}>My Positions</a></li>
+                <li><a href="#how" className={`transition-colors text-sm ${
+                  isDark ? 'text-slate-400 hover:text-cyan-400' : 'text-gray-600 hover:text-cyan-600'
+                }`}>How It Works</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-bold text-white mb-6 text-lg">Resources</h4>
+              <h4 className={`font-bold mb-6 text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>Resources</h4>
               <ul className="space-y-3">
-                <li><a href="#" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Documentation</a></li>
-                <li><a href="#" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Smart Contract</a></li>
-                <li><a href="#" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">FAQ</a></li>
+                <li><a href="#" className={`transition-colors text-sm ${
+                  isDark ? 'text-slate-400 hover:text-cyan-400' : 'text-gray-600 hover:text-cyan-600'
+                }`}>Documentation</a></li>
+                <li><a href="#" className={`transition-colors text-sm ${
+                  isDark ? 'text-slate-400 hover:text-cyan-400' : 'text-gray-600 hover:text-cyan-600'
+                }`}>Smart Contract</a></li>
+                <li><a href="#" className={`transition-colors text-sm ${
+                  isDark ? 'text-slate-400 hover:text-cyan-400' : 'text-gray-600 hover:text-cyan-600'
+                }`}>FAQ</a></li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-slate-800 pt-8 text-center">
-            <p className="text-slate-500 text-sm">&copy; 2026 OCRO Predict. All rights reserved. Built on Binance Smart Chain.</p>
+          <div className={`border-t pt-8 text-center ${isDark ? 'border-slate-800' : 'border-gray-200'}`}>
+            <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-gray-500'}`}>&copy; 2026 OCRO Predict. All rights reserved. Built on Binance Smart Chain.</p>
           </div>
         </div>
       </footer>
