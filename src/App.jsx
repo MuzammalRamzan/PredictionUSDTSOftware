@@ -28,6 +28,31 @@ function App() {
     loadQuestions();
     loadPlatformStats();
     checkWalletConnection();
+
+    if (window.ethereum) {
+      const handleAccountsChanged = (accounts) => {
+        if (accounts.length === 0) {
+          setWalletAddress(null);
+          setUserPositions([]);
+          showToast('Wallet disconnected');
+        } else if (accounts[0] !== walletAddress) {
+          setWalletAddress(accounts[0]);
+          showToast('Account switched');
+        }
+      };
+
+      const handleChainChanged = () => {
+        window.location.reload();
+      };
+
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      window.ethereum.on('chainChanged', handleChainChanged);
+
+      return () => {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
+      };
+    }
   }, []);
 
   useEffect(() => {
