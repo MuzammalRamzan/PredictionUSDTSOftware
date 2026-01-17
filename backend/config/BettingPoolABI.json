@@ -1,8 +1,16 @@
 [
   {
     "inputs": [
-      { "internalType": "address", "name": "_ocroToken", "type": "address" },
-      { "internalType": "address", "name": "_usdtToken", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "_ocroToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_usdtToken",
+        "type": "address"
+      }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
@@ -10,8 +18,18 @@
   {
     "anonymous": false,
     "inputs": [
-      { "indexed": false, "internalType": "uint256", "name": "ocroAmount", "type": "uint256" },
-      { "indexed": false, "internalType": "uint256", "name": "usdtAmount", "type": "uint256" }
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "ocroAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "usdtAmount",
+        "type": "uint256"
+      }
     ],
     "name": "AdminFeesWithdrawn",
     "type": "event"
@@ -19,11 +37,36 @@
   {
     "anonymous": false,
     "inputs": [
-      { "indexed": true, "internalType": "uint256", "name": "questionId", "type": "uint256" },
-      { "indexed": true, "internalType": "address", "name": "user", "type": "address" },
-      { "indexed": false, "internalType": "bool", "name": "outcome", "type": "bool" },
-      { "indexed": false, "internalType": "uint256", "name": "ocroAmount", "type": "uint256" },
-      { "indexed": false, "internalType": "uint256", "name": "usdtAmount", "type": "uint256" }
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "questionId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "outcome",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "ocroAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "usdtAmount",
+        "type": "uint256"
+      }
     ],
     "name": "BetPlaced",
     "type": "event"
@@ -31,9 +74,24 @@
   {
     "anonymous": false,
     "inputs": [
-      { "indexed": true, "internalType": "uint256", "name": "questionId", "type": "uint256" },
-      { "indexed": false, "internalType": "string", "name": "title", "type": "string" },
-      { "indexed": false, "internalType": "uint256", "name": "deadline", "type": "uint256" }
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "questionId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      }
     ],
     "name": "QuestionCreated",
     "type": "event"
@@ -41,8 +99,18 @@
   {
     "anonymous": false,
     "inputs": [
-      { "indexed": true, "internalType": "uint256", "name": "questionId", "type": "uint256" },
-      { "indexed": false, "internalType": "bool", "name": "result", "type": "bool" }
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "questionId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "result",
+        "type": "bool"
+      }
     ],
     "name": "QuestionSettled",
     "type": "event"
@@ -50,10 +118,30 @@
   {
     "anonymous": false,
     "inputs": [
-      { "indexed": true, "internalType": "uint256", "name": "questionId", "type": "uint256" },
-      { "indexed": true, "internalType": "address", "name": "user", "type": "address" },
-      { "indexed": false, "internalType": "uint256", "name": "ocroAmount", "type": "uint256" },
-      { "indexed": false, "internalType": "uint256", "name": "usdtAmount", "type": "uint256" }
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "questionId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "ocroAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "usdtAmount",
+        "type": "uint256"
+      }
     ],
     "name": "WinningsWithdrawn",
     "type": "event"
@@ -61,78 +149,232 @@
   {
     "inputs": [],
     "name": "ADMIN_FEE_PERCENT",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "FIXED_OCRO_AMOUNT",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "FIXED_USDT_AMOUNT",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "adminFeesOcro",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "adminFeesUsdt",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_questionId", "type": "uint256" },
-      { "internalType": "address", "name": "_user", "type": "address" }
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "bets",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "outcome",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "ocroAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "usdtAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "withdrawn",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_questionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      }
     ],
     "name": "calculateWinnings",
     "outputs": [
-      { "internalType": "uint256", "name": "ocroWinnings", "type": "uint256" },
-      { "internalType": "uint256", "name": "usdtWinnings", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "ocroWinnings",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "usdtWinnings",
+        "type": "uint256"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "string", "name": "_title", "type": "string" },
-      { "internalType": "uint256", "name": "_deadline", "type": "uint256" }
+      {
+        "internalType": "string",
+        "name": "_title",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_deadline",
+        "type": "uint256"
+      }
     ],
     "name": "createQuestion",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "_questionId", "type": "uint256" }],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_questionId",
+        "type": "uint256"
+      }
+    ],
     "name": "getQuestion",
     "outputs": [
       {
         "components": [
-          { "internalType": "string", "name": "title", "type": "string" },
-          { "internalType": "uint256", "name": "deadline", "type": "uint256" },
-          { "internalType": "bool", "name": "isSettled", "type": "bool" },
-          { "internalType": "bool", "name": "result", "type": "bool" },
-          { "internalType": "uint256", "name": "yesOcroTotal", "type": "uint256" },
-          { "internalType": "uint256", "name": "yesUsdtTotal", "type": "uint256" },
-          { "internalType": "uint256", "name": "noOcroTotal", "type": "uint256" },
-          { "internalType": "uint256", "name": "noUsdtTotal", "type": "uint256" },
-          { "internalType": "uint256", "name": "yesParticipants", "type": "uint256" },
-          { "internalType": "uint256", "name": "noParticipants", "type": "uint256" },
-          { "internalType": "bool", "name": "exists", "type": "bool" }
+          {
+            "internalType": "string",
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isSettled",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "result",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "yesOcroTotal",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "yesUsdtTotal",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "noOcroTotal",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "noUsdtTotal",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "yesParticipants",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "noParticipants",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
         ],
         "internalType": "struct BettingPool.Question",
         "name": "",
@@ -143,26 +385,66 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "_questionId", "type": "uint256" }],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_questionId",
+        "type": "uint256"
+      }
+    ],
     "name": "getQuestionBettors",
-    "outputs": [{ "internalType": "address[]", "name": "", "type": "address[]" }],
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_questionId", "type": "uint256" },
-      { "internalType": "address", "name": "_user", "type": "address" }
+      {
+        "internalType": "uint256",
+        "name": "_questionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      }
     ],
     "name": "getUserBet",
     "outputs": [
       {
         "components": [
-          { "internalType": "address", "name": "user", "type": "address" },
-          { "internalType": "bool", "name": "outcome", "type": "bool" },
-          { "internalType": "uint256", "name": "ocroAmount", "type": "uint256" },
-          { "internalType": "uint256", "name": "usdtAmount", "type": "uint256" },
-          { "internalType": "bool", "name": "withdrawn", "type": "bool" }
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "outcome",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "ocroAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "usdtAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "withdrawn",
+            "type": "bool"
+          }
         ],
         "internalType": "struct BettingPool.Bet",
         "name": "",
@@ -175,21 +457,41 @@
   {
     "inputs": [],
     "name": "ocroToken",
-    "outputs": [{ "internalType": "contract IERC20", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_questionId", "type": "uint256" },
-      { "internalType": "bool", "name": "_outcome", "type": "bool" }
+      {
+        "internalType": "uint256",
+        "name": "_questionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "_outcome",
+        "type": "bool"
+      }
     ],
     "name": "placeBet",
     "outputs": [],
@@ -197,16 +499,123 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "questionBettors",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "questionCount",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_questionId", "type": "uint256" },
-      { "internalType": "bool", "name": "_result", "type": "bool" }
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "questions",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isSettled",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "result",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "yesOcroTotal",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "yesUsdtTotal",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "noOcroTotal",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "noUsdtTotal",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "yesParticipants",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "noParticipants",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "exists",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_questionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "_result",
+        "type": "bool"
+      }
     ],
     "name": "settleQuestion",
     "outputs": [],
@@ -216,7 +625,13 @@
   {
     "inputs": [],
     "name": "usdtToken",
-    "outputs": [{ "internalType": "contract IERC20", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -228,7 +643,13 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "_questionId", "type": "uint256" }],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_questionId",
+        "type": "uint256"
+      }
+    ],
     "name": "withdrawWinnings",
     "outputs": [],
     "stateMutability": "nonpayable",
