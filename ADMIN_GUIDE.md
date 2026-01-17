@@ -6,9 +6,11 @@ As an admin, you are responsible for settling questions after their deadline has
 
 ## Prerequisites
 
-1. Connect your wallet to the platform
-2. Ensure you're using the **admin wallet address** (the address that deployed the smart contract)
+1. You must use the **admin wallet address**: `0xE3A21A584AC9FeA2ef99F2d7bdB62Ff4d3B30bAb`
+2. The Admin Panel is **only visible** when the admin wallet is connected
 3. Make sure you have enough BNB for gas fees
+
+**Note**: Regular users will not see the Admin link in the navigation or the Admin Panel section. These features are exclusively available to the admin address.
 
 ## How to Settle Questions
 

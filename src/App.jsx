@@ -8,6 +8,7 @@ import AdminPanel from './components/AdminPanel';
 import { AlertCircle } from 'lucide-react';
 import { api } from './services/api';
 import { web3Service } from './services/web3';
+import { isAdminAddress } from './config/admin';
 
 function App() {
   const [walletAddress, setWalletAddress] = useState();
@@ -24,6 +25,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
 
   const activePositionsCount = userPositions.filter(p => p.status === 'active').length;
+  const isAdmin = isAdminAddress(walletAddress);
 
   useEffect(() => {
     loadQuestions();
@@ -346,6 +348,7 @@ function App() {
         onDisconnectWallet={handleDisconnectWallet}
         positionsCount={activePositionsCount}
         isLoading={isLoading}
+        isAdmin={isAdmin}
       />
 
       {showNotification && (

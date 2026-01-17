@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { Clock, CheckCircle2, XCircle, AlertCircle, Shield } from 'lucide-react';
+import { isAdminAddress } from '../config/admin';
 
 export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading }) {
   const [endedQuestions, setEndedQuestions] = useState([]);
   const [selectedResult, setSelectedResult] = useState({});
 
+  const isAdmin = isAdminAddress(walletAddress);
+
   useEffect(() => {
-    if (walletAddress) {
+    if (isAdmin) {
       loadEndedQuestions();
     }
-  }, [walletAddress]);
+  }, [isAdmin]);
 
   const loadEndedQuestions = async () => {
     try {
@@ -47,18 +50,8 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
     return 'Just now';
   };
 
-  if (!walletAddress) {
-    return (
-      <section id="admin" className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-xl border-2 border-gray-200 p-12 text-center">
-            <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Connect Wallet</h3>
-            <p className="text-gray-600">Connect your admin wallet to manage questions</p>
-          </div>
-        </div>
-      </section>
-    );
+  if (!isAdmin) {
+    return null;
   }
 
   return (
