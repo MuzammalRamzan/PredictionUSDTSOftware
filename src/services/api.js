@@ -108,6 +108,7 @@ export const api = {
         status: bet.questions?.status,
         result: bet.questions?.result,
         deadline: bet.questions?.deadline,
+        contractQuestionId: bet.questions?.contract_question_id,
       },
       outcome: bet.outcome,
       ocroAmount: bet.ocro_amount,

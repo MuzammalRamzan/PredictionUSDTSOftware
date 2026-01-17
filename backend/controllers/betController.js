@@ -120,6 +120,7 @@ export const getUserBets = async (req, res) => {
           questions: question ? {
             ...question,
             id: question._id,
+            contract_question_id: question.contract_question_id,
             pool_stats: stats ? [{ ...stats, id: stats._id }] : []
           } : null
         };

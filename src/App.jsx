@@ -124,6 +124,7 @@ function App() {
       const bets = await api.getUserBets(walletAddress);
       const formattedPositions = bets.map(bet => ({
         questionId: bet.questionId._id,
+        contractQuestionId: bet.questionId.contractQuestionId,
         question: bet.questionId.title,
         side: bet.outcome,
         ocroStaked: bet.ocroAmount,
@@ -248,16 +249,20 @@ function App() {
       return;
     }
 
+    if (!position.contractQuestionId && position.contractQuestionId !== 0) {
+      showToast('Unable to withdraw: question not found on blockchain');
+      return;
+    }
+
     try {
       setIsLoading(true);
       showToast('Processing withdrawal...');
 
-      const question = questions.find(q => q.id === questionId);
-      const txHash = await web3Service.withdrawWinnings(question.contractQuestionId);
+      const txHash = await web3Service.withdrawWinnings(position.contractQuestionId);
 
       showToast('Recording withdrawal...');
       const winnings = await web3Service.calculateWinnings(
-        question.contractQuestionId,
+        position.contractQuestionId,
         walletAddress
       );
 
