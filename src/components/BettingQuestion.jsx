@@ -1,4 +1,5 @@
 import { Clock, Users, CheckCircle2, XCircle, TrendingUp } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function BettingQuestionCard({
   question,
@@ -6,6 +7,7 @@ export default function BettingQuestionCard({
   walletConnected,
   isLoading = false,
 }) {
+  const { isDark } = useTheme();
   const totalParticipants = question.yesPool.participants + question.noPool.participants;
 
   const yesPercentage = totalParticipants > 0
@@ -46,24 +48,28 @@ export default function BettingQuestionCard({
   };
 
   return (
-    <div className="group bg-white rounded-xl border-2 border-gray-200 overflow-hidden hover:border-cyan-500 hover:shadow-xl transition-all duration-300">
+    <div className={`group rounded-xl border-2 overflow-hidden hover:border-cyan-500 hover:shadow-xl transition-all duration-300 ${
+      isDark ? 'bg-slate-700 border-slate-600' : 'bg-white border-gray-200'
+    }`}>
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
           <span className={`px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r ${getCategoryColor(question.category)} text-white shadow-md`}>
             {question.category}
           </span>
-          <div className="flex items-center space-x-1.5 text-gray-500">
+          <div className={`flex items-center space-x-1.5 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
             <Clock className="w-4 h-4" />
             <span className="text-xs font-bold">{getTimeRemaining()}</span>
           </div>
         </div>
 
-        <h3 className="text-lg font-bold text-gray-900 mb-5 leading-snug min-h-[3.5rem] group-hover:text-cyan-600 transition-colors">
+        <h3 className={`text-lg font-bold mb-5 leading-snug min-h-[3.5rem] group-hover:text-cyan-400 transition-colors ${
+          isDark ? 'text-white' : 'text-gray-900'
+        }`}>
           {question.question}
         </h3>
 
         <div className="mb-5">
-          <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+          <div className={`flex items-center justify-between text-xs mb-2 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
             <span className="font-semibold">Market sentiment</span>
             <div className="flex items-center space-x-1.5">
               <Users className="w-3.5 h-3.5" />
@@ -71,7 +77,9 @@ export default function BettingQuestionCard({
             </div>
           </div>
 
-          <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
+          <div className={`relative h-2.5 rounded-full overflow-hidden border ${
+            isDark ? 'bg-slate-600 border-slate-500' : 'bg-gray-100 border-gray-200'
+          }`}>
             <div
               className="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-500"
               style={{ width: `${yesPercentage}%` }}
@@ -81,10 +89,10 @@ export default function BettingQuestionCard({
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center space-x-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600"></div>
-              <span className="text-xs font-bold text-gray-700">{yesPercentage.toFixed(0)}% Yes</span>
+              <span className={`text-xs font-bold ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>{yesPercentage.toFixed(0)}% Yes</span>
             </div>
             <div className="flex items-center space-x-1.5">
-              <span className="text-xs font-bold text-gray-700">{noPercentage.toFixed(0)}% No</span>
+              <span className={`text-xs font-bold ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>{noPercentage.toFixed(0)}% No</span>
               <div className="w-2.5 h-2.5 rounded-full bg-gray-400"></div>
             </div>
           </div>
@@ -123,19 +131,25 @@ export default function BettingQuestionCard({
             <span>Settled: {question.result.toUpperCase()}</span>
           </div>
         ) : (
-          <div className="flex items-center justify-center px-4 py-3 rounded-lg font-bold bg-gray-100 text-gray-600 border border-gray-200">
+          <div className={`flex items-center justify-center px-4 py-3 rounded-lg font-bold border ${
+            isDark
+              ? 'bg-slate-600 text-slate-300 border-slate-500'
+              : 'bg-gray-100 text-gray-600 border-gray-200'
+          }`}>
             <Clock className="w-5 h-5 mr-2" />
             <span>Awaiting Result</span>
           </div>
         )}
       </div>
 
-      <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
+      <div className={`px-6 py-3 border-t ${
+        isDark ? 'bg-slate-800 border-slate-600' : 'bg-gray-50 border-gray-200'
+      }`}>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-500 font-semibold">Stake required</span>
+          <span className={`text-xs font-semibold ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Stake required</span>
           <div className="flex items-center space-x-2">
             <TrendingUp className="w-4 h-4 text-cyan-600" />
-            <span className="text-sm font-bold text-gray-900">1 OCRO + 1 USDT</span>
+            <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>1 OCRO + 1 USDT</span>
           </div>
         </div>
       </div>

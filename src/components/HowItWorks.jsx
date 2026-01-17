@@ -1,7 +1,9 @@
 import { Wallet, TrendingUp, Trophy, Shield, Coins, Target, TrendingDown, Calculator, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function HowItWorks() {
+  const { isDark } = useTheme();
   const [yesParticipants, setYesParticipants] = useState(30);
   const [noParticipants, setNoParticipants] = useState(70);
   const [adminFee, setAdminFee] = useState(10);
@@ -79,16 +81,16 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section id="how" className="py-16 bg-white">
+    <section id="how" className={`py-16 ${isDark ? 'bg-slate-900' : 'bg-white'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-block mb-4">
             <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-transparent bg-clip-text text-sm font-bold tracking-wider uppercase">Simple Process</span>
           </div>
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className={`text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
             How It Works
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
             Simple, transparent pools powered by blockchain technology
           </p>
         </div>
@@ -96,19 +98,23 @@ export default function HowItWorks() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {steps.map((step, index) => (
             <div key={index} className="relative">
-              <div className="bg-white rounded-xl p-6 border-2 border-gray-200 hover:border-cyan-500 hover:shadow-lg transition-all h-full">
+              <div className={`rounded-xl p-6 border-2 hover:shadow-lg transition-all h-full ${
+                isDark
+                  ? 'bg-slate-800 border-slate-700 hover:border-cyan-500'
+                  : 'bg-white border-gray-200 hover:border-cyan-500'
+              }`}>
                 <div className={`bg-gradient-to-br ${step.color} w-12 h-12 rounded-lg flex items-center justify-center text-white mb-4 shadow-md`}>
                   {step.icon}
                 </div>
                 <div className="absolute -top-2 -left-2 w-7 h-7 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
                   {index + 1}
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{step.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{step.description}</p>
+                <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{step.title}</h3>
+                <p className={`text-sm leading-relaxed ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>{step.description}</p>
               </div>
               {index < steps.length - 1 && (
                 <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-10">
-                  <ArrowRight className="w-5 h-5 text-gray-300" />
+                  <ArrowRight className={`w-5 h-5 ${isDark ? 'text-slate-600' : 'text-gray-300'}`} />
                 </div>
               )}
             </div>
@@ -119,15 +125,19 @@ export default function HowItWorks() {
           <div className="text-center mb-6">
             <div className="flex items-center justify-center space-x-2 mb-3">
               <Calculator className="w-7 h-7 text-cyan-600" />
-              <h3 className="text-3xl font-bold text-gray-900">Profit Calculator</h3>
+              <h3 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Profit Calculator</h3>
             </div>
-            <p className="text-gray-600">Estimate your potential winnings in real-time</p>
+            <p className={isDark ? 'text-slate-400' : 'text-gray-600'}>Estimate your potential winnings in real-time</p>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 shadow-lg border-2 border-gray-200">
+          <div className={`rounded-2xl p-6 shadow-lg border-2 ${
+            isDark
+              ? 'bg-slate-800 border-slate-700'
+              : 'bg-gradient-to-br from-gray-50 to-white border-gray-200'
+          }`}>
             <div className="mb-5">
               <div className="text-center mb-3">
-                <div className="text-sm text-gray-600 mb-2 font-semibold">Select Winning Outcome</div>
+                <div className={`text-sm mb-2 font-semibold ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>Select Winning Outcome</div>
               </div>
               <div className="flex gap-3 justify-center">
                 <button
@@ -135,7 +145,9 @@ export default function HowItWorks() {
                   className={`flex-1 max-w-[200px] px-6 py-3 rounded-xl font-bold transition-all ${
                     winningOutcome === 'yes'
                       ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg'
-                      : 'bg-gray-100 border-2 border-gray-200 text-gray-600 hover:border-green-500'
+                      : isDark
+                        ? 'bg-slate-700 border-2 border-slate-600 text-slate-300 hover:border-green-500'
+                        : 'bg-gray-100 border-2 border-gray-200 text-gray-600 hover:border-green-500'
                   }`}
                 >
                   <div className="flex items-center justify-center space-x-2">
@@ -148,7 +160,9 @@ export default function HowItWorks() {
                   className={`flex-1 max-w-[200px] px-6 py-3 rounded-xl font-bold transition-all ${
                     winningOutcome === 'no'
                       ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg'
-                      : 'bg-gray-100 border-2 border-gray-200 text-gray-600 hover:border-red-500'
+                      : isDark
+                        ? 'bg-slate-700 border-2 border-slate-600 text-slate-300 hover:border-red-500'
+                        : 'bg-gray-100 border-2 border-gray-200 text-gray-600 hover:border-red-500'
                   }`}
                 >
                   <div className="flex items-center justify-center space-x-2">
@@ -159,11 +173,17 @@ export default function HowItWorks() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl p-5 mb-5 border border-cyan-200">
+            <div className={`rounded-xl p-5 mb-5 border ${
+              isDark
+                ? 'bg-gradient-to-br from-cyan-900/30 to-blue-900/30 border-cyan-700/50'
+                : 'bg-gradient-to-br from-cyan-50 to-blue-50 border-cyan-200'
+            }`}>
               <div className="text-center">
-                <div className="text-xs text-cyan-700 mb-2 font-semibold uppercase tracking-wider">Total Payout</div>
-                <div className="text-3xl font-extrabold text-gray-900">{totalPayoutOcro} OCRO</div>
-                <div className="text-2xl font-extrabold text-gray-900 mb-3">{totalPayoutUsdt} USDT</div>
+                <div className={`text-xs mb-2 font-semibold uppercase tracking-wider ${
+                  isDark ? 'text-cyan-400' : 'text-cyan-700'
+                }`}>Total Payout</div>
+                <div className={`text-3xl font-extrabold ${isDark ? 'text-white' : 'text-gray-900'}`}>{totalPayoutOcro} OCRO</div>
+                <div className={`text-2xl font-extrabold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>{totalPayoutUsdt} USDT</div>
                 <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-full text-sm shadow-md">
                   <TrendingUp className="w-4 h-4" />
                   <span className="font-bold">+{profitPercentage}% Profit</span>
@@ -173,10 +193,12 @@ export default function HowItWorks() {
 
             <div className="space-y-3 mb-4">
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white rounded-lg p-3 border border-gray-200">
+                <div className={`rounded-lg p-3 border ${
+                  isDark ? 'bg-slate-700 border-slate-600' : 'bg-white border-gray-200'
+                }`}>
                   <div className="flex items-center space-x-1.5 mb-2">
                     <Trophy className="w-3.5 h-3.5 text-green-500" />
-                    <span className="text-xs text-gray-600 font-bold">YES</span>
+                    <span className={`text-xs font-bold ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>YES</span>
                   </div>
                   <input
                     type="number"
@@ -184,14 +206,20 @@ export default function HowItWorks() {
                     step="1"
                     value={yesParticipants}
                     onChange={(e) => setYesParticipants(Math.max(1, Number(e.target.value)))}
-                    className="w-full text-xl font-bold text-gray-900 bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    className={`w-full text-xl font-bold border rounded-lg px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent ${
+                      isDark
+                        ? 'bg-slate-600 border-slate-500 text-white'
+                        : 'bg-gray-50 border-gray-300 text-gray-900'
+                    }`}
                   />
                 </div>
 
-                <div className="bg-white rounded-lg p-3 border border-gray-200">
+                <div className={`rounded-lg p-3 border ${
+                  isDark ? 'bg-slate-700 border-slate-600' : 'bg-white border-gray-200'
+                }`}>
                   <div className="flex items-center space-x-1.5 mb-2">
                     <TrendingDown className="w-3.5 h-3.5 text-red-500" />
-                    <span className="text-xs text-gray-600 font-bold">NO</span>
+                    <span className={`text-xs font-bold ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>NO</span>
                   </div>
                   <input
                     type="number"
@@ -199,44 +227,58 @@ export default function HowItWorks() {
                     step="1"
                     value={noParticipants}
                     onChange={(e) => setNoParticipants(Math.max(1, Number(e.target.value)))}
-                    className="w-full text-xl font-bold text-gray-900 bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    className={`w-full text-xl font-bold border rounded-lg px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent ${
+                      isDark
+                        ? 'bg-slate-600 border-slate-500 text-white'
+                        : 'bg-gray-50 border-gray-300 text-gray-900'
+                    }`}
                   />
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg p-3 border border-gray-200">
+              <div className={`rounded-lg p-3 border ${
+                isDark ? 'bg-slate-700 border-slate-600' : 'bg-white border-gray-200'
+              }`}>
                 <div className="flex items-center space-x-1.5 mb-2">
                   <Shield className="w-3.5 h-3.5 text-orange-500" />
-                  <span className="text-xs text-gray-600 font-bold">Admin Fee %</span>
+                  <span className={`text-xs font-bold ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>Admin Fee %</span>
                 </div>
-                <div className="w-full text-xl font-bold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-center">
+                <div className={`w-full text-xl font-bold border rounded-lg px-3 py-2 text-center ${
+                  isDark
+                    ? 'bg-slate-600 border-slate-500 text-slate-400'
+                    : 'bg-gray-50 border-gray-200 text-gray-500'
+                }`}>
                   {adminFee}
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg p-4 border border-gray-200">
+            <div className={`rounded-lg p-4 border ${
+              isDark ? 'bg-slate-700 border-slate-600' : 'bg-white border-gray-200'
+            }`}>
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div>
-                  <div className="text-xs text-gray-500 mb-1 font-semibold">Your Stake</div>
-                  <div className="text-sm font-bold text-gray-900">{yourBets} OCRO</div>
-                  <div className="text-sm font-bold text-gray-900">{yourBets} USDT</div>
+                  <div className={`text-xs mb-1 font-semibold ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Your Stake</div>
+                  <div className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{yourBets} OCRO</div>
+                  <div className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{yourBets} USDT</div>
                 </div>
                 <div>
-                  <div className="text-xs text-gray-500 mb-1 font-semibold">Winnings</div>
+                  <div className={`text-xs mb-1 font-semibold ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Winnings</div>
                   <div className="text-sm font-bold text-green-600">+{yourWinningsOcro}</div>
                   <div className="text-sm font-bold text-green-600">+{yourWinningsUsdt}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-gray-500 mb-1 font-semibold">Your Share</div>
+                  <div className={`text-xs mb-1 font-semibold ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Your Share</div>
                   <div className="text-lg font-bold text-cyan-600">{yourShare}%</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-4 bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <div className="text-xs text-gray-600 text-center leading-relaxed">
+          <div className={`mt-4 rounded-lg p-4 border ${
+            isDark ? 'bg-slate-800 border-slate-700' : 'bg-gray-50 border-gray-200'
+          }`}>
+            <div className={`text-xs text-center leading-relaxed ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>
               <span className="font-bold text-cyan-600">How it works:</span> If <span className={`font-bold ${winningOutcome === 'yes' ? 'text-green-600' : 'text-red-600'}`}>{winningOutcome.toUpperCase()}</span> wins, {adminFee}% admin fee is taken from the <span className={`font-bold ${winningOutcome === 'yes' ? 'text-red-600' : 'text-green-600'}`}>{winningOutcome === 'yes' ? 'NO' : 'YES'}</span> pool ({adminFeeOcro} OCRO + {adminFeeUsdt} USDT). The remaining {remainingOcro} OCRO + {remainingUsdt} USDT is distributed proportionally to all <span className={`font-bold ${winningOutcome === 'yes' ? 'text-green-600' : 'text-red-600'}`}>{winningOutcome.toUpperCase()}</span> bettors.
             </div>
           </div>
@@ -244,12 +286,16 @@ export default function HowItWorks() {
 
         <div className="grid md:grid-cols-3 gap-6">
           {features.map((feature, index) => (
-            <div key={index} className="bg-white rounded-xl p-6 border-2 border-gray-200 hover:border-cyan-500 hover:shadow-lg transition-all">
+            <div key={index} className={`rounded-xl p-6 border-2 hover:shadow-lg transition-all ${
+              isDark
+                ? 'bg-slate-800 border-slate-700 hover:border-cyan-500'
+                : 'bg-white border-gray-200 hover:border-cyan-500'
+            }`}>
               <div className="bg-gradient-to-br from-cyan-500 to-blue-600 w-12 h-12 rounded-lg flex items-center justify-center text-white mb-4 shadow-md">
                 {feature.icon}
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">{feature.title}</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+              <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{feature.title}</h3>
+              <p className={`text-sm leading-relaxed ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>{feature.description}</p>
             </div>
           ))}
         </div>
