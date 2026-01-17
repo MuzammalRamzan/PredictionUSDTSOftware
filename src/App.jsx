@@ -256,16 +256,23 @@ function App() {
 
     try {
       setIsLoading(true);
-      showToast('Processing withdrawal...');
+      showToast('Calculating winnings...');
 
-      const txHash = await web3Service.withdrawWinnings(position.contractQuestionId);
-
-      showToast('Recording withdrawal...');
       const winnings = await web3Service.calculateWinnings(
         position.contractQuestionId,
         walletAddress
       );
 
+      if (parseFloat(winnings.ocro) === 0 && parseFloat(winnings.usdt) === 0) {
+        showToast('No winnings available to withdraw');
+        setIsLoading(false);
+        return;
+      }
+
+      showToast('Processing withdrawal...');
+      const txHash = await web3Service.withdrawWinnings(position.contractQuestionId);
+
+      showToast('Recording withdrawal...');
       await api.recordWithdrawal({
         questionId: questionId,
         userAddress: walletAddress,
