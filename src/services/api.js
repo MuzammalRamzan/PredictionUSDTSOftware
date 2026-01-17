@@ -189,11 +189,11 @@ export const api = {
     const stats = await handleResponse(response);
 
     return {
-      totalVolumeOcro: parseFloat(stats.totalVolume || 0),
-      totalVolumeUsdt: parseFloat(stats.totalVolume || 0),
-      totalQuestions: stats.totalQuestions || 0,
-      activeQuestions: stats.activeQuestions || 0,
-      totalParticipants: stats.totalUsers || 0,
+      totalVolumeOcro: parseFloat(stats.bets?.totalOcroStaked || 0),
+      totalVolumeUsdt: parseFloat(stats.bets?.totalUsdtStaked || 0),
+      totalQuestions: stats.questions?.total || 0,
+      activeQuestions: stats.questions?.open || 0,
+      totalParticipants: stats.totalParticipants || 0,
     };
   },
 

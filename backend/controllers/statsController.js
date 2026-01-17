@@ -31,7 +31,7 @@ export const getPoolStats = async (req, res) => {
 export const getPlatformStats = async (req, res) => {
   try {
     const questions = await Question.find({}).select('status').lean();
-    const bets = await Bet.find({}).select('ocro_amount usdt_amount').lean();
+    const bets = await Bet.find({}).select('ocro_amount usdt_amount user_address').lean();
     const withdrawals = await Withdrawal.find({}).select('ocro_amount usdt_amount').lean();
 
     const totalQuestions = questions.length;
@@ -41,6 +41,8 @@ export const getPlatformStats = async (req, res) => {
     const totalBets = bets.length;
     const totalOcroStaked = bets.reduce((sum, bet) => sum + parseFloat(bet.ocro_amount), 0);
     const totalUsdtStaked = bets.reduce((sum, bet) => sum + parseFloat(bet.usdt_amount), 0);
+
+    const uniqueUsers = new Set(bets.map(bet => bet.user_address)).size;
 
     const totalWithdrawals = withdrawals.length;
     const totalOcroWithdrawn = withdrawals.reduce(
@@ -67,7 +69,8 @@ export const getPlatformStats = async (req, res) => {
         total: totalWithdrawals,
         totalOcroWithdrawn,
         totalUsdtWithdrawn
-      }
+      },
+      totalParticipants: uniqueUsers
     };
 
     res.json({ success: true, data: stats });
