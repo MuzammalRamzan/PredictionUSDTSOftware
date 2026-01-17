@@ -84,7 +84,7 @@ export default function BettingQuestionCard({
           </div>
         </div>
 
-        {question.status === 'active' ? (
+        {question.status === 'open' || question.status === 'active' ? (
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => onPlaceBet(question.id, 'yes')}

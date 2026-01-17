@@ -16,8 +16,8 @@ export const api = {
     let filtered = questions;
     if (status) {
       filtered = filtered.filter(q => {
-        if (status === 'open') return !q.isSettled;
-        if (status === 'settled') return q.isSettled;
+        if (status === 'open') return q.status === 'open';
+        if (status === 'settled') return q.status === 'settled';
         return true;
       });
     }
@@ -25,22 +25,25 @@ export const api = {
       filtered = filtered.filter(q => q.category === category);
     }
 
-    return filtered.map(q => ({
-      _id: q._id,
-      contractQuestionId: q.contractQuestionId,
-      title: q.question,
-      description: q.description,
-      category: q.category || 'General',
-      deadline: q.endTime,
-      status: q.isSettled ? 'settled' : 'open',
-      result: q.answer !== null ? (q.answer ? 'yes' : 'no') : null,
-      totalYesOcro: parseFloat(q.totalYesAmount || 0),
-      totalYesUsdt: parseFloat(q.totalYesAmount || 0),
-      totalNoOcro: parseFloat(q.totalNoAmount || 0),
-      totalNoUsdt: parseFloat(q.totalNoAmount || 0),
-      yesCount: parseInt(q.yesCount || 0),
-      noCount: parseInt(q.noCount || 0),
-    }));
+    return filtered.map(q => {
+      const poolStats = q.pool_stats && q.pool_stats[0] ? q.pool_stats[0] : {};
+      return {
+        _id: q._id,
+        contractQuestionId: q.contract_question_id,
+        title: q.title,
+        description: q.description,
+        category: q.category || 'General',
+        deadline: q.deadline,
+        status: q.status,
+        result: q.result,
+        totalYesOcro: parseFloat(poolStats.yes_ocro_total || 0),
+        totalYesUsdt: parseFloat(poolStats.yes_usdt_total || 0),
+        totalNoOcro: parseFloat(poolStats.no_ocro_total || 0),
+        totalNoUsdt: parseFloat(poolStats.no_usdt_total || 0),
+        yesCount: parseInt(poolStats.yes_participants || 0),
+        noCount: parseInt(poolStats.no_participants || 0),
+      };
+    });
   },
 
   async getQuestion(id) {
@@ -49,13 +52,13 @@ export const api = {
 
     return {
       _id: question._id,
-      contractQuestionId: question.contractQuestionId,
-      title: question.question,
+      contractQuestionId: question.contract_question_id,
+      title: question.title,
       description: question.description,
       category: question.category || 'General',
-      deadline: question.endTime,
-      status: question.isSettled ? 'settled' : 'open',
-      result: question.answer !== null ? (question.answer ? 'yes' : 'no') : null,
+      deadline: question.deadline,
+      status: question.status,
+      result: question.result,
     };
   },
 
@@ -101,16 +104,16 @@ export const api = {
 
     return bets.map(bet => ({
       questionId: {
-        _id: bet.question?._id,
-        title: bet.question?.question,
-        status: bet.question?.isSettled ? 'settled' : 'open',
-        result: bet.question?.answer !== null ? (bet.question?.answer ? 'yes' : 'no') : null,
-        deadline: bet.question?.endTime,
+        _id: bet.questions?._id,
+        title: bet.questions?.title,
+        status: bet.questions?.status,
+        result: bet.questions?.result,
+        deadline: bet.questions?.deadline,
       },
-      outcome: bet.answer ? 'yes' : 'no',
-      ocroAmount: bet.amount,
-      usdtAmount: bet.amount,
-      createdAt: bet.timestamp,
+      outcome: bet.outcome,
+      ocroAmount: bet.ocro_amount,
+      usdtAmount: bet.usdt_amount,
+      createdAt: bet.created_at,
     }));
   },
 
