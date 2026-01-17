@@ -13,6 +13,12 @@ export default function BettingQuestionCard({
     : 50;
   const noPercentage = 100 - yesPercentage;
 
+  const isQuestionEnded = () => {
+    const now = new Date();
+    const end = new Date(question.endTime);
+    return end.getTime() - now.getTime() <= 0;
+  };
+
   const getTimeRemaining = () => {
     const now = new Date();
     const end = new Date(question.endTime);
@@ -88,7 +94,7 @@ export default function BettingQuestionCard({
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => onPlaceBet(question.id, 'yes')}
-              disabled={!walletConnected || isLoading}
+              disabled={!walletConnected || isLoading || isQuestionEnded()}
               className="flex items-center justify-center space-x-2 bg-blue-900 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-950 transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
               <CheckCircle2 className="w-4 h-4" />
@@ -96,7 +102,7 @@ export default function BettingQuestionCard({
             </button>
             <button
               onClick={() => onPlaceBet(question.id, 'no')}
-              disabled={!walletConnected || isLoading}
+              disabled={!walletConnected || isLoading || isQuestionEnded()}
               className="flex items-center justify-center space-x-2 bg-gray-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
               <XCircle className="w-4 h-4" />
