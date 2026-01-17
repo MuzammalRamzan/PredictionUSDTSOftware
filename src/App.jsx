@@ -172,7 +172,7 @@ function App() {
       const existingBet = await web3Service.getUserBet(question.contractQuestionId, walletAddress);
 
       if (existingBet && existingBet.hasBet) {
-        showToast('You have already placed a bet on this question');
+        showToast('Bet already placed');
         setIsLoading(false);
         return;
       }
