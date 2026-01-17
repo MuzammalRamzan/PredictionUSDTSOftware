@@ -183,6 +183,48 @@ export const settleQuestion = async (req, res) => {
   }
 };
 
+export const updateQuestion = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, category, deadline } = req.body;
+
+    const question = await Question.findById(id);
+
+    if (!question) {
+      return res.status(404).json({ success: false, error: 'Question not found' });
+    }
+
+    if (question.status === 'settled') {
+      return res.status(400).json({ success: false, error: 'Cannot update settled question' });
+    }
+
+    if (title) question.title = title;
+    if (description) question.description = description;
+    if (category) question.category = category;
+    if (deadline) {
+      const newDeadline = new Date(deadline);
+      if (newDeadline <= new Date()) {
+        return res.status(400).json({ success: false, error: 'Deadline must be in the future' });
+      }
+      question.deadline = newDeadline;
+    }
+
+    question.updated_at = new Date();
+    await question.save();
+
+    const data = { ...question.toObject(), id: question._id };
+
+    res.json({
+      success: true,
+      data,
+      warning: 'Note: Blockchain deadline remains unchanged. Only database record updated.'
+    });
+  } catch (error) {
+    console.error('Error updating question:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 export const syncQuestionFromBlockchain = async (req, res) => {
   try {
     const { contractQuestionId } = req.params;
