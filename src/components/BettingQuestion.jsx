@@ -42,78 +42,78 @@ export default function BettingQuestionCard({
       'Technology': 'from-cyan-500 to-cyan-600',
       'Finance': 'from-blue-500 to-blue-600',
     };
-    return colors[category] || 'from-slate-500 to-slate-600';
+    return colors[category] || 'from-gray-500 to-gray-600';
   };
 
   return (
-    <div className="group bg-slate-800/50 backdrop-blur-xl rounded-2xl border border-slate-700 overflow-hidden hover:border-cyan-400/50 hover:shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300">
-      <div className="p-7">
-        <div className="flex items-center justify-between mb-5">
-          <span className={`px-4 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r ${getCategoryColor(question.category)} text-white shadow-lg`}>
+    <div className="group bg-white rounded-xl border-2 border-gray-200 overflow-hidden hover:border-cyan-500 hover:shadow-xl transition-all duration-300">
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <span className={`px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r ${getCategoryColor(question.category)} text-white shadow-md`}>
             {question.category}
           </span>
-          <div className="flex items-center space-x-2 text-slate-400">
+          <div className="flex items-center space-x-1.5 text-gray-500">
             <Clock className="w-4 h-4" />
             <span className="text-xs font-bold">{getTimeRemaining()}</span>
           </div>
         </div>
 
-        <h3 className="text-xl font-bold text-white mb-6 leading-snug min-h-[4rem] group-hover:text-cyan-400 transition-colors">
+        <h3 className="text-lg font-bold text-gray-900 mb-5 leading-snug min-h-[3.5rem] group-hover:text-cyan-600 transition-colors">
           {question.question}
         </h3>
 
-        <div className="mb-6">
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-3">
+        <div className="mb-5">
+          <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
             <span className="font-semibold">Market sentiment</span>
-            <div className="flex items-center space-x-2">
-              <Users className="w-4 h-4" />
+            <div className="flex items-center space-x-1.5">
+              <Users className="w-3.5 h-3.5" />
               <span className="font-bold">{totalParticipants}</span>
             </div>
           </div>
 
-          <div className="relative h-3 bg-slate-900/50 rounded-full overflow-hidden border border-slate-700">
+          <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
             <div
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-500 shadow-lg shadow-cyan-500/50"
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-500"
               style={{ width: `${yesPercentage}%` }}
             ></div>
           </div>
 
-          <div className="flex items-center justify-between mt-3">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600"></div>
-              <span className="text-sm font-bold text-white">{yesPercentage.toFixed(0)}% Yes</span>
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center space-x-1.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600"></div>
+              <span className="text-xs font-bold text-gray-700">{yesPercentage.toFixed(0)}% Yes</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-bold text-white">{noPercentage.toFixed(0)}% No</span>
-              <div className="w-3 h-3 rounded-full bg-slate-600"></div>
+            <div className="flex items-center space-x-1.5">
+              <span className="text-xs font-bold text-gray-700">{noPercentage.toFixed(0)}% No</span>
+              <div className="w-2.5 h-2.5 rounded-full bg-gray-400"></div>
             </div>
           </div>
         </div>
 
         {question.status === 'open' || question.status === 'active' ? (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => onPlaceBet(question.id, 'yes')}
               disabled={!walletConnected || isLoading || isQuestionEnded()}
-              className="flex items-center justify-center space-x-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-5 py-3.5 rounded-xl font-bold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/30 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed disabled:shadow-none"
+              className="flex items-center justify-center space-x-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-4 py-3 rounded-lg font-bold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-md disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed disabled:shadow-none"
             >
-              <CheckCircle2 className="w-5 h-5" />
+              <CheckCircle2 className="w-4 h-4" />
               <span>Yes</span>
             </button>
             <button
               onClick={() => onPlaceBet(question.id, 'no')}
               disabled={!walletConnected || isLoading || isQuestionEnded()}
-              className="flex items-center justify-center space-x-2 bg-slate-700 text-white px-5 py-3.5 rounded-xl font-bold hover:bg-slate-600 transition-all duration-300 disabled:bg-gray-700 disabled:cursor-not-allowed"
+              className="flex items-center justify-center space-x-2 bg-gray-600 text-white px-4 py-3 rounded-lg font-bold hover:bg-gray-700 transition-all duration-300 disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
-              <XCircle className="w-5 h-5" />
+              <XCircle className="w-4 h-4" />
               <span>No</span>
             </button>
           </div>
         ) : question.status === 'settled' && question.result ? (
-          <div className={`flex items-center justify-center space-x-2 px-5 py-3.5 rounded-xl font-bold ${
+          <div className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-bold ${
             question.result === 'yes'
-              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30'
-              : 'bg-slate-700 text-white'
+              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
+              : 'bg-gray-600 text-white'
           }`}>
             {question.result === 'yes' ? (
               <CheckCircle2 className="w-5 h-5" />
@@ -123,19 +123,19 @@ export default function BettingQuestionCard({
             <span>Settled: {question.result.toUpperCase()}</span>
           </div>
         ) : (
-          <div className="flex items-center justify-center px-5 py-3.5 rounded-xl font-bold bg-slate-700/50 text-slate-300 border border-slate-600">
+          <div className="flex items-center justify-center px-4 py-3 rounded-lg font-bold bg-gray-100 text-gray-600 border border-gray-200">
             <Clock className="w-5 h-5 mr-2" />
             <span>Awaiting Result</span>
           </div>
         )}
       </div>
 
-      <div className="bg-slate-900/50 px-7 py-4 border-t border-slate-700">
+      <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-slate-400 font-semibold">Stake required</span>
+          <span className="text-xs text-gray-500 font-semibold">Stake required</span>
           <div className="flex items-center space-x-2">
-            <TrendingUp className="w-4 h-4 text-cyan-400" />
-            <span className="text-sm font-bold text-white">1 OCRO + 1 USDT</span>
+            <TrendingUp className="w-4 h-4 text-cyan-600" />
+            <span className="text-sm font-bold text-gray-900">1 OCRO + 1 USDT</span>
           </div>
         </div>
       </div>

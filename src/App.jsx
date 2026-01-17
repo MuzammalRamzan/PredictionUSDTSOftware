@@ -374,26 +374,26 @@ function App() {
 
       <Hero stats={platformStats} />
 
-      <section id="active" className="py-20 bg-gradient-to-b from-slate-900 to-slate-800">
+      <section id="active" className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <div className="inline-block mb-4">
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 text-transparent bg-clip-text text-sm font-bold tracking-wider uppercase">Live Pools</span>
+              <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-transparent bg-clip-text text-sm font-bold tracking-wider uppercase">Live Pools</span>
             </div>
-            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">Active Prediction Markets</h2>
-            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Active Prediction Markets</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Place your predictions with transparent settlement powered by BSC blockchain
             </p>
           </div>
 
           {questions.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl border border-slate-700 p-12 max-w-md mx-auto">
-                <p className="text-slate-400 text-lg">No active questions at the moment. Check back soon!</p>
+            <div className="text-center py-12">
+              <div className="bg-white rounded-xl border-2 border-gray-200 p-12 max-w-md mx-auto">
+                <p className="text-gray-600">No active questions at the moment. Check back soon!</p>
               </div>
             </div>
           ) : (
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {questions.map((question) => (
                 <BettingQuestionCard
                   key={question.id}
