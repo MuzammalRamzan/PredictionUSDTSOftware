@@ -293,7 +293,7 @@ function App() {
   const showToast = (message) => {
     setNotificationMessage(message);
     setShowNotification(true);
-    setTimeout(() => setShowNotification(false), 3000);
+    setTimeout(() => setShowNotification(false), 6000);
   };
 
   return (
