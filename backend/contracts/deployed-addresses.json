@@ -1,0 +1,25 @@
+{
+  "network": "BSC Testnet",
+  "chainId": 97,
+  "deployedAt": "2026-01-17",
+  "contracts": {
+    "USDT": "0x7026eC8ed277Ae6dda4628357cE2885423b9B3ce",
+    "OCRO": "0x4b20351E27aD66466E8Dc6F2e96FBad5ee69e362",
+    "BettingPool": "0xf62db92156F86e10CaB2CDcb340b475C5E6948e9"
+  },
+  "deployer": "0xE3A21A584AC9FeA2ef99F2d7bdB62Ff4d3B30bAb",
+  "tokenDetails": {
+    "USDT": {
+      "name": "USDT",
+      "symbol": "USDT",
+      "decimals": 18,
+      "initialSupply": "10000"
+    },
+    "OCRO": {
+      "name": "OCRO",
+      "symbol": "OCRO",
+      "decimals": 18,
+      "initialSupply": "10000"
+    }
+  }
+}

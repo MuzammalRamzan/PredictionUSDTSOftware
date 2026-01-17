@@ -9,7 +9,12 @@
     "deploy:mainnet": "hardhat run scripts/deploy.js --network bscMainnet",
     "verify": "hardhat verify --network bscTestnet"
   },
-  "keywords": ["solidity", "ethereum", "smart-contracts", "bsc"],
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "smart-contracts",
+    "bsc"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
@@ -17,6 +22,7 @@
     "hardhat": "^2.19.0"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^5.4.0",
     "dotenv": "^16.3.1"
   }
 }
