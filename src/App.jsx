@@ -4,6 +4,7 @@ import Hero from './components/Hero';
 import BettingQuestionCard from './components/BettingQuestion';
 import UserPositions from './components/UserPositions';
 import HowItWorks from './components/HowItWorks';
+import AdminPanel from './components/AdminPanel';
 import { AlertCircle } from 'lucide-react';
 import { api } from './services/api';
 import { web3Service } from './services/web3';
@@ -290,6 +291,47 @@ function App() {
     }
   };
 
+  const handleSettleQuestion = async (questionId, result) => {
+    if (!walletAddress) {
+      showToast('Please connect your wallet first');
+      return;
+    }
+
+    if (!result) {
+      showToast('Please select a result');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      showToast('Settling question on blockchain...');
+
+      await api.settleQuestion(questionId, result);
+
+      showToast(`Question settled successfully! Result: ${result.toUpperCase()}`);
+      await loadQuestions();
+    } catch (error) {
+      console.error('Failed to settle question:', error);
+      let errorMessage = 'Failed to settle question';
+
+      if (error.reason) {
+        errorMessage = error.reason;
+      } else if (error.message) {
+        if (error.message.includes('Not owner')) {
+          errorMessage = 'Only admin can settle questions';
+        } else if (error.message.includes('user rejected')) {
+          errorMessage = 'Transaction cancelled';
+        } else {
+          errorMessage = error.message.split('(')[0].trim();
+        }
+      }
+
+      showToast(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const showToast = (message) => {
     setNotificationMessage(message);
     setShowNotification(true);
@@ -350,6 +392,12 @@ function App() {
         positions={walletAddress ? userPositions : []}
         walletConnected={!!walletAddress}
         onWithdraw={handleWithdraw}
+        isLoading={isLoading}
+      />
+
+      <AdminPanel
+        walletAddress={walletAddress}
+        onSettleQuestion={handleSettleQuestion}
         isLoading={isLoading}
       />
 

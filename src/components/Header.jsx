@@ -46,6 +46,9 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
             <a href="#positions" className="text-gray-600 hover:text-blue-900 transition-colors font-medium">
               Positions
             </a>
+            <a href="#admin" className="text-gray-600 hover:text-blue-900 transition-colors font-medium">
+              Admin
+            </a>
             <a href="#how" className="text-gray-600 hover:text-blue-900 transition-colors font-medium">
               How It Works
             </a>
@@ -123,6 +126,13 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
               onClick={() => setMobileMenuOpen(false)}
             >
               Positions
+            </a>
+            <a
+              href="#admin"
+              className="block py-2 text-gray-600 hover:text-blue-900 transition-colors font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Admin
             </a>
             <a
               href="#how"

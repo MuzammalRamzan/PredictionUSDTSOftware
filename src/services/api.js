@@ -153,6 +153,19 @@ export const api = {
     return handleResponse(response);
   },
 
+  async settleQuestion(questionId, result) {
+    const response = await fetch(`${API_BASE_URL}/questions/${questionId}/settle`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        result: result,
+      }),
+    });
+    return handleResponse(response);
+  },
+
   async getPoolStats(questionId) {
     const response = await fetch(`${API_BASE_URL}/stats/pool/${questionId}`);
     const stats = await handleResponse(response);
