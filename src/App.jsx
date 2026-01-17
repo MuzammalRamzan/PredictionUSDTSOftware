@@ -146,7 +146,15 @@ function App() {
       showToast('Wallet connected successfully!');
     } catch (error) {
       console.error('Failed to connect wallet:', error);
-      showToast(error.message || 'Failed to connect wallet');
+      let errorMessage = 'Failed to connect wallet';
+
+      if (error.reason) {
+        errorMessage = error.reason;
+      } else if (error.message) {
+        errorMessage = error.message.split('(')[0].trim();
+      }
+
+      showToast(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -204,7 +212,23 @@ function App() {
       await loadUserBets();
     } catch (error) {
       console.error('Failed to place bet:', error);
-      showToast(error.message || 'Failed to place bet');
+      let errorMessage = 'Failed to place bet';
+
+      if (error.reason) {
+        errorMessage = error.reason;
+      } else if (error.message) {
+        if (error.message.includes('Already placed bet')) {
+          errorMessage = 'Bet already placed';
+        } else if (error.message.includes('user rejected')) {
+          errorMessage = 'Transaction cancelled';
+        } else if (error.message.includes('insufficient funds')) {
+          errorMessage = 'Insufficient funds';
+        } else {
+          errorMessage = error.message.split('(')[0].trim();
+        }
+      }
+
+      showToast(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -246,7 +270,21 @@ function App() {
       await loadUserBets();
     } catch (error) {
       console.error('Failed to withdraw:', error);
-      showToast(error.message || 'Failed to withdraw winnings');
+      let errorMessage = 'Failed to withdraw winnings';
+
+      if (error.reason) {
+        errorMessage = error.reason;
+      } else if (error.message) {
+        if (error.message.includes('user rejected')) {
+          errorMessage = 'Transaction cancelled';
+        } else if (error.message.includes('insufficient funds')) {
+          errorMessage = 'Insufficient funds';
+        } else {
+          errorMessage = error.message.split('(')[0].trim();
+        }
+      }
+
+      showToast(errorMessage);
     } finally {
       setIsLoading(false);
     }
