@@ -166,8 +166,18 @@ function App() {
 
     try {
       setIsLoading(true);
-      showToast('Checking token approvals...');
+      const question = questions.find(q => q.id === questionId);
 
+      showToast('Checking if bet already placed...');
+      const existingBet = await web3Service.getUserBet(question.contractQuestionId, walletAddress);
+
+      if (existingBet && existingBet.hasBet) {
+        showToast('You have already placed a bet on this question');
+        setIsLoading(false);
+        return;
+      }
+
+      showToast('Checking token approvals...');
       const approvals = await web3Service.checkApprovals(walletAddress);
 
       if (!approvals.ocroApproved || !approvals.usdtApproved) {
@@ -178,7 +188,6 @@ function App() {
         showToast('Placing bet...');
       }
 
-      const question = questions.find(q => q.id === questionId);
       const txHash = await web3Service.placeBet(question.contractQuestionId, side);
 
       showToast('Recording bet...');
