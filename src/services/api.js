@@ -88,11 +88,10 @@ export const api = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        questionId: data.contractQuestionId || data.questionId,
+        questionId: data.questionId,
         userAddress: data.userAddress,
-        answer: data.outcome === 'yes',
-        amount: data.amount || '1',
-        txHash: data.transactionHash,
+        outcome: data.outcome,
+        transactionHash: data.transactionHash,
       }),
     });
     return handleResponse(response);
@@ -139,10 +138,11 @@ export const api = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        questionId: data.contractQuestionId || data.questionId,
+        questionId: data.questionId,
         userAddress: data.userAddress,
-        amount: data.amount || (parseFloat(data.ocroAmount || 0) + parseFloat(data.usdtAmount || 0)).toString(),
-        txHash: data.transactionHash,
+        ocroAmount: data.ocroAmount,
+        usdtAmount: data.usdtAmount,
+        transactionHash: data.transactionHash,
       }),
     });
     return handleResponse(response);
