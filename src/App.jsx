@@ -307,46 +307,6 @@ function App() {
     }
   };
 
-  const handleSettleQuestion = async (questionId, result) => {
-    if (!walletAddress) {
-      showToast('Please connect your wallet first');
-      return;
-    }
-
-    if (!result) {
-      showToast('Please select a result');
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      showToast('Settling question on blockchain...');
-
-      await api.settleQuestion(questionId, result);
-
-      showToast(`Question settled successfully! Result: ${result.toUpperCase()}`);
-      await loadQuestions();
-    } catch (error) {
-      console.error('Failed to settle question:', error);
-      let errorMessage = 'Failed to settle question';
-
-      if (error.reason) {
-        errorMessage = error.reason;
-      } else if (error.message) {
-        if (error.message.includes('Not owner')) {
-          errorMessage = 'Only admin can settle questions';
-        } else if (error.message.includes('user rejected')) {
-          errorMessage = 'Transaction cancelled';
-        } else {
-          errorMessage = error.message.split('(')[0].trim();
-        }
-      }
-
-      showToast(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const showToast = (message) => {
     setNotificationMessage(message);
@@ -427,8 +387,6 @@ function App() {
 
       <AdminPanel
         walletAddress={walletAddress}
-        onSettleQuestion={handleSettleQuestion}
-        isLoading={isLoading}
       />
 
       <HowItWorks />

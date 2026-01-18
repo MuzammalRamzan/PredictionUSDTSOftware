@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react';
 import { Clock, CheckCircle2, XCircle, AlertCircle, Shield, Plus, Calendar, Tag, FileText } from 'lucide-react';
 import { isAdminAddress } from '../config/admin';
 import { useTheme } from '../contexts/ThemeContext';
+import { web3Service } from '../services/web3';
 
-export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading }) {
+export default function AdminPanel({ walletAddress, isLoading }) {
   const { isDark } = useTheme();
   const [endedQuestions, setEndedQuestions] = useState([]);
   const [selectedResult, setSelectedResult] = useState({});
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createMessage, setCreateMessage] = useState('');
+  const [settling, setSettling] = useState({});
 
   const [formData, setFormData] = useState({
     title: '',
@@ -45,8 +47,46 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
   };
 
   const handleSettle = async (questionId, result) => {
-    await onSettleQuestion(questionId, result);
-    await loadEndedQuestions();
+    setSettling({ ...settling, [questionId]: true });
+
+    try {
+      const question = endedQuestions.find(q => q._id === questionId);
+      if (!question) {
+        alert('Question not found');
+        return;
+      }
+
+      const transactionHash = await web3Service.settleQuestion(
+        question.contract_question_id,
+        result === 'yes'
+      );
+
+      const response = await fetch(`http://localhost:3001/api/questions/${questionId}/settle`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          result,
+          adminAddress: walletAddress,
+          transactionHash
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('Question settled successfully!');
+        await loadEndedQuestions();
+      } else {
+        alert('Failed to settle question: ' + (data.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Failed to settle question:', error);
+      alert('Failed to settle question: ' + (error.message || 'Unknown error'));
+    } finally {
+      setSettling({ ...settling, [questionId]: false });
+    }
   };
 
   const handleCreateQuestion = async (e) => {
@@ -55,6 +95,18 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
     setCreateMessage('');
 
     try {
+      const deadlineDate = new Date(formData.deadline);
+      const deadlineTimestamp = Math.floor(deadlineDate.getTime() / 1000);
+
+      setCreateMessage('Sign transaction in MetaMask to create question on blockchain...');
+
+      const { transactionHash, contractQuestionId } = await web3Service.createQuestion(
+        formData.title,
+        deadlineTimestamp
+      );
+
+      setCreateMessage('Creating question in database...');
+
       const response = await fetch('http://localhost:3001/api/questions', {
         method: 'POST',
         headers: {
@@ -64,7 +116,10 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
           title: formData.title,
           description: formData.description,
           category: formData.category,
-          deadline: new Date(formData.deadline).toISOString()
+          deadline: deadlineDate.toISOString(),
+          adminAddress: walletAddress,
+          transactionHash,
+          contractQuestionId
         })
       });
 
@@ -85,7 +140,7 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
       }
     } catch (error) {
       console.error('Failed to create question:', error);
-      setCreateMessage('Failed to create question. Please try again.');
+      setCreateMessage('Failed to create question: ' + (error.message || 'Unknown error'));
     } finally {
       setCreating(false);
     }
@@ -372,10 +427,10 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
 
                   <button
                     onClick={() => handleSettle(question._id, selectedResult[question._id])}
-                    disabled={!selectedResult[question._id] || isLoading}
+                    disabled={!selectedResult[question._id] || settling[question._id]}
                     className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-lg font-bold text-lg hover:from-red-500 hover:to-red-600 transition-all duration-200 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                   >
-                    {isLoading ? (
+                    {settling[question._id] ? (
                       <span>Processing...</span>
                     ) : (
                       <>

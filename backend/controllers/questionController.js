@@ -1,7 +1,7 @@
 import Question from '../models/Question.js';
 import PoolStat from '../models/PoolStat.js';
 import Bet from '../models/Bet.js';
-import { getContract, getContractWithSigner } from '../config/blockchain.js';
+import { getContract } from '../config/blockchain.js';
 import { ethers } from 'ethers';
 
 export const getAllQuestions = async (req, res) => {
@@ -63,7 +63,7 @@ export const getQuestionById = async (req, res) => {
 
 export const createQuestion = async (req, res) => {
   try {
-    const { title, description, category, deadline } = req.body;
+    const { title, description, category, deadline, adminAddress, transactionHash, contractQuestionId } = req.body;
 
     if (!title || !deadline) {
       return res.status(400).json({
@@ -72,23 +72,26 @@ export const createQuestion = async (req, res) => {
       });
     }
 
-    const deadlineTimestamp = Math.floor(new Date(deadline).getTime() / 1000);
-
-    const contract = getContractWithSigner();
-    const tx = await contract.createQuestion(title, deadlineTimestamp);
-    const receipt = await tx.wait();
-
-    const event = receipt.logs.find(
-      log => log.topics[0] === ethers.id('QuestionCreated(uint256,string,uint256)')
-    );
-
-    let contractQuestionId = 0;
-    if (event) {
-      const decodedLog = contract.interface.parseLog({
-        topics: event.topics,
-        data: event.data
+    if (!adminAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Admin address is required'
       });
-      contractQuestionId = Number(decodedLog.args[0]);
+    }
+
+    const adminAddresses = process.env.ADMIN_ADDRESSES?.split(',').map(addr => addr.toLowerCase()) || [];
+    if (!adminAddresses.includes(adminAddress.toLowerCase())) {
+      return res.status(403).json({
+        success: false,
+        error: 'Unauthorized: Not an admin address'
+      });
+    }
+
+    if (!transactionHash || contractQuestionId === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: 'Transaction hash and contract question ID are required'
+      });
     }
 
     const question = new Question({
@@ -117,7 +120,7 @@ export const createQuestion = async (req, res) => {
     res.json({
       success: true,
       data,
-      transactionHash: receipt.hash
+      transactionHash
     });
   } catch (error) {
     console.error('Error creating question:', error);
@@ -128,12 +131,34 @@ export const createQuestion = async (req, res) => {
 export const settleQuestion = async (req, res) => {
   try {
     const { id } = req.params;
-    const { result } = req.body;
+    const { result, adminAddress, transactionHash } = req.body;
 
     if (result !== 'yes' && result !== 'no') {
       return res.status(400).json({
         success: false,
         error: 'Result must be either "yes" or "no"'
+      });
+    }
+
+    if (!adminAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Admin address is required'
+      });
+    }
+
+    const adminAddresses = process.env.ADMIN_ADDRESSES?.split(',').map(addr => addr.toLowerCase()) || [];
+    if (!adminAddresses.includes(adminAddress.toLowerCase())) {
+      return res.status(403).json({
+        success: false,
+        error: 'Unauthorized: Not an admin address'
+      });
+    }
+
+    if (!transactionHash) {
+      return res.status(400).json({
+        success: false,
+        error: 'Transaction hash is required'
       });
     }
 
@@ -146,13 +171,6 @@ export const settleQuestion = async (req, res) => {
     if (question.status === 'settled') {
       return res.status(400).json({ success: false, error: 'Question already settled' });
     }
-
-    const contract = getContractWithSigner();
-    const tx = await contract.settleQuestion(
-      question.contract_question_id,
-      result === 'yes'
-    );
-    const receipt = await tx.wait();
 
     question.status = 'settled';
     question.result = result;
@@ -175,7 +193,7 @@ export const settleQuestion = async (req, res) => {
     res.json({
       success: true,
       data,
-      transactionHash: receipt.hash
+      transactionHash
     });
   } catch (error) {
     console.error('Error settling question:', error);

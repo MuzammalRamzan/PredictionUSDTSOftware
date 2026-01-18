@@ -118,4 +118,45 @@ export const web3Service = {
     const bet = await contract.getUserBet(questionId, userAddress);
     return bet;
   },
+
+  async createQuestion(title, deadlineTimestamp) {
+    const contract = await this.getContract();
+    const tx = await contract.createQuestion(title, deadlineTimestamp);
+    const receipt = await tx.wait();
+
+    const event = receipt.logs.find(
+      log => {
+        try {
+          const parsed = contract.interface.parseLog({
+            topics: log.topics,
+            data: log.data
+          });
+          return parsed.name === 'QuestionCreated';
+        } catch {
+          return false;
+        }
+      }
+    );
+
+    let contractQuestionId = 0;
+    if (event) {
+      const decodedLog = contract.interface.parseLog({
+        topics: event.topics,
+        data: event.data
+      });
+      contractQuestionId = Number(decodedLog.args[0]);
+    }
+
+    return {
+      transactionHash: receipt.hash,
+      contractQuestionId
+    };
+  },
+
+  async settleQuestion(contractQuestionId, result) {
+    const contract = await this.getContract();
+    const tx = await contract.settleQuestion(contractQuestionId, result);
+    const receipt = await tx.wait();
+    return receipt.hash;
+  },
 };
