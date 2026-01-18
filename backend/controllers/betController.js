@@ -204,11 +204,22 @@ export const recordWithdrawal = async (req, res) => {
       });
     }
 
+    const ocroAmountParsed = parseFloat(ocroAmount) || 0;
+    const usdtAmountParsed = parseFloat(usdtAmount) || 0;
+
+    console.log('Recording withdrawal:', {
+      questionId,
+      userAddress,
+      ocroAmount: ocroAmountParsed,
+      usdtAmount: usdtAmountParsed,
+      transactionHash
+    });
+
     const withdrawal = new Withdrawal({
       question_id: questionId,
       user_address: userAddress.toLowerCase(),
-      ocro_amount: ocroAmount,
-      usdt_amount: usdtAmount,
+      ocro_amount: ocroAmountParsed,
+      usdt_amount: usdtAmountParsed,
       transaction_hash: transactionHash
     });
 
