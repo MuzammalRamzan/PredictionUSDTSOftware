@@ -31,7 +31,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b ${
       isDark
-        ? 'bg-gray-900/90 border-gray-700/50'
+        ? 'bg-zinc-900/90 border-zinc-700/50'
         : 'bg-white/90 border-red-100'
     }`}>
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -145,7 +145,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
       {mobileMenuOpen && (
         <div className={`md:hidden backdrop-blur-xl border-t ${
           isDark
-            ? 'bg-gray-900/95 border-gray-700/50'
+            ? 'bg-zinc-900/95 border-zinc-700/50'
             : 'bg-white/95 border-red-100'
         }`}>
           <div className="px-4 py-6 space-y-4">

@@ -357,7 +357,7 @@ function App() {
   return (
     <div className={`min-h-screen ${
       isDark
-        ? 'bg-gradient-to-br from-gray-900 via-zinc-900 to-gray-900'
+        ? 'bg-zinc-900'
         : 'bg-gradient-to-br from-red-50 via-white to-orange-50'
     }`}>
       <Header
@@ -382,7 +382,7 @@ function App() {
 
       <Hero stats={platformStats} />
 
-      <section id="active" className={`py-16 ${isDark ? 'bg-gray-900' : 'bg-gradient-to-b from-white to-red-50'}`}>
+      <section id="active" className={`py-16 ${isDark ? 'bg-zinc-900' : 'bg-gradient-to-b from-white to-red-50'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <div className="inline-block mb-4">
@@ -435,7 +435,7 @@ function App() {
 
       <footer className={`py-16 border-t ${
         isDark
-          ? 'bg-gray-950 text-gray-400 border-gray-800'
+          ? 'bg-zinc-950 text-gray-400 border-zinc-800'
           : 'bg-red-50 text-gray-600 border-red-100'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

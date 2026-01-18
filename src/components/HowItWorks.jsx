@@ -81,7 +81,7 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section id="how" className={`py-16 ${isDark ? 'bg-gray-900' : 'bg-gradient-to-b from-white to-red-50'}`}>
+    <section id="how" className={`py-16 ${isDark ? 'bg-zinc-900' : 'bg-gradient-to-b from-white to-red-50'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-block mb-4">

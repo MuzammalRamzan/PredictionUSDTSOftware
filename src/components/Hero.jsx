@@ -7,7 +7,7 @@ export default function Hero({ stats }) {
   return (
     <div className={`relative pt-32 pb-24 overflow-hidden ${
       isDark
-        ? 'bg-gradient-to-br from-gray-900 via-zinc-900 to-gray-900'
+        ? 'bg-zinc-900'
         : 'bg-gradient-to-br from-red-50 via-white to-orange-50'
     }`}>
       <div className={`absolute inset-0 ${
