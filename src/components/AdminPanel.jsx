@@ -56,6 +56,21 @@ export default function AdminPanel({ walletAddress, isLoading }) {
         return;
       }
 
+      const blockchainQuestion = await web3Service.getQuestion(question.contract_question_id);
+
+      if (blockchainQuestion.isSettled) {
+        alert('This question is already settled on the blockchain. Syncing database...');
+
+        const response = await fetch(`http://localhost:3001/api/questions/${question.contract_question_id}/sync`, {
+          method: 'POST'
+        });
+
+        if (response.ok) {
+          await loadEndedQuestions();
+        }
+        return;
+      }
+
       const transactionHash = await web3Service.settleQuestion(
         question.contract_question_id,
         result === 'yes'
@@ -83,7 +98,15 @@ export default function AdminPanel({ walletAddress, isLoading }) {
       }
     } catch (error) {
       console.error('Failed to settle question:', error);
-      alert('Failed to settle question: ' + (error.message || 'Unknown error'));
+      let errorMessage = 'Failed to settle question: ';
+
+      if (error.message && error.message.includes('Already settled')) {
+        errorMessage = 'This question is already settled on the blockchain.';
+      } else {
+        errorMessage += error.message || 'Unknown error';
+      }
+
+      alert(errorMessage);
     } finally {
       setSettling({ ...settling, [questionId]: false });
     }

@@ -109,7 +109,7 @@ export const web3Service = {
 
   async getQuestion(questionId) {
     const contract = await this.getContract();
-    const question = await contract.questions(questionId);
+    const question = await contract.getQuestion(questionId);
     return question;
   },
 
