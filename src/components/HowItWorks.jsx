@@ -39,19 +39,19 @@ export default function HowItWorks() {
     {
       icon: <Wallet className="w-6 h-6" />,
       title: 'Connect Wallet',
-      description: 'Connect your BSC-compatible wallet with OCRO and USDT tokens.',
-      color: 'from-cyan-500 to-blue-600',
+      description: 'Connect your BSC-compatible wallet with FTR and USDT tokens.',
+      color: 'from-red-600 to-red-700',
     },
     {
       icon: <Target className="w-6 h-6" />,
       title: 'Choose Pool',
       description: 'Browse World Cup predictions and select an outcome.',
-      color: 'from-blue-500 to-blue-600',
+      color: 'from-red-700 to-red-800',
     },
     {
       icon: <Coins className="w-6 h-6" />,
       title: 'Place Bet',
-      description: 'Stake 1 OCRO + 1 USDT on your predicted outcome.',
+      description: 'Stake 1 FTR + 1 USDT on your predicted outcome.',
       color: 'from-orange-500 to-orange-600',
     },
     {
@@ -71,7 +71,7 @@ export default function HowItWorks() {
     {
       icon: <Coins className="w-6 h-6" />,
       title: 'Dual Token System',
-      description: 'Stake both OCRO and USDT tokens for balanced participation.',
+      description: 'Stake both FTR and USDT tokens for balanced participation.',
     },
     {
       icon: <TrendingUp className="w-6 h-6" />,
@@ -85,7 +85,7 @@ export default function HowItWorks() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-block mb-4">
-            <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-transparent bg-clip-text text-sm font-bold tracking-wider uppercase">Simple Process</span>
+            <span className="bg-gradient-to-r from-red-600 to-red-700 text-transparent bg-clip-text text-sm font-bold tracking-wider uppercase">Simple Process</span>
           </div>
           <h2 className={`text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
             How It Works
@@ -100,13 +100,13 @@ export default function HowItWorks() {
             <div key={index} className="relative">
               <div className={`rounded-xl p-6 border-2 hover:shadow-lg transition-all h-full ${
                 isDark
-                  ? 'bg-slate-800 border-slate-700 hover:border-cyan-500'
-                  : 'bg-white border-gray-200 hover:border-cyan-500'
+                  ? 'bg-slate-800 border-slate-700 hover:border-red-500'
+                  : 'bg-white border-gray-200 hover:border-red-500'
               }`}>
                 <div className={`bg-gradient-to-br ${step.color} w-12 h-12 rounded-lg flex items-center justify-center text-white mb-4 shadow-md`}>
                   {step.icon}
                 </div>
-                <div className="absolute -top-2 -left-2 w-7 h-7 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
+                <div className="absolute -top-2 -left-2 w-7 h-7 bg-gradient-to-br from-red-600 to-red-700 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
                   {index + 1}
                 </div>
                 <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{step.title}</h3>
@@ -124,7 +124,7 @@ export default function HowItWorks() {
         <div className="max-w-3xl mx-auto mb-16">
           <div className="text-center mb-6">
             <div className="flex items-center justify-center space-x-2 mb-3">
-              <Calculator className="w-7 h-7 text-cyan-600" />
+              <Calculator className="w-7 h-7 text-red-600" />
               <h3 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Profit Calculator</h3>
             </div>
             <p className={isDark ? 'text-slate-400' : 'text-gray-600'}>Estimate your potential winnings in real-time</p>
@@ -175,14 +175,14 @@ export default function HowItWorks() {
 
             <div className={`rounded-xl p-5 mb-5 border ${
               isDark
-                ? 'bg-gradient-to-br from-cyan-900/30 to-blue-900/30 border-cyan-700/50'
-                : 'bg-gradient-to-br from-cyan-50 to-blue-50 border-cyan-200'
+                ? 'bg-gradient-to-br from-red-900/30 to-red-900/30 border-red-700/50'
+                : 'bg-gradient-to-br from-red-50 to-red-50 border-red-200'
             }`}>
               <div className="text-center">
                 <div className={`text-xs mb-2 font-semibold uppercase tracking-wider ${
-                  isDark ? 'text-cyan-400' : 'text-cyan-700'
+                  isDark ? 'text-red-400' : 'text-red-700'
                 }`}>Total Payout</div>
-                <div className={`text-3xl font-extrabold ${isDark ? 'text-white' : 'text-gray-900'}`}>{totalPayoutOcro} OCRO</div>
+                <div className={`text-3xl font-extrabold ${isDark ? 'text-white' : 'text-gray-900'}`}>{totalPayoutOcro} FTR</div>
                 <div className={`text-2xl font-extrabold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>{totalPayoutUsdt} USDT</div>
                 <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-full text-sm shadow-md">
                   <TrendingUp className="w-4 h-4" />
@@ -206,7 +206,7 @@ export default function HowItWorks() {
                     step="1"
                     value={yesParticipants}
                     onChange={(e) => setYesParticipants(Math.max(1, Number(e.target.value)))}
-                    className={`w-full text-xl font-bold border rounded-lg px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent ${
+                    className={`w-full text-xl font-bold border rounded-lg px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent ${
                       isDark
                         ? 'bg-slate-600 border-slate-500 text-white'
                         : 'bg-gray-50 border-gray-300 text-gray-900'
@@ -227,7 +227,7 @@ export default function HowItWorks() {
                     step="1"
                     value={noParticipants}
                     onChange={(e) => setNoParticipants(Math.max(1, Number(e.target.value)))}
-                    className={`w-full text-xl font-bold border rounded-lg px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent ${
+                    className={`w-full text-xl font-bold border rounded-lg px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent ${
                       isDark
                         ? 'bg-slate-600 border-slate-500 text-white'
                         : 'bg-gray-50 border-gray-300 text-gray-900'
@@ -259,7 +259,7 @@ export default function HowItWorks() {
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div>
                   <div className={`text-xs mb-1 font-semibold ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Your Stake</div>
-                  <div className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{yourBets} OCRO</div>
+                  <div className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{yourBets} FTR</div>
                   <div className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{yourBets} USDT</div>
                 </div>
                 <div>
@@ -269,7 +269,7 @@ export default function HowItWorks() {
                 </div>
                 <div>
                   <div className={`text-xs mb-1 font-semibold ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Your Share</div>
-                  <div className="text-lg font-bold text-cyan-600">{yourShare}%</div>
+                  <div className="text-lg font-bold text-red-600">{yourShare}%</div>
                 </div>
               </div>
             </div>
@@ -279,7 +279,7 @@ export default function HowItWorks() {
             isDark ? 'bg-slate-800 border-slate-700' : 'bg-gray-50 border-gray-200'
           }`}>
             <div className={`text-xs text-center leading-relaxed ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>
-              <span className="font-bold text-cyan-600">How it works:</span> If <span className={`font-bold ${winningOutcome === 'yes' ? 'text-green-600' : 'text-red-600'}`}>{winningOutcome.toUpperCase()}</span> wins, {adminFee}% admin fee is taken from the <span className={`font-bold ${winningOutcome === 'yes' ? 'text-red-600' : 'text-green-600'}`}>{winningOutcome === 'yes' ? 'NO' : 'YES'}</span> pool ({adminFeeOcro} OCRO + {adminFeeUsdt} USDT). The remaining {remainingOcro} OCRO + {remainingUsdt} USDT is distributed proportionally to all <span className={`font-bold ${winningOutcome === 'yes' ? 'text-green-600' : 'text-red-600'}`}>{winningOutcome.toUpperCase()}</span> bettors.
+              <span className="font-bold text-red-600">How it works:</span> If <span className={`font-bold ${winningOutcome === 'yes' ? 'text-green-600' : 'text-red-600'}`}>{winningOutcome.toUpperCase()}</span> wins, {adminFee}% admin fee is taken from the <span className={`font-bold ${winningOutcome === 'yes' ? 'text-red-600' : 'text-green-600'}`}>{winningOutcome === 'yes' ? 'NO' : 'YES'}</span> pool ({adminFeeOcro} FTR + {adminFeeUsdt} USDT). The remaining {remainingOcro} FTR + {remainingUsdt} USDT is distributed proportionally to all <span className={`font-bold ${winningOutcome === 'yes' ? 'text-green-600' : 'text-red-600'}`}>{winningOutcome.toUpperCase()}</span> bettors.
             </div>
           </div>
         </div>
@@ -288,10 +288,10 @@ export default function HowItWorks() {
           {features.map((feature, index) => (
             <div key={index} className={`rounded-xl p-6 border-2 hover:shadow-lg transition-all ${
               isDark
-                ? 'bg-slate-800 border-slate-700 hover:border-cyan-500'
-                : 'bg-white border-gray-200 hover:border-cyan-500'
+                ? 'bg-slate-800 border-slate-700 hover:border-red-500'
+                : 'bg-white border-gray-200 hover:border-red-500'
             }`}>
-              <div className="bg-gradient-to-br from-cyan-500 to-blue-600 w-12 h-12 rounded-lg flex items-center justify-center text-white mb-4 shadow-md">
+              <div className="bg-gradient-to-br from-red-600 to-red-700 w-12 h-12 rounded-lg flex items-center justify-center text-white mb-4 shadow-md">
                 {feature.icon}
               </div>
               <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{feature.title}</h3>

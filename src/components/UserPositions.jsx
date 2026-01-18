@@ -100,7 +100,7 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
                   <TrendingUp className={`w-5 h-5 ${isDark ? 'text-slate-400' : 'text-gray-700'}`} />
                 </div>
                 <p className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                  {totalStaked / 2} <span className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>OCRO + USDT</span>
+                  {totalStaked / 2} <span className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>FTR + USDT</span>
                 </p>
               </div>
             </div>
@@ -209,7 +209,7 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
               <span>Staked</span>
             </div>
             <div className={`font-bold text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              {position.ocroStaked} OCRO + {position.usdtStaked} USDT
+              {position.ocroStaked} FTR + {position.usdtStaked} USDT
             </div>
           </div>
 
@@ -222,7 +222,7 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
                 <Trophy className={`w-3.5 h-3.5 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
               </div>
               <div className={`font-bold text-sm ${isDark ? 'text-green-200' : 'text-green-900'}`}>
-                {position.payout.ocro.toFixed(2)} OCRO + {position.payout.usdt.toFixed(2)} USDT
+                {position.payout.ocro.toFixed(2)} FTR + {position.payout.usdt.toFixed(2)} USDT
               </div>
             </div>
           )}

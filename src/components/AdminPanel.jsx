@@ -121,7 +121,7 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
                         {question.pool_stats?.[0]?.yes_participants || 0} participants
                       </div>
                       <div className={`text-sm ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
-                        {parseFloat(question.pool_stats?.[0]?.yes_ocro_total || 0).toFixed(2)} OCRO + {parseFloat(question.pool_stats?.[0]?.yes_usdt_total || 0).toFixed(2)} USDT
+                        {parseFloat(question.pool_stats?.[0]?.yes_ocro_total || 0).toFixed(2)} FTR + {parseFloat(question.pool_stats?.[0]?.yes_usdt_total || 0).toFixed(2)} USDT
                       </div>
                     </div>
 
@@ -135,7 +135,7 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
                         {question.pool_stats?.[0]?.no_participants || 0} participants
                       </div>
                       <div className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>
-                        {parseFloat(question.pool_stats?.[0]?.no_ocro_total || 0).toFixed(2)} OCRO + {parseFloat(question.pool_stats?.[0]?.no_usdt_total || 0).toFixed(2)} USDT
+                        {parseFloat(question.pool_stats?.[0]?.no_ocro_total || 0).toFixed(2)} FTR + {parseFloat(question.pool_stats?.[0]?.no_usdt_total || 0).toFixed(2)} USDT
                       </div>
                     </div>
                   </div>

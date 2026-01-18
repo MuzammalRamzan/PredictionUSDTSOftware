@@ -194,7 +194,7 @@ function App() {
       showToast('Checking token approvals...');
       const approvals = await web3Service.checkApprovals(walletAddress);
 
-      if (!approvals.ocroApproved || !approvals.usdtApproved) {
+      if (!approvals.ftrApproved || !approvals.usdtApproved) {
         showToast('Approving tokens...');
         await web3Service.approveTokens();
         showToast('Tokens approved! Placing bet...');
@@ -283,7 +283,7 @@ function App() {
         transactionHash: txHash,
       });
 
-      showToast(`Successfully withdrawn ${parseFloat(winnings.ocro).toFixed(2)} OCRO + ${parseFloat(winnings.usdt).toFixed(2)} USDT!`);
+      showToast(`Successfully withdrawn ${parseFloat(winnings.ocro).toFixed(2)} FTR + ${parseFloat(winnings.usdt).toFixed(2)} USDT!`);
       await loadUserBets();
     } catch (error) {
       console.error('Failed to withdraw:', error);
@@ -441,12 +441,12 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div className="md:col-span-2">
-              <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-500 text-transparent bg-clip-text">OCRO Predict</h3>
+              <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-red-500 to-red-700 text-transparent bg-clip-text">FTR Predict</h3>
               <p className={`mb-6 leading-relaxed ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>
                 Decentralized prediction pools on Binance Smart Chain with transparent, trustless settlements.
               </p>
               <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
                 <span className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Powered by BSC</span>
               </div>
             </div>
@@ -455,13 +455,13 @@ function App() {
               <h4 className={`font-bold mb-6 text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>Markets</h4>
               <ul className="space-y-3">
                 <li><a href="#active" className={`transition-colors text-sm ${
-                  isDark ? 'text-slate-400 hover:text-cyan-400' : 'text-gray-600 hover:text-cyan-600'
+                  isDark ? 'text-slate-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
                 }`}>Active Markets</a></li>
                 <li><a href="#positions" className={`transition-colors text-sm ${
-                  isDark ? 'text-slate-400 hover:text-cyan-400' : 'text-gray-600 hover:text-cyan-600'
+                  isDark ? 'text-slate-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
                 }`}>My Positions</a></li>
                 <li><a href="#how" className={`transition-colors text-sm ${
-                  isDark ? 'text-slate-400 hover:text-cyan-400' : 'text-gray-600 hover:text-cyan-600'
+                  isDark ? 'text-slate-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
                 }`}>How It Works</a></li>
               </ul>
             </div>
@@ -470,20 +470,20 @@ function App() {
               <h4 className={`font-bold mb-6 text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>Resources</h4>
               <ul className="space-y-3">
                 <li><a href="#" className={`transition-colors text-sm ${
-                  isDark ? 'text-slate-400 hover:text-cyan-400' : 'text-gray-600 hover:text-cyan-600'
+                  isDark ? 'text-slate-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
                 }`}>Documentation</a></li>
                 <li><a href="#" className={`transition-colors text-sm ${
-                  isDark ? 'text-slate-400 hover:text-cyan-400' : 'text-gray-600 hover:text-cyan-600'
+                  isDark ? 'text-slate-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
                 }`}>Smart Contract</a></li>
                 <li><a href="#" className={`transition-colors text-sm ${
-                  isDark ? 'text-slate-400 hover:text-cyan-400' : 'text-gray-600 hover:text-cyan-600'
+                  isDark ? 'text-slate-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
                 }`}>FAQ</a></li>
               </ul>
             </div>
           </div>
 
           <div className={`border-t pt-8 text-center ${isDark ? 'border-slate-800' : 'border-gray-200'}`}>
-            <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-gray-500'}`}>&copy; 2026 OCRO Predict. All rights reserved. Built on Binance Smart Chain.</p>
+            <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-gray-500'}`}>&copy; 2026 FTR Predict. All rights reserved. Built on Binance Smart Chain.</p>
           </div>
         </div>
       </footer>

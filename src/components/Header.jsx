@@ -37,34 +37,34 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <div className="flex items-center space-x-3">
-            <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-2.5 rounded-xl shadow-lg shadow-cyan-500/30">
+            <div className="bg-gradient-to-br from-red-600 to-red-800 p-2.5 rounded-xl shadow-lg shadow-red-500/30">
               <TrendingUp className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-extrabold bg-gradient-to-r from-cyan-400 to-blue-500 text-transparent bg-clip-text">
-              OCRO Predict
+            <span className="text-2xl font-extrabold bg-gradient-to-r from-red-500 to-red-700 text-transparent bg-clip-text">
+              FTR Predict
             </span>
           </div>
 
           <div className="hidden md:flex items-center space-x-8">
             <a href="#active" className={`transition-colors font-semibold text-sm ${
-              isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+              isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
             }`}>
               Markets
             </a>
             <a href="#positions" className={`transition-colors font-semibold text-sm ${
-              isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+              isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
             }`}>
               Positions
             </a>
             {isAdmin && (
               <a href="#admin" className={`transition-colors font-semibold text-sm ${
-                isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+                isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
               }`}>
                 Admin
               </a>
             )}
             <a href="#how" className={`transition-colors font-semibold text-sm ${
-              isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+              isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
             }`}>
               How It Works
             </a>
@@ -87,7 +87,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
               <div className="relative" ref={walletMenuRef}>
                 <button
                   onClick={() => setWalletMenuOpen(!walletMenuOpen)}
-                  className="flex items-center space-x-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/30"
+                  className="flex items-center space-x-3 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-xl font-bold hover:from-red-500 hover:to-red-600 transition-all duration-300 shadow-lg shadow-red-500/30"
                 >
                   <div className="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse"></div>
                   <span className="text-sm">{formatAddress(walletAddress)}</span>
@@ -106,7 +106,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
                     </div>
                     <div className={`px-5 py-4 border-b ${isDark ? 'border-slate-700' : 'border-gray-200'}`}>
                       <p className={`text-xs mb-2 font-medium ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>My Positions</p>
-                      <p className="text-2xl font-bold text-cyan-400">{positionsCount} Active</p>
+                      <p className="text-2xl font-bold text-red-400">{positionsCount} Active</p>
                     </div>
                     <button
                       onClick={() => {
@@ -125,7 +125,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
               <button
                 onClick={onConnectWallet}
                 disabled={isLoading}
-                className="flex items-center space-x-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg shadow-cyan-500/30 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed disabled:shadow-none"
+                className="flex items-center space-x-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-8 py-3 rounded-xl font-bold hover:from-red-500 hover:to-red-600 transition-all duration-300 shadow-lg shadow-red-500/30 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed disabled:shadow-none"
               >
                 <Wallet className="w-5 h-5" />
                 <span>{isLoading ? 'Connecting...' : 'Connect Wallet'}</span>
@@ -135,7 +135,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className={`md:hidden p-2 ${isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'}`}
+            className={`md:hidden p-2 ${isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'}`}
           >
             {mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
           </button>
@@ -152,7 +152,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
             <a
               href="#active"
               className={`block py-3 transition-colors font-semibold ${
-                isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+                isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
               }`}
               onClick={() => setMobileMenuOpen(false)}
             >
@@ -161,7 +161,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
             <a
               href="#positions"
               className={`block py-3 transition-colors font-semibold ${
-                isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+                isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
               }`}
               onClick={() => setMobileMenuOpen(false)}
             >
@@ -171,7 +171,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
               <a
                 href="#admin"
                 className={`block py-3 transition-colors font-semibold ${
-                  isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+                  isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -181,7 +181,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
             <a
               href="#how"
               className={`block py-3 transition-colors font-semibold ${
-                isDark ? 'text-slate-300 hover:text-cyan-400' : 'text-gray-700 hover:text-cyan-600'
+                isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
               }`}
               onClick={() => setMobileMenuOpen(false)}
             >
@@ -220,7 +220,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-2">
                         <div className="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse"></div>
-                        <span className="text-xs font-bold text-cyan-400">Connected</span>
+                        <span className="text-xs font-bold text-red-400">Connected</span>
                       </div>
                     </div>
                     <p className={`text-sm font-mono mb-3 break-all ${isDark ? 'text-white' : 'text-gray-900'}`}>{walletAddress}</p>
@@ -241,7 +241,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
                 <button
                   onClick={onConnectWallet}
                   disabled={isLoading}
-                  className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-3.5 rounded-xl font-bold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3.5 rounded-xl font-bold hover:from-red-500 hover:to-red-600 transition-all duration-300 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed"
                 >
                   <Wallet className="w-5 h-5" />
                   <span>{isLoading ? 'Connecting...' : 'Connect Wallet'}</span>

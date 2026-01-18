@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import BettingPoolABI from '../config/BettingPoolABI.json';
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
-const OCRO_TOKEN_ADDRESS = import.meta.env.VITE_OCRO_TOKEN_ADDRESS;
+const FTR_TOKEN_ADDRESS = import.meta.env.VITE_FTR_TOKEN_ADDRESS || import.meta.env.VITE_OCRO_TOKEN_ADDRESS;
 const USDT_TOKEN_ADDRESS = import.meta.env.VITE_USDT_TOKEN_ADDRESS;
 
 const ERC20_ABI = [
@@ -55,13 +55,13 @@ export const web3Service = {
   },
 
   async approveTokens() {
-    const ocroToken = await this.getTokenContract(OCRO_TOKEN_ADDRESS);
+    const ftrToken = await this.getTokenContract(FTR_TOKEN_ADDRESS);
     const usdtToken = await this.getTokenContract(USDT_TOKEN_ADDRESS);
 
     const amount = ethers.parseEther('1');
 
-    const ocroTx = await ocroToken.approve(CONTRACT_ADDRESS, amount);
-    await ocroTx.wait();
+    const ftrTx = await ftrToken.approve(CONTRACT_ADDRESS, amount);
+    await ftrTx.wait();
 
     const usdtTx = await usdtToken.approve(CONTRACT_ADDRESS, amount);
     await usdtTx.wait();
@@ -70,16 +70,16 @@ export const web3Service = {
   },
 
   async checkApprovals(userAddress) {
-    const ocroToken = await this.getTokenContract(OCRO_TOKEN_ADDRESS);
+    const ftrToken = await this.getTokenContract(FTR_TOKEN_ADDRESS);
     const usdtToken = await this.getTokenContract(USDT_TOKEN_ADDRESS);
 
-    const ocroAllowance = await ocroToken.allowance(userAddress, CONTRACT_ADDRESS);
+    const ftrAllowance = await ftrToken.allowance(userAddress, CONTRACT_ADDRESS);
     const usdtAllowance = await usdtToken.allowance(userAddress, CONTRACT_ADDRESS);
 
     const requiredAmount = ethers.parseEther('1');
 
     return {
-      ocroApproved: ocroAllowance >= requiredAmount,
+      ftrApproved: ftrAllowance >= requiredAmount,
       usdtApproved: usdtAllowance >= requiredAmount,
     };
   },

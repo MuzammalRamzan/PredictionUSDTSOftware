@@ -38,17 +38,17 @@ export default function BettingQuestionCard({
 
   const getCategoryColor = (category) => {
     const colors = {
-      'Crypto': 'from-cyan-500 to-blue-600',
+      'Crypto': 'from-red-600 to-red-700',
       'Sports': 'from-orange-500 to-orange-600',
-      'Politics': 'from-purple-500 to-purple-600',
-      'Technology': 'from-cyan-500 to-cyan-600',
-      'Finance': 'from-blue-500 to-blue-600',
+      'Politics': 'from-pink-500 to-pink-600',
+      'Technology': 'from-red-500 to-red-600',
+      'Finance': 'from-red-700 to-red-800',
     };
     return colors[category] || 'from-gray-500 to-gray-600';
   };
 
   return (
-    <div className={`group rounded-xl border-2 overflow-hidden hover:border-cyan-500 hover:shadow-xl transition-all duration-300 ${
+    <div className={`group rounded-xl border-2 overflow-hidden hover:border-red-500 hover:shadow-xl transition-all duration-300 ${
       isDark ? 'bg-slate-700 border-slate-600' : 'bg-white border-gray-200'
     }`}>
       <div className="p-6">
@@ -62,7 +62,7 @@ export default function BettingQuestionCard({
           </div>
         </div>
 
-        <h3 className={`text-lg font-bold mb-5 leading-snug min-h-[3.5rem] group-hover:text-cyan-400 transition-colors ${
+        <h3 className={`text-lg font-bold mb-5 leading-snug min-h-[3.5rem] group-hover:text-red-400 transition-colors ${
           isDark ? 'text-white' : 'text-gray-900'
         }`}>
           {question.question}
@@ -81,14 +81,14 @@ export default function BettingQuestionCard({
             isDark ? 'bg-slate-600 border-slate-500' : 'bg-gray-100 border-gray-200'
           }`}>
             <div
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-500"
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-red-600 to-red-700 transition-all duration-500"
               style={{ width: `${yesPercentage}%` }}
             ></div>
           </div>
 
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center space-x-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600"></div>
+              <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-red-600 to-red-700"></div>
               <span className={`text-xs font-bold ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>{yesPercentage.toFixed(0)}% Yes</span>
             </div>
             <div className="flex items-center space-x-1.5">
@@ -103,7 +103,7 @@ export default function BettingQuestionCard({
             <button
               onClick={() => onPlaceBet(question.id, 'yes')}
               disabled={!walletConnected || isLoading || isQuestionEnded()}
-              className="flex items-center justify-center space-x-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-4 py-3 rounded-lg font-bold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-md disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed disabled:shadow-none"
+              className="flex items-center justify-center space-x-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-3 rounded-lg font-bold hover:from-red-500 hover:to-red-600 transition-all duration-300 shadow-md disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed disabled:shadow-none"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Yes</span>
@@ -120,7 +120,7 @@ export default function BettingQuestionCard({
         ) : question.status === 'settled' && question.result ? (
           <div className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-bold ${
             question.result === 'yes'
-              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
+              ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md'
               : 'bg-gray-600 text-white'
           }`}>
             {question.result === 'yes' ? (
@@ -148,8 +148,8 @@ export default function BettingQuestionCard({
         <div className="flex items-center justify-between">
           <span className={`text-xs font-semibold ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Stake required</span>
           <div className="flex items-center space-x-2">
-            <TrendingUp className="w-4 h-4 text-cyan-600" />
-            <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>1 OCRO + 1 USDT</span>
+            <TrendingUp className="w-4 h-4 text-red-600" />
+            <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>1 FTR + 1 USDT</span>
           </div>
         </div>
       </div>
