@@ -357,8 +357,8 @@ function App() {
   return (
     <div className={`min-h-screen ${
       isDark
-        ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'
-        : 'bg-gradient-to-br from-white via-gray-50 to-white'
+        ? 'bg-gradient-to-br from-gray-900 via-zinc-900 to-gray-900'
+        : 'bg-gradient-to-br from-red-50 via-white to-orange-50'
     }`}>
       <Header
         walletAddress={walletAddress}
@@ -371,10 +371,10 @@ function App() {
 
       {showNotification && (
         <div className="fixed top-20 right-4 z-50 animate-slide-in-right">
-          <div className={`border-l-4 border-cyan-400 rounded-lg shadow-2xl p-4 flex items-center space-x-3 max-w-md backdrop-blur-xl ${
-            isDark ? 'bg-slate-800' : 'bg-white'
+          <div className={`border-l-4 border-red-400 rounded-lg shadow-2xl p-4 flex items-center space-x-3 max-w-md backdrop-blur-xl ${
+            isDark ? 'bg-zinc-800' : 'bg-white'
           }`}>
-            <AlertCircle className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
             <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{notificationMessage}</p>
           </div>
         </div>
@@ -382,14 +382,14 @@ function App() {
 
       <Hero stats={platformStats} />
 
-      <section id="active" className={`py-16 ${isDark ? 'bg-slate-800' : 'bg-gray-50'}`}>
+      <section id="active" className={`py-16 ${isDark ? 'bg-gray-900' : 'bg-gradient-to-b from-white to-red-50'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <div className="inline-block mb-4">
-              <span className="bg-gradient-to-r from-cyan-600 to-blue-600 text-transparent bg-clip-text text-sm font-bold tracking-wider uppercase">Live Pools</span>
+              <span className="bg-gradient-to-r from-red-600 to-red-700 text-transparent bg-clip-text text-sm font-bold tracking-wider uppercase">Live Pools</span>
             </div>
             <h2 className={`text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Active Prediction Markets</h2>
-            <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
+            <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
               Place your predictions with transparent settlement powered by BSC blockchain
             </p>
           </div>
@@ -397,9 +397,9 @@ function App() {
           {questions.length === 0 ? (
             <div className="text-center py-12">
               <div className={`rounded-xl border-2 p-12 max-w-md mx-auto ${
-                isDark ? 'bg-slate-700 border-slate-600' : 'bg-white border-gray-200'
+                isDark ? 'bg-zinc-800 border-zinc-700' : 'bg-white border-red-100'
               }`}>
-                <p className={isDark ? 'text-slate-300' : 'text-gray-600'}>No active questions at the moment. Check back soon!</p>
+                <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>No active questions at the moment. Check back soon!</p>
               </div>
             </div>
           ) : (
@@ -442,12 +442,12 @@ function App() {
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div className="md:col-span-2">
               <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-red-500 to-red-700 text-transparent bg-clip-text">FTR Predict</h3>
-              <p className={`mb-6 leading-relaxed ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>
+              <p className={`mb-6 leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                 Decentralized prediction pools on Binance Smart Chain with transparent, trustless settlements.
               </p>
               <div className="flex items-center space-x-3">
                 <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
-                <span className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Powered by BSC</span>
+                <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Powered by BSC</span>
               </div>
             </div>
 
@@ -482,8 +482,8 @@ function App() {
             </div>
           </div>
 
-          <div className={`border-t pt-8 text-center ${isDark ? 'border-slate-800' : 'border-gray-200'}`}>
-            <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-gray-500'}`}>&copy; 2026 FTR Predict. All rights reserved. Built on Binance Smart Chain.</p>
+          <div className={`border-t pt-8 text-center ${isDark ? 'border-gray-800' : 'border-red-200'}`}>
+            <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>&copy; 2026 FTR Predict. All rights reserved. Built on Binance Smart Chain.</p>
           </div>
         </div>
       </footer>
