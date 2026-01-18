@@ -71,8 +71,8 @@ export default function Hero({ stats }) {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
           <div className={`group rounded-2xl p-8 border-2 transition-all duration-300 hover:scale-105 ${
             isDark
-              ? 'bg-slate-800/50 backdrop-blur-xl border-slate-700 hover:border-red-400/50 hover:shadow-2xl hover:shadow-red-500/20'
-              : 'bg-white border-gray-200 hover:border-red-500 hover:shadow-xl'
+              ? 'bg-zinc-800/50 backdrop-blur-xl border-zinc-700 hover:border-red-400/50 hover:shadow-2xl hover:shadow-red-500/20'
+              : 'bg-white border-red-100 hover:border-red-500 hover:shadow-xl hover:shadow-red-500/10'
           }`}>
             <div className="bg-gradient-to-br from-red-600 to-red-700 p-4 rounded-xl mb-4 inline-block shadow-md">
               <Coins className="w-7 h-7 text-white" />

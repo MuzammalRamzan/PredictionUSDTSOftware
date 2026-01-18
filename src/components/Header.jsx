@@ -73,7 +73,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
               onClick={toggleTheme}
               className={`p-2.5 rounded-lg transition-all duration-300 ${
                 isDark
-                  ? 'bg-slate-800 hover:bg-slate-700 text-yellow-400'
+                  ? 'bg-zinc-800 hover:bg-zinc-700 text-yellow-400'
                   : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
               }`}
               aria-label="Toggle theme"
@@ -97,15 +97,15 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
                 {walletMenuOpen && (
                   <div className={`absolute right-0 mt-3 w-72 backdrop-blur-xl rounded-xl shadow-2xl py-2 overflow-hidden ${
                     isDark
-                      ? 'bg-slate-800 border border-slate-700'
+                      ? 'bg-zinc-800 border border-zinc-700'
                       : 'bg-white border border-gray-200'
                   }`}>
-                    <div className={`px-5 py-4 border-b ${isDark ? 'border-slate-700' : 'border-gray-200'}`}>
-                      <p className={`text-xs mb-2 font-medium ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Wallet Address</p>
+                    <div className={`px-5 py-4 border-b ${isDark ? 'border-zinc-700' : 'border-gray-200'}`}>
+                      <p className={`text-xs mb-2 font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Wallet Address</p>
                       <p className={`text-sm font-mono break-all ${isDark ? 'text-white' : 'text-gray-900'}`}>{walletAddress}</p>
                     </div>
-                    <div className={`px-5 py-4 border-b ${isDark ? 'border-slate-700' : 'border-gray-200'}`}>
-                      <p className={`text-xs mb-2 font-medium ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>My Positions</p>
+                    <div className={`px-5 py-4 border-b ${isDark ? 'border-zinc-700' : 'border-gray-200'}`}>
+                      <p className={`text-xs mb-2 font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>My Positions</p>
                       <p className="text-2xl font-bold text-red-400">{positionsCount} Active</p>
                     </div>
                     <button
@@ -135,7 +135,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className={`md:hidden p-2 ${isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'}`}
+            className={`md:hidden p-2 ${isDark ? 'text-gray-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'}`}
           >
             {mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
           </button>
@@ -152,7 +152,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
             <a
               href="#active"
               className={`block py-3 transition-colors font-semibold ${
-                isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
+                isDark ? 'text-gray-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
               }`}
               onClick={() => setMobileMenuOpen(false)}
             >
@@ -161,7 +161,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
             <a
               href="#positions"
               className={`block py-3 transition-colors font-semibold ${
-                isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
+                isDark ? 'text-gray-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
               }`}
               onClick={() => setMobileMenuOpen(false)}
             >
@@ -171,7 +171,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
               <a
                 href="#admin"
                 className={`block py-3 transition-colors font-semibold ${
-                  isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
+                  isDark ? 'text-gray-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -181,7 +181,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
             <a
               href="#how"
               className={`block py-3 transition-colors font-semibold ${
-                isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
+                isDark ? 'text-gray-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
               }`}
               onClick={() => setMobileMenuOpen(false)}
             >
@@ -192,7 +192,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
               onClick={toggleTheme}
               className={`w-full flex items-center justify-center space-x-2 py-3 rounded-lg transition-all duration-300 font-semibold ${
                 isDark
-                  ? 'bg-slate-800 hover:bg-slate-700 text-yellow-400'
+                  ? 'bg-zinc-800 hover:bg-zinc-700 text-yellow-400'
                   : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
               }`}
             >
@@ -214,7 +214,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
                 <>
                   <div className={`backdrop-blur-xl px-5 py-4 rounded-xl border ${
                     isDark
-                      ? 'bg-slate-800/50 border-slate-700'
+                      ? 'bg-zinc-800/50 border-zinc-700'
                       : 'bg-gray-50 border-gray-200'
                   }`}>
                     <div className="flex items-center justify-between mb-3">
@@ -224,7 +224,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
                       </div>
                     </div>
                     <p className={`text-sm font-mono mb-3 break-all ${isDark ? 'text-white' : 'text-gray-900'}`}>{walletAddress}</p>
-                    <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>{positionsCount} Active Positions</p>
+                    <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{positionsCount} Active Positions</p>
                   </div>
                   <button
                     onClick={() => {
