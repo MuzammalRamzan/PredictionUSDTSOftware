@@ -81,7 +81,7 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section id="how" className={`py-16 ${isDark ? 'bg-slate-900' : 'bg-white'}`}>
+    <section id="how" className={`py-16 ${isDark ? 'bg-gray-900' : 'bg-gradient-to-b from-white to-red-50'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="inline-block mb-4">
@@ -90,7 +90,7 @@ export default function HowItWorks() {
           <h2 className={`text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
             How It Works
           </h2>
-          <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
+          <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
             Simple, transparent pools powered by blockchain technology
           </p>
         </div>

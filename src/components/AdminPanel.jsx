@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock, CheckCircle2, XCircle, AlertCircle, Shield } from 'lucide-react';
+import { Clock, CheckCircle2, XCircle, AlertCircle, Shield, Plus, Calendar, Tag, FileText } from 'lucide-react';
 import { isAdminAddress } from '../config/admin';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -7,6 +7,16 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
   const { isDark } = useTheme();
   const [endedQuestions, setEndedQuestions] = useState([]);
   const [selectedResult, setSelectedResult] = useState({});
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createMessage, setCreateMessage] = useState('');
+
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    category: 'Sports',
+    deadline: ''
+  });
 
   const isAdmin = isAdminAddress(walletAddress);
 
@@ -39,6 +49,48 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
     await loadEndedQuestions();
   };
 
+  const handleCreateQuestion = async (e) => {
+    e.preventDefault();
+    setCreating(true);
+    setCreateMessage('');
+
+    try {
+      const response = await fetch('http://localhost:3001/api/questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          deadline: new Date(formData.deadline).toISOString()
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setCreateMessage('Question created successfully!');
+        setFormData({
+          title: '',
+          description: '',
+          category: 'Sports',
+          deadline: ''
+        });
+        setShowCreateForm(false);
+        setTimeout(() => setCreateMessage(''), 3000);
+      } else {
+        setCreateMessage('Failed to create question: ' + (data.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Failed to create question:', error);
+      setCreateMessage('Failed to create question. Please try again.');
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const getTimeEnded = (deadline) => {
     const now = new Date();
     const end = new Date(deadline);
@@ -57,20 +109,166 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
   }
 
   return (
-    <section id="admin" className={`py-16 ${isDark ? 'bg-slate-900' : 'bg-white'}`}>
+    <section id="admin" className={`py-16 ${isDark ? 'bg-gray-900' : 'bg-gradient-to-b from-white to-red-50'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className={`text-3xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Admin Panel</h2>
-          <p className={isDark ? 'text-slate-300' : 'text-gray-600'}>Settle ended questions and distribute rewards</p>
+          <div className="inline-flex items-center space-x-2 mb-4">
+            <Shield className="w-8 h-8 text-red-500" />
+            <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Admin Panel</h2>
+          </div>
+          <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>Create questions and settle ended markets</p>
         </div>
+
+        {createMessage && (
+          <div className={`mb-6 rounded-lg p-4 ${
+            createMessage.includes('successfully')
+              ? isDark ? 'bg-green-900/30 border border-green-700' : 'bg-green-50 border border-green-200'
+              : isDark ? 'bg-red-900/30 border border-red-700' : 'bg-red-50 border border-red-200'
+          }`}>
+            <p className={`text-sm font-medium ${
+              createMessage.includes('successfully')
+                ? isDark ? 'text-green-300' : 'text-green-700'
+                : isDark ? 'text-red-300' : 'text-red-700'
+            }`}>{createMessage}</p>
+          </div>
+        )}
+
+        <div className="mb-8">
+          <button
+            onClick={() => setShowCreateForm(!showCreateForm)}
+            className="flex items-center space-x-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-xl font-bold hover:from-red-500 hover:to-red-600 transition-all duration-300 shadow-lg"
+          >
+            <Plus className="w-5 h-5" />
+            <span>{showCreateForm ? 'Cancel' : 'Create New Question'}</span>
+          </button>
+        </div>
+
+        {showCreateForm && (
+          <div className={`rounded-xl border-2 p-6 mb-8 ${
+            isDark ? 'bg-zinc-800 border-zinc-700' : 'bg-white border-red-100'
+          }`}>
+            <h3 className={`text-xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>Create New Question</h3>
+
+            <form onSubmit={handleCreateQuestion} className="space-y-4">
+              <div>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <FileText className="w-4 h-4" />
+                    <span>Question Title *</span>
+                  </div>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="e.g., Will Argentina win the World Cup 2026?"
+                  className={`w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                    isDark
+                      ? 'bg-zinc-900 border-zinc-700 text-white placeholder-gray-500'
+                      : 'bg-white border-red-200 text-gray-900 placeholder-gray-400'
+                  }`}
+                />
+              </div>
+
+              <div>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Description (Optional)
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Add any additional details..."
+                  rows="3"
+                  className={`w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                    isDark
+                      ? 'bg-zinc-900 border-zinc-700 text-white placeholder-gray-500'
+                      : 'bg-white border-red-200 text-gray-900 placeholder-gray-400'
+                  }`}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Tag className="w-4 h-4" />
+                      <span>Category *</span>
+                    </div>
+                  </label>
+                  <select
+                    required
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className={`w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                      isDark
+                        ? 'bg-zinc-900 border-zinc-700 text-white'
+                        : 'bg-white border-red-200 text-gray-900'
+                    }`}
+                  >
+                    <option value="Sports">Sports</option>
+                    <option value="Crypto">Crypto</option>
+                    <option value="Politics">Politics</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Finance">Finance</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Calendar className="w-4 h-4" />
+                      <span>Deadline *</span>
+                    </div>
+                  </label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={formData.deadline}
+                    onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                    min={new Date().toISOString().slice(0, 16)}
+                    className={`w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                      isDark
+                        ? 'bg-zinc-900 border-zinc-700 text-white'
+                        : 'bg-white border-red-200 text-gray-900'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3 pt-4">
+                <button
+                  type="submit"
+                  disabled={creating}
+                  className="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-bold hover:from-red-500 hover:to-red-600 transition-all duration-300 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed"
+                >
+                  {creating ? 'Creating...' : 'Create Question'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowCreateForm(false)}
+                  className={`px-6 py-4 rounded-xl font-bold transition-all ${
+                    isDark
+                      ? 'bg-zinc-700 text-white hover:bg-zinc-600'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        <h3 className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>Settle Questions</h3>
 
         {endedQuestions.length === 0 ? (
           <div className={`rounded-xl border-2 p-12 text-center ${
-            isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200'
+            isDark ? 'bg-zinc-800 border-zinc-700' : 'bg-white border-red-100'
           }`}>
-            <CheckCircle2 className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'text-cyan-400' : 'text-blue-900'}`} />
+            <CheckCircle2 className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'text-red-400' : 'text-red-600'}`} />
             <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>All Caught Up!</h3>
-            <p className={isDark ? 'text-slate-400' : 'text-gray-600'}>No questions waiting to be settled</p>
+            <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>No questions waiting to be settled</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -79,7 +277,7 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
                 key={question._id}
                 className={`rounded-xl border-2 overflow-hidden ${
                   isDark
-                    ? 'bg-slate-800 border-orange-700/50'
+                    ? 'bg-zinc-800 border-orange-700/50'
                     : 'bg-white border-orange-200'
                 }`}
               >
@@ -127,32 +325,32 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
 
                     <div className={`rounded-lg p-4 ${
                       isDark
-                        ? 'bg-slate-700 border border-slate-600'
+                        ? 'bg-zinc-700 border border-zinc-600'
                         : 'bg-gray-50'
                     }`}>
-                      <div className={`text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>NO Pool</div>
+                      <div className={`text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>NO Pool</div>
                       <div className={`text-2xl font-bold mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         {question.pool_stats?.[0]?.no_participants || 0} participants
                       </div>
-                      <div className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>
+                      <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                         {parseFloat(question.pool_stats?.[0]?.no_ocro_total || 0).toFixed(2)} FTR + {parseFloat(question.pool_stats?.[0]?.no_usdt_total || 0).toFixed(2)} USDT
                       </div>
                     </div>
                   </div>
 
                   <div className={`flex items-center justify-between p-4 rounded-lg mb-6 ${
-                    isDark ? 'bg-slate-700' : 'bg-gray-50'
+                    isDark ? 'bg-zinc-700' : 'bg-red-50'
                   }`}>
-                    <span className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Select the correct outcome:</span>
+                    <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Select the correct outcome:</span>
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => setSelectedResult({ ...selectedResult, [question._id]: 'yes' })}
                         className={`px-4 py-2 rounded-lg font-semibold transition-all ${
                           selectedResult[question._id] === 'yes'
-                            ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
+                            ? 'bg-gradient-to-r from-red-600 to-red-700 text-white'
                             : isDark
-                              ? 'bg-slate-600 text-slate-300 hover:bg-slate-500'
-                              : 'bg-white text-gray-700 border border-gray-300 hover:border-cyan-500'
+                              ? 'bg-zinc-600 text-gray-300 hover:bg-zinc-500'
+                              : 'bg-white text-gray-700 border border-red-200 hover:border-red-500'
                         }`}
                       >
                         YES
@@ -163,8 +361,8 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
                           selectedResult[question._id] === 'no'
                             ? 'bg-gray-700 text-white'
                             : isDark
-                              ? 'bg-slate-600 text-slate-300 hover:bg-slate-500'
-                              : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-700'
+                              ? 'bg-zinc-600 text-gray-300 hover:bg-zinc-500'
+                              : 'bg-white text-gray-700 border border-red-200 hover:border-gray-700'
                         }`}
                       >
                         NO
@@ -175,7 +373,7 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
                   <button
                     onClick={() => handleSettle(question._id, selectedResult[question._id])}
                     disabled={!selectedResult[question._id] || isLoading}
-                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-4 rounded-lg font-bold text-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-200 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-lg font-bold text-lg hover:from-red-500 hover:to-red-600 transition-all duration-200 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                   >
                     {isLoading ? (
                       <span>Processing...</span>
@@ -187,7 +385,7 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
                     )}
                   </button>
 
-                  <p className={`text-xs text-center mt-3 ${isDark ? 'text-slate-500' : 'text-gray-500'}`}>
+                  <p className={`text-xs text-center mt-3 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
                     This will settle the question on-chain and allow winners to claim rewards
                   </p>
                 </div>

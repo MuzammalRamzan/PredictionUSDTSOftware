@@ -435,8 +435,8 @@ function App() {
 
       <footer className={`py-16 border-t ${
         isDark
-          ? 'bg-slate-950 text-slate-400 border-slate-800'
-          : 'bg-gray-50 text-gray-600 border-gray-200'
+          ? 'bg-gray-950 text-gray-400 border-gray-800'
+          : 'bg-red-50 text-gray-600 border-red-100'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-12 mb-12">
@@ -455,13 +455,13 @@ function App() {
               <h4 className={`font-bold mb-6 text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>Markets</h4>
               <ul className="space-y-3">
                 <li><a href="#active" className={`transition-colors text-sm ${
-                  isDark ? 'text-slate-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
+                  isDark ? 'text-gray-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
                 }`}>Active Markets</a></li>
                 <li><a href="#positions" className={`transition-colors text-sm ${
-                  isDark ? 'text-slate-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
+                  isDark ? 'text-gray-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
                 }`}>My Positions</a></li>
                 <li><a href="#how" className={`transition-colors text-sm ${
-                  isDark ? 'text-slate-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
+                  isDark ? 'text-gray-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
                 }`}>How It Works</a></li>
               </ul>
             </div>
@@ -470,13 +470,13 @@ function App() {
               <h4 className={`font-bold mb-6 text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>Resources</h4>
               <ul className="space-y-3">
                 <li><a href="#" className={`transition-colors text-sm ${
-                  isDark ? 'text-slate-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
+                  isDark ? 'text-gray-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
                 }`}>Documentation</a></li>
                 <li><a href="#" className={`transition-colors text-sm ${
-                  isDark ? 'text-slate-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
+                  isDark ? 'text-gray-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
                 }`}>Smart Contract</a></li>
                 <li><a href="#" className={`transition-colors text-sm ${
-                  isDark ? 'text-slate-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
+                  isDark ? 'text-gray-400 hover:text-red-400' : 'text-gray-600 hover:text-red-600'
                 }`}>FAQ</a></li>
               </ul>
             </div>

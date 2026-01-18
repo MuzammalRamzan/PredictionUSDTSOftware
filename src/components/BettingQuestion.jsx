@@ -49,14 +49,14 @@ export default function BettingQuestionCard({
 
   return (
     <div className={`group rounded-xl border-2 overflow-hidden hover:border-red-500 hover:shadow-xl transition-all duration-300 ${
-      isDark ? 'bg-slate-700 border-slate-600' : 'bg-white border-gray-200'
+      isDark ? 'bg-zinc-800 border-zinc-700' : 'bg-white border-red-100'
     }`}>
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
           <span className={`px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r ${getCategoryColor(question.category)} text-white shadow-md`}>
             {question.category}
           </span>
-          <div className={`flex items-center space-x-1.5 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
+          <div className={`flex items-center space-x-1.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             <Clock className="w-4 h-4" />
             <span className="text-xs font-bold">{getTimeRemaining()}</span>
           </div>
@@ -69,7 +69,7 @@ export default function BettingQuestionCard({
         </h3>
 
         <div className="mb-5">
-          <div className={`flex items-center justify-between text-xs mb-2 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
+          <div className={`flex items-center justify-between text-xs mb-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             <span className="font-semibold">Market sentiment</span>
             <div className="flex items-center space-x-1.5">
               <Users className="w-3.5 h-3.5" />
@@ -78,7 +78,7 @@ export default function BettingQuestionCard({
           </div>
 
           <div className={`relative h-2.5 rounded-full overflow-hidden border ${
-            isDark ? 'bg-slate-600 border-slate-500' : 'bg-gray-100 border-gray-200'
+            isDark ? 'bg-zinc-700 border-zinc-600' : 'bg-red-50 border-red-100'
           }`}>
             <div
               className="absolute top-0 left-0 h-full bg-gradient-to-r from-red-600 to-red-700 transition-all duration-500"
@@ -89,10 +89,10 @@ export default function BettingQuestionCard({
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center space-x-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-red-600 to-red-700"></div>
-              <span className={`text-xs font-bold ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>{yesPercentage.toFixed(0)}% Yes</span>
+              <span className={`text-xs font-bold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{yesPercentage.toFixed(0)}% Yes</span>
             </div>
             <div className="flex items-center space-x-1.5">
-              <span className={`text-xs font-bold ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>{noPercentage.toFixed(0)}% No</span>
+              <span className={`text-xs font-bold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{noPercentage.toFixed(0)}% No</span>
               <div className="w-2.5 h-2.5 rounded-full bg-gray-400"></div>
             </div>
           </div>
@@ -133,8 +133,8 @@ export default function BettingQuestionCard({
         ) : (
           <div className={`flex items-center justify-center px-4 py-3 rounded-lg font-bold border ${
             isDark
-              ? 'bg-slate-600 text-slate-300 border-slate-500'
-              : 'bg-gray-100 text-gray-600 border-gray-200'
+              ? 'bg-zinc-700 text-gray-300 border-zinc-600'
+              : 'bg-red-50 text-gray-600 border-red-100'
           }`}>
             <Clock className="w-5 h-5 mr-2" />
             <span>Awaiting Result</span>
@@ -143,10 +143,10 @@ export default function BettingQuestionCard({
       </div>
 
       <div className={`px-6 py-3 border-t ${
-        isDark ? 'bg-slate-800 border-slate-600' : 'bg-gray-50 border-gray-200'
+        isDark ? 'bg-zinc-900 border-zinc-700' : 'bg-red-50 border-red-100'
       }`}>
         <div className="flex items-center justify-between">
-          <span className={`text-xs font-semibold ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Stake required</span>
+          <span className={`text-xs font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Stake required</span>
           <div className="flex items-center space-x-2">
             <TrendingUp className="w-4 h-4 text-red-600" />
             <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>1 FTR + 1 USDT</span>

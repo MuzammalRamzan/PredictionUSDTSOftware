@@ -31,8 +31,8 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b ${
       isDark
-        ? 'bg-slate-900/80 border-slate-700/50'
-        : 'bg-white/80 border-gray-200'
+        ? 'bg-gray-900/90 border-gray-700/50'
+        : 'bg-white/90 border-red-100'
     }`}>
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
@@ -47,24 +47,24 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
 
           <div className="hidden md:flex items-center space-x-8">
             <a href="#active" className={`transition-colors font-semibold text-sm ${
-              isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
+              isDark ? 'text-gray-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
             }`}>
               Markets
             </a>
             <a href="#positions" className={`transition-colors font-semibold text-sm ${
-              isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
+              isDark ? 'text-gray-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
             }`}>
               Positions
             </a>
             {isAdmin && (
               <a href="#admin" className={`transition-colors font-semibold text-sm ${
-                isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
+                isDark ? 'text-gray-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
               }`}>
                 Admin
               </a>
             )}
             <a href="#how" className={`transition-colors font-semibold text-sm ${
-              isDark ? 'text-slate-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
+              isDark ? 'text-gray-300 hover:text-red-400' : 'text-gray-700 hover:text-red-600'
             }`}>
               How It Works
             </a>
@@ -145,8 +145,8 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
       {mobileMenuOpen && (
         <div className={`md:hidden backdrop-blur-xl border-t ${
           isDark
-            ? 'bg-slate-900/95 border-slate-700/50'
-            : 'bg-white/95 border-gray-200'
+            ? 'bg-gray-900/95 border-gray-700/50'
+            : 'bg-white/95 border-red-100'
         }`}>
           <div className="px-4 py-6 space-y-4">
             <a

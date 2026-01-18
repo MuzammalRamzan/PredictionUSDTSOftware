@@ -7,8 +7,8 @@ export default function Hero({ stats }) {
   return (
     <div className={`relative pt-32 pb-24 overflow-hidden ${
       isDark
-        ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'
-        : 'bg-gradient-to-br from-white via-gray-50 to-white'
+        ? 'bg-gradient-to-br from-gray-900 via-zinc-900 to-gray-900'
+        : 'bg-gradient-to-br from-red-50 via-white to-orange-50'
     }`}>
       <div className={`absolute inset-0 ${
         isDark
@@ -41,7 +41,7 @@ export default function Hero({ stats }) {
           </h1>
 
           <p className={`text-xl sm:text-2xl max-w-3xl mx-auto mb-12 leading-relaxed ${
-            isDark ? 'text-slate-300' : 'text-gray-700'
+            isDark ? 'text-gray-300' : 'text-gray-700'
           }`}>
             Stake FTR and USDT on World Cup matches. Transparent, trustless settlements powered by smart contracts.
           </p>
@@ -59,8 +59,8 @@ export default function Hero({ stats }) {
               href="#how"
               className={`inline-flex items-center space-x-3 px-10 py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg ${
                 isDark
-                  ? 'bg-slate-800/80 backdrop-blur-xl border-2 border-slate-700 text-white hover:bg-slate-700/80 hover:border-red-400/50'
-                  : 'bg-white border-2 border-gray-300 text-gray-900 hover:bg-gray-50 hover:border-red-500'
+                  ? 'bg-zinc-800/80 backdrop-blur-xl border-2 border-zinc-700 text-white hover:bg-zinc-700/80 hover:border-red-400/50'
+                  : 'bg-white border-2 border-red-200 text-gray-900 hover:bg-red-50 hover:border-red-500'
               }`}
             >
               <span>Learn More</span>
@@ -80,13 +80,13 @@ export default function Hero({ stats }) {
             <div className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {stats.totalVolume.ocro.toLocaleString()}
             </div>
-            <div className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>FTR Volume</div>
+            <div className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>FTR Volume</div>
           </div>
 
           <div className={`group rounded-2xl p-8 border-2 transition-all duration-300 hover:scale-105 ${
             isDark
-              ? 'bg-slate-800/50 backdrop-blur-xl border-slate-700 hover:border-red-400/50 hover:shadow-2xl hover:shadow-red-500/20'
-              : 'bg-white border-gray-200 hover:border-red-500 hover:shadow-xl'
+              ? 'bg-zinc-800/50 backdrop-blur-xl border-zinc-700 hover:border-red-400/50 hover:shadow-2xl hover:shadow-red-500/20'
+              : 'bg-white border-red-100 hover:border-red-500 hover:shadow-xl hover:shadow-red-500/10'
           }`}>
             <div className="bg-gradient-to-br from-red-600 to-red-700 p-4 rounded-xl mb-4 inline-block shadow-md">
               <Coins className="w-7 h-7 text-white" />
@@ -94,13 +94,13 @@ export default function Hero({ stats }) {
             <div className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {stats.totalVolume.usdt.toLocaleString()}
             </div>
-            <div className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>USDT Volume</div>
+            <div className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>USDT Volume</div>
           </div>
 
           <div className={`group rounded-2xl p-8 border-2 transition-all duration-300 hover:scale-105 ${
             isDark
-              ? 'bg-slate-800/50 backdrop-blur-xl border-slate-700 hover:border-red-400/50 hover:shadow-2xl hover:shadow-red-500/20'
-              : 'bg-white border-gray-200 hover:border-red-500 hover:shadow-xl'
+              ? 'bg-zinc-800/50 backdrop-blur-xl border-zinc-700 hover:border-red-400/50 hover:shadow-2xl hover:shadow-red-500/20'
+              : 'bg-white border-red-100 hover:border-red-500 hover:shadow-xl hover:shadow-red-500/10'
           }`}>
             <div className="bg-gradient-to-br from-red-700 to-red-800 p-4 rounded-xl mb-4 inline-block shadow-md">
               <TrendingUp className="w-7 h-7 text-white" />
@@ -108,13 +108,13 @@ export default function Hero({ stats }) {
             <div className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {stats.activeQuestions}
             </div>
-            <div className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>Active Markets</div>
+            <div className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Active Markets</div>
           </div>
 
           <div className={`group rounded-2xl p-8 border-2 transition-all duration-300 hover:scale-105 ${
             isDark
-              ? 'bg-slate-800/50 backdrop-blur-xl border-slate-700 hover:border-red-400/50 hover:shadow-2xl hover:shadow-red-500/20'
-              : 'bg-white border-gray-200 hover:border-red-500 hover:shadow-xl'
+              ? 'bg-zinc-800/50 backdrop-blur-xl border-zinc-700 hover:border-red-400/50 hover:shadow-2xl hover:shadow-red-500/20'
+              : 'bg-white border-red-100 hover:border-red-500 hover:shadow-xl hover:shadow-red-500/10'
           }`}>
             <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-4 rounded-xl mb-4 inline-block shadow-md">
               <Users className="w-7 h-7 text-white" />
@@ -122,7 +122,7 @@ export default function Hero({ stats }) {
             <div className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {stats.totalParticipants.toLocaleString()}
             </div>
-            <div className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>Participants</div>
+            <div className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Participants</div>
           </div>
         </div>
       </div>
