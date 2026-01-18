@@ -57,7 +57,7 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
               <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Place your first bet to get started</p>
               <a
                 href="#active"
-                className="inline-flex items-center space-x-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:from-cyan-400 hover:to-blue-500 transition-all"
+                className="inline-flex items-center space-x-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-2.5 rounded-lg font-medium hover:from-red-500 hover:to-red-600 transition-all"
               >
                 <span>Browse Markets</span>
               </a>
@@ -68,14 +68,14 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <div className={`rounded-xl p-6 border ${
                 isDark
-                  ? 'bg-gradient-to-br from-blue-900/40 to-blue-800/40 border-blue-700/50'
-                  : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'
+                  ? 'bg-gradient-to-br from-red-900/30 to-red-800/30 border-red-700/50'
+                  : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200'
               }`}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className={`text-sm font-medium ${isDark ? 'text-blue-300' : 'text-blue-900'}`}>Active Positions</span>
-                  <Clock className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-900'}`} />
+                  <span className={`text-sm font-medium ${isDark ? 'text-red-300' : 'text-red-900'}`}>Active Positions</span>
+                  <Clock className={`w-5 h-5 ${isDark ? 'text-red-400' : 'text-red-900'}`} />
                 </div>
-                <p className={`text-3xl font-bold ${isDark ? 'text-blue-200' : 'text-blue-900'}`}>{activePositions.length}</p>
+                <p className={`text-3xl font-bold ${isDark ? 'text-red-200' : 'text-red-900'}`}>{activePositions.length}</p>
               </div>
 
               <div className={`rounded-xl p-6 border ${
@@ -110,9 +110,9 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className={`text-xl font-bold flex items-center space-x-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                      <div className="w-1 h-6 bg-cyan-500 rounded"></div>
+                      <div className="w-1 h-6 bg-red-600 rounded"></div>
                       <span>Active Positions</span>
-                      <span className="text-cyan-500">({activePositions.length})</span>
+                      <span className="text-red-500">({activePositions.length})</span>
                     </h3>
                   </div>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -155,8 +155,8 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
       case 'active':
         return {
           badge: 'Active',
-          bg: isDark ? 'bg-zinc-800 border-blue-700/50' : 'bg-white border-blue-200',
-          statusBg: isDark ? 'bg-blue-900/50 text-blue-300' : 'bg-blue-100 text-blue-900',
+          bg: isDark ? 'bg-zinc-800 border-red-700/50' : 'bg-white border-red-200',
+          statusBg: isDark ? 'bg-red-900/30 text-red-300' : 'bg-red-100 text-red-900',
           icon: <Clock className="w-4 h-4" />,
         };
       case 'won':
@@ -178,8 +178,8 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
 
   const statusInfo = getStatusInfo();
   const sideColor = position.side === 'yes'
-    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
-    : 'bg-gray-500 text-white';
+    ? 'bg-gradient-to-r from-red-600 to-red-700 text-white'
+    : 'bg-gray-600 text-white';
 
   return (
     <div className={`rounded-xl border-2 ${statusInfo.bg} overflow-hidden hover:shadow-lg transition-all`}>
