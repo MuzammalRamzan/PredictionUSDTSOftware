@@ -311,14 +311,14 @@ export default function AdminPanel({ walletAddress, onSettleQuestion, isLoading 
                   <div className="grid md:grid-cols-2 gap-6 mb-6">
                     <div className={`rounded-lg p-4 ${
                       isDark
-                        ? 'bg-blue-900/30 border border-blue-700/50'
-                        : 'bg-blue-50'
+                        ? 'bg-red-900/30 border border-red-700/50'
+                        : 'bg-red-50'
                     }`}>
-                      <div className={`text-sm font-semibold mb-2 ${isDark ? 'text-blue-300' : 'text-blue-900'}`}>YES Pool</div>
-                      <div className={`text-2xl font-bold mb-1 ${isDark ? 'text-blue-200' : 'text-blue-900'}`}>
+                      <div className={`text-sm font-semibold mb-2 ${isDark ? 'text-red-300' : 'text-red-900'}`}>YES Pool</div>
+                      <div className={`text-2xl font-bold mb-1 ${isDark ? 'text-red-200' : 'text-red-900'}`}>
                         {question.pool_stats?.[0]?.yes_participants || 0} participants
                       </div>
-                      <div className={`text-sm ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
+                      <div className={`text-sm ${isDark ? 'text-red-400' : 'text-red-700'}`}>
                         {parseFloat(question.pool_stats?.[0]?.yes_ocro_total || 0).toFixed(2)} FTR + {parseFloat(question.pool_stats?.[0]?.yes_usdt_total || 0).toFixed(2)} USDT
                       </div>
                     </div>
