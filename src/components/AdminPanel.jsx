@@ -187,18 +187,24 @@ export default function AdminPanel({ walletAddress, isLoading }) {
         alert('Question settled successfully!');
         await loadEndedQuestions();
       } else {
+        console.error('Database update failed:', data);
         if (blockchainSucceeded) {
-          alert('Blockchain transaction succeeded but database update failed. Syncing now...');
+          console.log('Blockchain succeeded, attempting to sync. Error was:', data.error);
+          alert(`Blockchain transaction succeeded but database update failed: ${data.error}\nSyncing now...`);
 
           const syncResponse = await fetch(`http://localhost:3001/api/questions/sync/${question.contract_question_id}`, {
             method: 'POST'
           });
 
           if (syncResponse.ok) {
+            const syncData = await syncResponse.json();
+            console.log('Sync successful:', syncData);
             alert('Database synced successfully!');
             await loadEndedQuestions();
           } else {
-            alert('Warning: Question is settled on blockchain but database sync failed. Please try to settle again to sync.');
+            const syncError = await syncResponse.json();
+            console.error('Sync failed:', syncError);
+            alert(`Warning: Question is settled on blockchain but database sync failed: ${syncError.error || 'Unknown error'}`);
           }
         } else {
           alert('Failed to settle question: ' + (data.error || 'Unknown error'));
