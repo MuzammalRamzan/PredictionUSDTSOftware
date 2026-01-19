@@ -18,6 +18,10 @@
     background: linear-gradient(135deg, #fee2e2 0%, #fecaca 50%, #fca5a5 100%);
   }
 
+  .dark-red-bg {
+    background: linear-gradient(to bottom, #18181b 0%, #1c0f0f 25%, #18181b 50%, #1a0d0d 75%, #18181b 100%);
+  }
+
   .text-gradient-red {
     background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
     -webkit-background-clip: text;

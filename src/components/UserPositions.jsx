@@ -9,7 +9,7 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
 
   if (!walletConnected) {
     return (
-      <section id="positions" className={`py-16 ${isDark ? 'bg-zinc-900' : 'bg-gradient-to-b from-white to-red-50'}`}>
+      <section id="positions" className={`py-16 ${isDark ? 'bg-transparent' : 'bg-gradient-to-b from-white to-red-50'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <h2 className={`text-3xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>My Positions</h2>
@@ -39,7 +39,7 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
   const totalWon = settledPositions.filter(p => p.status === 'won').length;
 
   return (
-    <section id="positions" className={`py-16 ${isDark ? 'bg-zinc-900' : 'bg-gradient-to-b from-white to-red-50'}`}>
+    <section id="positions" className={`py-16 ${isDark ? 'bg-transparent' : 'bg-gradient-to-b from-white to-red-50'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <h2 className={`text-3xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>My Positions</h2>
