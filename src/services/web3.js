@@ -69,6 +69,24 @@ export const web3Service = {
     return true;
   },
 
+  async checkBalances(userAddress) {
+    const ftrToken = await this.getTokenContract(FTR_TOKEN_ADDRESS);
+    const usdtToken = await this.getTokenContract(USDT_TOKEN_ADDRESS);
+
+    const ftrBalance = await ftrToken.balanceOf(userAddress);
+    const usdtBalance = await usdtToken.balanceOf(userAddress);
+
+    const requiredAmount = ethers.parseEther('1');
+
+    return {
+      ftrBalance: ethers.formatEther(ftrBalance),
+      usdtBalance: ethers.formatEther(usdtBalance),
+      hasFtrBalance: ftrBalance >= requiredAmount,
+      hasUsdtBalance: usdtBalance >= requiredAmount,
+      hasSufficientBalance: ftrBalance >= requiredAmount && usdtBalance >= requiredAmount,
+    };
+  },
+
   async checkApprovals(userAddress) {
     const ftrToken = await this.getTokenContract(FTR_TOKEN_ADDRESS);
     const usdtToken = await this.getTokenContract(USDT_TOKEN_ADDRESS);

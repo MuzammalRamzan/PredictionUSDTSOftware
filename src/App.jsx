@@ -191,6 +191,26 @@ function App() {
         return;
       }
 
+      showToast('Checking token balances...');
+      const balances = await web3Service.checkBalances(walletAddress);
+
+      if (!balances.hasSufficientBalance) {
+        let errorMessage = 'Insufficient balance: ';
+        const missingTokens = [];
+
+        if (!balances.hasFtrBalance) {
+          missingTokens.push(`FTR (have ${parseFloat(balances.ftrBalance).toFixed(2)}, need 1)`);
+        }
+        if (!balances.hasUsdtBalance) {
+          missingTokens.push(`USDT (have ${parseFloat(balances.usdtBalance).toFixed(2)}, need 1)`);
+        }
+
+        errorMessage += missingTokens.join(' and ');
+        showToast(errorMessage);
+        setIsLoading(false);
+        return;
+      }
+
       showToast('Checking token approvals...');
       const approvals = await web3Service.checkApprovals(walletAddress);
 
