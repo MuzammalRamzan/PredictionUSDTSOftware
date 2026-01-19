@@ -87,25 +87,34 @@ export const getUserBets = async (req, res) => {
         // If question is settled and user won, calculate payout
         if (question && question.status === 'settled' && question.result === bet.outcome) {
           try {
-            const contract = getContract();
-            if (question.contract_question_id !== undefined && question.contract_question_id !== null) {
-              const [ocroWinnings, usdtWinnings] = await contract.calculateWinnings(
-                question.contract_question_id,
-                userAddress
-              );
+            // Check if user has withdrawn first
+            const withdrawal = await Withdrawal.findOne({
+              question_id: bet.question_id,
+              user_address: userAddress.toLowerCase()
+            });
 
+            withdrawn = !!withdrawal;
+
+            // If withdrawn, use the recorded withdrawal amounts
+            if (withdrawn && withdrawal) {
               payout = {
-                ocro: parseFloat(ethers.formatEther(ocroWinnings)),
-                usdt: parseFloat(ethers.formatEther(usdtWinnings))
+                ocro: parseFloat(withdrawal.ocro_amount),
+                usdt: parseFloat(withdrawal.usdt_amount)
               };
+            } else {
+              // If not withdrawn, calculate from contract
+              const contract = getContract();
+              if (question.contract_question_id !== undefined && question.contract_question_id !== null) {
+                const [ocroWinnings, usdtWinnings] = await contract.calculateWinnings(
+                  question.contract_question_id,
+                  userAddress
+                );
 
-              // Check if user has withdrawn
-              const withdrawal = await Withdrawal.findOne({
-                question_id: bet.question_id,
-                user_address: userAddress.toLowerCase()
-              });
-
-              withdrawn = !!withdrawal;
+                payout = {
+                  ocro: parseFloat(ethers.formatEther(ocroWinnings)),
+                  usdt: parseFloat(ethers.formatEther(usdtWinnings))
+                };
+              }
             }
           } catch (error) {
             console.error('Error calculating winnings for bet:', error);
