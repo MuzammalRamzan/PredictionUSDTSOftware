@@ -6,27 +6,35 @@ A blockchain-based prediction market platform built on Cronos zkEVM where users 
 
 ```
 ├── frontend/          # React + Vite frontend application
+│   └── .env          # Frontend environment variables
 ├── backend/           # Node.js + Express backend API
-├── docs/             # Documentation files
-├── .env              # Environment variables
+│   └── .env          # Backend environment variables
 └── README.md         # This file
 ```
 
 ## Quick Start
 
-### Backend Setup
+### Frontend Setup (Required)
+```bash
+cd frontend
+cp .env.example .env   # Configure your environment variables
+npm install
+npm run dev
+```
+
+The frontend runs on `http://localhost:5173`
+
+### Backend Setup (Optional)
 ```bash
 cd backend
+cp .env.example .env   # Configure MongoDB and admin addresses
 npm install
 npm start
 ```
 
-### Frontend Setup
-```bash
-cd frontend
-npm install
-npm run dev
-```
+The backend runs on `http://localhost:3001`
+
+**Note:** The frontend works independently with Supabase. The backend is optional.
 
 ## Documentation
 

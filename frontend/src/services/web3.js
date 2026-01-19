@@ -5,11 +5,30 @@ const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
 const FTR_TOKEN_ADDRESS = import.meta.env.VITE_FTR_TOKEN_ADDRESS || import.meta.env.VITE_OCRO_TOKEN_ADDRESS;
 const USDT_TOKEN_ADDRESS = import.meta.env.VITE_USDT_TOKEN_ADDRESS;
 
+console.log('Web3 Service Configuration:', {
+  CONTRACT_ADDRESS,
+  FTR_TOKEN_ADDRESS,
+  USDT_TOKEN_ADDRESS,
+  NETWORK: import.meta.env.VITE_NETWORK
+});
+
 const ERC20_ABI = [
   'function approve(address spender, uint256 amount) public returns (bool)',
   'function allowance(address owner, address spender) public view returns (uint256)',
   'function balanceOf(address account) public view returns (uint256)',
 ];
+
+const validateAddress = (address, name) => {
+  if (!address) {
+    console.error(`${name} validation failed: address is`, address);
+    throw new Error(`${name} is not configured. Please check your environment variables in frontend/.env file and restart the dev server.`);
+  }
+  if (!ethers.isAddress(address)) {
+    console.error(`${name} validation failed: "${address}" is not a valid Ethereum address`);
+    throw new Error(`${name} is invalid: ${address}`);
+  }
+  return address;
+};
 
 export const web3Service = {
   async connectWallet() {
@@ -45,25 +64,28 @@ export const web3Service = {
   },
 
   async getContract() {
+    const validAddress = validateAddress(CONTRACT_ADDRESS, 'Contract address');
     const signer = await this.getSigner();
-    return new ethers.Contract(CONTRACT_ADDRESS, BettingPoolABI, signer);
+    return new ethers.Contract(validAddress, BettingPoolABI, signer);
   },
 
   async getTokenContract(tokenAddress) {
+    const validAddress = validateAddress(tokenAddress, 'Token address');
     const signer = await this.getSigner();
-    return new ethers.Contract(tokenAddress, ERC20_ABI, signer);
+    return new ethers.Contract(validAddress, ERC20_ABI, signer);
   },
 
   async approveTokens() {
+    const validContractAddress = validateAddress(CONTRACT_ADDRESS, 'Contract address');
     const ftrToken = await this.getTokenContract(FTR_TOKEN_ADDRESS);
     const usdtToken = await this.getTokenContract(USDT_TOKEN_ADDRESS);
 
     const amount = ethers.parseEther('1');
 
-    const ftrTx = await ftrToken.approve(CONTRACT_ADDRESS, amount);
+    const ftrTx = await ftrToken.approve(validContractAddress, amount);
     await ftrTx.wait();
 
-    const usdtTx = await usdtToken.approve(CONTRACT_ADDRESS, amount);
+    const usdtTx = await usdtToken.approve(validContractAddress, amount);
     await usdtTx.wait();
 
     return true;
@@ -88,11 +110,12 @@ export const web3Service = {
   },
 
   async checkApprovals(userAddress) {
+    const validContractAddress = validateAddress(CONTRACT_ADDRESS, 'Contract address');
     const ftrToken = await this.getTokenContract(FTR_TOKEN_ADDRESS);
     const usdtToken = await this.getTokenContract(USDT_TOKEN_ADDRESS);
 
-    const ftrAllowance = await ftrToken.allowance(userAddress, CONTRACT_ADDRESS);
-    const usdtAllowance = await usdtToken.allowance(userAddress, CONTRACT_ADDRESS);
+    const ftrAllowance = await ftrToken.allowance(userAddress, validContractAddress);
+    const usdtAllowance = await usdtToken.allowance(userAddress, validContractAddress);
 
     const requiredAmount = ethers.parseEther('1');
 
