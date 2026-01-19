@@ -88,6 +88,8 @@ Backend runs on: http://localhost:3001
 ### Start Frontend (In a new terminal)
 
 ```bash
+cd frontend
+npm install
 npm run dev
 ```
 
@@ -132,15 +134,18 @@ curl -X POST http://localhost:3001/api/questions \
 
 ```
 project/
-├── src/                    # Frontend React app
-├── backend/
-│   ├── server.js          # Main API server
-│   ├── config/            # Database & blockchain config
-│   ├── controllers/       # Business logic
-│   ├── routes/            # API endpoints
-│   ├── contracts/         # Smart contracts & deployment
-│   └── .env              # Backend configuration
-└── .env                   # Frontend configuration
+├── frontend/              # React frontend application
+│   ├── src/              # React components and app code
+│   ├── package.json      # Frontend dependencies
+│   └── vite.config.js    # Vite configuration
+├── backend/              # Node.js backend API
+│   ├── server.js         # Main API server
+│   ├── config/           # Database & blockchain config
+│   ├── controllers/      # Business logic
+│   ├── routes/           # API endpoints
+│   ├── contracts/        # Smart contracts & deployment
+│   └── .env             # Backend configuration
+└── .env                  # Environment variables
 ```
 
 ---
