@@ -364,7 +364,7 @@ export default function AdminPanel({ walletAddress, isLoading }) {
                   placeholder="e.g., Will Argentina win the World Cup 2026?"
                   className={`w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-red-500 ${
                     isDark
-                      ? 'bg-zinc-900 border-zinc-700 text-white placeholder-gray-500'
+                      ? 'bg-zinc-700 border-zinc-600 text-white placeholder-gray-400'
                       : 'bg-white border-red-200 text-gray-900 placeholder-gray-400'
                   }`}
                 />
@@ -381,7 +381,7 @@ export default function AdminPanel({ walletAddress, isLoading }) {
                   rows="3"
                   className={`w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-red-500 ${
                     isDark
-                      ? 'bg-zinc-900 border-zinc-700 text-white placeholder-gray-500'
+                      ? 'bg-zinc-700 border-zinc-600 text-white placeholder-gray-400'
                       : 'bg-white border-red-200 text-gray-900 placeholder-gray-400'
                   }`}
                 />
@@ -401,7 +401,7 @@ export default function AdminPanel({ walletAddress, isLoading }) {
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className={`w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-red-500 ${
                       isDark
-                        ? 'bg-zinc-900 border-zinc-700 text-white'
+                        ? 'bg-zinc-700 border-zinc-600 text-white'
                         : 'bg-white border-red-200 text-gray-900'
                     }`}
                   >
@@ -428,7 +428,7 @@ export default function AdminPanel({ walletAddress, isLoading }) {
                     min={new Date().toISOString().slice(0, 16)}
                     className={`w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-red-500 ${
                       isDark
-                        ? 'bg-zinc-900 border-zinc-700 text-white'
+                        ? 'bg-zinc-700 border-zinc-600 text-white [color-scheme:dark]'
                         : 'bg-white border-red-200 text-gray-900'
                     }`}
                   />
