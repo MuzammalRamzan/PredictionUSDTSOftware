@@ -1,26 +1,15 @@
 # Backend Setup Instructions
 
-## Important Note
+## Overview
 
-**The backend is now OPTIONAL** since the frontend connects directly to Supabase. You only need to run the backend if you want to:
-- Test the MongoDB integration separately
-- Use the REST API endpoints directly
-- Run blockchain event listeners (future feature)
+The backend is a Node.js + Express REST API that:
+- Stores betting data in MongoDB
+- Provides statistics and leaderboard endpoints
+- Optionally syncs with smart contracts on BSC
 
-## Quick Fix for Import Error
+**Important:** Blockchain configuration is now optional. The backend works with just MongoDB.
 
-The import syntax has been updated to use the newer `with` keyword instead of `assert`:
-
-**Fixed in:** `backend/config/blockchain.js`
-```javascript
-// Old (causes error)
-import BettingPoolABI from './BettingPoolABI.json' assert { type: 'json' };
-
-// New (works with Node.js 20+)
-import BettingPoolABI from './BettingPoolABI.json' with { type: 'json' };
-```
-
-## Setting Up the Backend (Optional)
+## Quick Setup
 
 ### 1. Install Dependencies
 
@@ -29,80 +18,79 @@ cd backend
 npm install
 ```
 
-### 2. Create .env File
+### 2. Configure Environment
 
-Copy the example and fill in your values:
+Copy the example environment file:
 
 ```bash
 cp .env.example .env
 ```
 
-### 3. Configure MongoDB
-
-You have three options:
-
-#### Option A: Local MongoDB (Recommended for Testing)
-
-1. Install MongoDB locally: https://www.mongodb.com/try/download/community
-2. Start MongoDB service
-3. Use this connection string:
-```env
-MONGODB_URI=mongodb://127.0.0.1:27017/betting_platform
-```
-
-#### Option B: MongoDB Atlas (Cloud)
-
-1. Create free account at https://www.mongodb.com/cloud/atlas
-2. Create a cluster
-3. Get connection string from Atlas dashboard
-4. Use this format:
-```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/betting_platform
-```
-
-#### Option C: Skip Backend Entirely
-
-Since the frontend now uses Supabase, you don't need MongoDB at all! The frontend works independently.
-
-### 4. Configure Blockchain Settings
-
-Edit `backend/.env`:
+Edit `.env` with your settings:
 
 ```env
-# Server
+# Server Configuration
 PORT=3001
 NODE_ENV=development
 
-# MongoDB (choose one from above)
+# MongoDB (REQUIRED)
 MONGODB_URI=mongodb://127.0.0.1:27017/betting_platform
+# OR use MongoDB Atlas:
+# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/betting_platform
 
-# BSC Configuration
-BSC_RPC_URL=https://bsc-dataseed.binance.org/
-BSC_TESTNET_RPC_URL=https://data-seed-prebsc-1-s1.binance.org:8545/
-NETWORK=testnet
-
-# Smart Contract (fill after deployment)
-CONTRACT_ADDRESS=your_deployed_contract_address_here
-PRIVATE_KEY=your_private_key_for_admin_operations
-
-# Token Addresses (BSC Testnet)
-OCRO_TOKEN_ADDRESS_TESTNET=your_ocro_token_address
-USDT_TOKEN_ADDRESS_TESTNET=0x337610d27c682E347C9cD60BD4b3b107C9d34dDd
+# Admin Addresses (REQUIRED for admin functions)
+ADMIN_ADDRESSES=0xYourAdminWalletAddress1,0xYourAdminWalletAddress2
 ```
 
-### 5. Start the Server
+### 3. MongoDB Setup Options
+
+#### Option A: Local MongoDB
+
+1. Install MongoDB: https://www.mongodb.com/try/download/community
+2. Start MongoDB service
+3. Use connection string: `mongodb://127.0.0.1:27017/betting_platform`
+
+#### Option B: MongoDB Atlas (Cloud - Free Tier Available)
+
+1. Create account at https://www.mongodb.com/cloud/atlas
+2. Create a free cluster
+3. Get your connection string from the dashboard
+4. Update `MONGODB_URI` in `.env`
+
+### 4. Start the Server
 
 ```bash
 npm start
 ```
 
-The backend will run on `http://localhost:3001`
+Server runs on `http://localhost:3001`
 
-## Testing the Backend API
+## Optional: Blockchain Integration
+
+The backend works without blockchain configuration. Add these only if you want to sync data from smart contracts:
+
+```env
+# Network Selection
+NETWORK=testnet
+
+# BSC RPC URLs
+BSC_RPC_URL=https://bsc-dataseed.binance.org/
+BSC_TESTNET_RPC_URL=https://data-seed-prebsc-1-s1.binance.org:8545/
+
+# Smart Contract Address
+CONTRACT_ADDRESS=0xYourContractAddress
+```
+
+## Testing the API
 
 ### Health Check
 ```bash
 curl http://localhost:3001/health
+```
+
+Expected response:
+```json
+{"status":"ok","timestamp":"2024-..."}
 ```
 
 ### Get All Questions
@@ -115,75 +103,65 @@ curl http://localhost:3001/api/questions
 curl http://localhost:3001/api/stats/platform
 ```
 
-## Current Architecture
+## What Works Without Blockchain
 
-```
-Frontend (React)
-    ↓
-Supabase (PostgreSQL) ← Primary Data Store
-    ↓
-Smart Contract (BSC)
+Without blockchain configuration, these endpoints work normally:
+- All question CRUD operations (via database)
+- Recording bets (transaction hash from frontend)
+- Recording withdrawals
+- User statistics
+- Platform statistics
+- Leaderboards
 
+## What Requires Blockchain
 
-Backend (Node.js/Express) ← OPTIONAL
-    ↓
-MongoDB ← Separate from frontend
-    ↓
-Smart Contract (BSC)
-```
-
-The frontend and backend are now **independent systems**. The frontend uses Supabase, and the backend (if you run it) uses MongoDB.
-
-## Why the Backend is Optional
-
-1. **Direct Database Access**: Frontend connects to Supabase directly
-2. **Web3 Integration**: Blockchain calls happen in the frontend via MetaMask
-3. **Real-time Updates**: Supabase provides real-time subscriptions
-4. **Simplified Deployment**: One less service to manage
-
-## When You Might Need the Backend
-
-- **Cron Jobs**: Automated question settlement
-- **Event Listeners**: Listen to blockchain events and sync to database
-- **Admin Operations**: Bulk operations that shouldn't run in frontend
-- **Analytics**: Heavy data processing
-- **Webhooks**: External integrations
+These features require blockchain configuration:
+- `POST /api/questions/sync/:contractQuestionId` - Sync question from contract
+- `GET /api/bets/winnings/:questionId/:userAddress` - Calculate winnings from contract
+- Auto-calculating winnings in user bets (falls back to withdrawal records)
 
 ## Troubleshooting
 
-### "Cannot find module 'express'"
+### "Cannot find module" errors
 ```bash
 cd backend
 npm install
 ```
 
-### "MongoDB connection error"
-- Check if MongoDB is running: `mongosh` (for local)
-- Verify connection string in `.env`
-- Check network access in MongoDB Atlas
+### MongoDB connection errors
+- Verify MongoDB is running (local)
+- Check connection string format
+- Ensure network access (Atlas)
+- Check firewall settings
 
-### "Contract address not configured"
-This is expected before deployment. The backend will work for basic API endpoints, but blockchain features require a deployed contract.
+### "Blockchain not configured" warning
+This is normal if you haven't configured blockchain settings. The backend will work with database-only features.
 
-### Port 3001 already in use
+### Port already in use
 ```bash
-# Find and kill the process
+# Kill process on port 3001
 lsof -ti:3001 | xargs kill -9
 
-# Or use a different port in .env
+# Or change port in .env
 PORT=3002
 ```
 
+## Database Collections
+
+The backend automatically creates these MongoDB collections:
+- `questions` - Betting questions
+- `bets` - User bets
+- `withdrawals` - Withdrawal records
+- `poolstats` - Pool statistics
+
+## API Documentation
+
+See [API_DOCUMENTATION.md](API_DOCUMENTATION.md) for detailed endpoint documentation.
+
 ## Next Steps
 
-1. **Deploy Smart Contract** (Required for full functionality)
-2. **Configure Frontend** with contract address
-3. **Run Frontend Only** with `npm run dev` (in project root)
-4. **Skip Backend** unless you need the optional features above
-
-## Questions?
-
-- Frontend works without backend: ✅
-- Backend is completely optional: ✅
-- Both can run simultaneously: ✅
-- They use different databases: ✅ (Supabase vs MongoDB)
+1. Configure MongoDB connection
+2. Set admin addresses
+3. Start the backend
+4. Optionally add blockchain configuration
+5. Connect frontend to the API
