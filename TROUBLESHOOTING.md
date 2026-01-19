@@ -11,7 +11,8 @@ This occurs when there's a mismatch between the blockchain state and the databas
 This can happen when:
 1. A question was settled directly through a blockchain transaction without updating the database
 2. The database update failed after a successful blockchain settlement
-3. Manual intervention was performed on the blockchain
+3. Network issues caused the API call to fail after the blockchain transaction succeeded
+4. Manual intervention was performed on the blockchain
 
 ### How to Check for This Issue
 
@@ -27,16 +28,46 @@ This can happen when:
 
 ### Solution
 
-The issue has been fixed with the following improvements:
+The issue has been **FULLY FIXED** with the following improvements:
 
-#### 1. Automatic Blockchain State Check
-The Admin Panel now checks if a question is already settled on the blockchain before attempting to settle it. If it detects a mismatch, it will:
-- Display a message: "This question is already settled on the blockchain. Syncing database..."
-- Automatically sync the database with the blockchain state
-- Refresh the admin panel to show the updated status
+#### 1. Enhanced Sync Endpoint
+The backend sync endpoint (`/api/questions/:contractQuestionId/sync`) now:
+- Syncs settlement status from blockchain to database
+- Updates the question result (yes/no)
+- Marks winning bets correctly
+- Updates pool statistics
 
-#### 2. Better Error Handling
-The settle function now provides clearer error messages when blockchain operations fail.
+#### 2. Automatic Recovery in Frontend
+The Admin Panel now handles all settlement scenarios:
+
+**Scenario A: Question Already Settled on Blockchain**
+- Checks blockchain state before attempting settlement
+- If already settled, automatically syncs database
+- Shows clear message with the settlement result
+
+**Scenario B: Blockchain Succeeds but Database Fails**
+- Detects when blockchain transaction succeeds
+- Catches database update failures
+- Automatically triggers sync to update database
+- Shows clear success message after sync
+
+**Scenario C: User Retries After Failed Database Update**
+- Catches "Already settled" blockchain error
+- Automatically syncs database
+- No need for manual intervention
+
+#### 3. Sync All Questions Button
+A new "Sync All Questions" button in the Admin Panel allows you to:
+- Manually sync all questions from blockchain to database
+- Fix any mismatches across all questions at once
+- See a summary of synced questions
+
+#### 4. Better Error Handling
+The settle function now:
+- Separates blockchain errors from database errors
+- Provides specific error messages for each failure type
+- Automatically recovers from known error states
+- Logs detailed information for debugging
 
 ### Prevention
 

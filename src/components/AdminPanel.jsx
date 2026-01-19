@@ -19,6 +19,7 @@ export default function AdminPanel({ walletAddress, isLoading }) {
     category: 'Sports',
     deadline: ''
   });
+  const [syncing, setSyncing] = useState(false);
 
   const isAdmin = isAdminAddress(walletAddress);
 
@@ -46,6 +47,46 @@ export default function AdminPanel({ walletAddress, isLoading }) {
     }
   };
 
+  const handleSyncAll = async () => {
+    setSyncing(true);
+    try {
+      const response = await fetch('http://localhost:3001/api/questions');
+      const data = await response.json();
+
+      if (data.success) {
+        let syncedCount = 0;
+        let errorCount = 0;
+
+        for (const question of data.data) {
+          if (question.contract_question_id !== undefined) {
+            try {
+              const syncResponse = await fetch(`http://localhost:3001/api/questions/${question.contract_question_id}/sync`, {
+                method: 'POST'
+              });
+
+              if (syncResponse.ok) {
+                syncedCount++;
+              } else {
+                errorCount++;
+              }
+            } catch (error) {
+              console.error(`Failed to sync question ${question.contract_question_id}:`, error);
+              errorCount++;
+            }
+          }
+        }
+
+        alert(`Sync complete! ${syncedCount} questions synced successfully.${errorCount > 0 ? ` ${errorCount} failed.` : ''}`);
+        await loadEndedQuestions();
+      }
+    } catch (error) {
+      console.error('Failed to sync questions:', error);
+      alert('Failed to sync questions: ' + error.message);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const handleSettle = async (questionId, result) => {
     setSettling({ ...settling, [questionId]: true });
 
@@ -66,15 +107,46 @@ export default function AdminPanel({ walletAddress, isLoading }) {
         });
 
         if (response.ok) {
+          const data = await response.json();
+          alert(`Database synced! Question settled as: ${data.data?.result || 'unknown'}`);
           await loadEndedQuestions();
+        } else {
+          alert('Failed to sync database. Please try again.');
         }
         return;
       }
 
-      const transactionHash = await web3Service.settleQuestion(
-        question.contract_question_id,
-        result === 'yes'
-      );
+      let transactionHash;
+      let blockchainSucceeded = false;
+
+      try {
+        transactionHash = await web3Service.settleQuestion(
+          question.contract_question_id,
+          result === 'yes'
+        );
+        blockchainSucceeded = true;
+      } catch (blockchainError) {
+        console.error('Blockchain error:', blockchainError);
+
+        if (blockchainError.message && blockchainError.message.includes('Already settled')) {
+          alert('Question was already settled on blockchain. Syncing database...');
+
+          const syncResponse = await fetch(`http://localhost:3001/api/questions/${question.contract_question_id}/sync`, {
+            method: 'POST'
+          });
+
+          if (syncResponse.ok) {
+            const data = await syncResponse.json();
+            alert(`Database synced! Question settled as: ${data.data?.result || 'unknown'}`);
+            await loadEndedQuestions();
+          } else {
+            alert('Failed to sync database. Please try again.');
+          }
+          return;
+        }
+
+        throw blockchainError;
+      }
 
       const response = await fetch(`http://localhost:3001/api/questions/${questionId}/settle`, {
         method: 'POST',
@@ -94,19 +166,26 @@ export default function AdminPanel({ walletAddress, isLoading }) {
         alert('Question settled successfully!');
         await loadEndedQuestions();
       } else {
-        alert('Failed to settle question: ' + (data.error || 'Unknown error'));
+        if (blockchainSucceeded) {
+          alert('Blockchain transaction succeeded but database update failed. Syncing now...');
+
+          const syncResponse = await fetch(`http://localhost:3001/api/questions/${question.contract_question_id}/sync`, {
+            method: 'POST'
+          });
+
+          if (syncResponse.ok) {
+            alert('Database synced successfully!');
+            await loadEndedQuestions();
+          } else {
+            alert('Warning: Question is settled on blockchain but database sync failed. Please try to settle again to sync.');
+          }
+        } else {
+          alert('Failed to settle question: ' + (data.error || 'Unknown error'));
+        }
       }
     } catch (error) {
       console.error('Failed to settle question:', error);
-      let errorMessage = 'Failed to settle question: ';
-
-      if (error.message && error.message.includes('Already settled')) {
-        errorMessage = 'This question is already settled on the blockchain.';
-      } else {
-        errorMessage += error.message || 'Unknown error';
-      }
-
-      alert(errorMessage);
+      alert('Failed to settle question: ' + (error.message || 'Unknown error'));
     } finally {
       setSettling({ ...settling, [questionId]: false });
     }
@@ -211,13 +290,28 @@ export default function AdminPanel({ walletAddress, isLoading }) {
           </div>
         )}
 
-        <div className="mb-8">
+        <div className="mb-8 flex items-center gap-4 flex-wrap">
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
             className="flex items-center space-x-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-xl font-bold hover:from-red-500 hover:to-red-600 transition-all duration-300 shadow-lg"
           >
             <Plus className="w-5 h-5" />
             <span>{showCreateForm ? 'Cancel' : 'Create New Question'}</span>
+          </button>
+
+          <button
+            onClick={handleSyncAll}
+            disabled={syncing}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg ${
+              syncing
+                ? 'bg-gray-400 cursor-not-allowed'
+                : isDark
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600'
+                  : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500'
+            } text-white`}
+          >
+            <CheckCircle2 className={`w-5 h-5 ${syncing ? 'animate-spin' : ''}`} />
+            <span>{syncing ? 'Syncing...' : 'Sync All Questions'}</span>
           </button>
         </div>
 

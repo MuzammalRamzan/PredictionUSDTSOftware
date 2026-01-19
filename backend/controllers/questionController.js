@@ -252,22 +252,53 @@ export const syncQuestionFromBlockchain = async (req, res) => {
 
     const question = await Question.findOne({ contract_question_id: contractQuestionId });
 
-    if (question) {
-      await PoolStat.updateOne(
-        { question_id: question._id },
-        {
-          yes_ocro_total: ethers.formatEther(questionData.yesOcroTotal),
-          yes_usdt_total: ethers.formatEther(questionData.yesUsdtTotal),
-          yes_participants: Number(questionData.yesParticipants),
-          no_ocro_total: ethers.formatEther(questionData.noOcroTotal),
-          no_usdt_total: ethers.formatEther(questionData.noUsdtTotal),
-          no_participants: Number(questionData.noParticipants),
-          updated_at: new Date()
-        }
-      );
+    if (!question) {
+      return res.status(404).json({ success: false, error: 'Question not found in database' });
     }
 
-    res.json({ success: true, message: 'Question synced' });
+    if (questionData.isSettled && question.status !== 'settled') {
+      question.status = 'settled';
+      question.result = questionData.result ? 'yes' : 'no';
+      if (!question.settlement_date) {
+        question.settlement_date = new Date();
+      }
+      question.updated_at = new Date();
+      await question.save();
+
+      await Bet.updateMany(
+        { question_id: question._id, outcome: question.result },
+        { is_winner: true }
+      );
+
+      await Bet.updateMany(
+        { question_id: question._id, outcome: { $ne: question.result } },
+        { is_winner: false }
+      );
+
+      console.log(`Synced settlement status for question ${contractQuestionId}: ${question.result}`);
+    }
+
+    await PoolStat.updateOne(
+      { question_id: question._id },
+      {
+        yes_ocro_total: ethers.formatEther(questionData.yesOcroTotal),
+        yes_usdt_total: ethers.formatEther(questionData.yesUsdtTotal),
+        yes_participants: Number(questionData.yesParticipants),
+        no_ocro_total: ethers.formatEther(questionData.noOcroTotal),
+        no_usdt_total: ethers.formatEther(questionData.noUsdtTotal),
+        no_participants: Number(questionData.noParticipants),
+        updated_at: new Date()
+      }
+    );
+
+    const data = { ...question.toObject(), id: question._id };
+
+    res.json({
+      success: true,
+      message: 'Question synced successfully',
+      data,
+      wasSettled: questionData.isSettled
+    });
   } catch (error) {
     console.error('Error syncing question:', error);
     res.status(500).json({ success: false, error: error.message });
