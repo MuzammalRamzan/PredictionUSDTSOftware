@@ -40,7 +40,28 @@ export default function AdminPanel({ walletAddress, isLoading }) {
           const deadline = new Date(q.deadline);
           return deadline < now && q.status !== 'settled';
         });
-        setEndedQuestions(ended);
+
+        const verifiedEndedQuestions = [];
+
+        for (const question of ended) {
+          try {
+            const blockchainQuestion = await web3Service.getQuestion(question.contract_question_id);
+
+            if (blockchainQuestion.isSettled) {
+              console.log(`Question ${question.contract_question_id} is settled on blockchain, syncing...`);
+              await fetch(`http://localhost:3001/api/questions/${question.contract_question_id}/sync`, {
+                method: 'POST'
+              });
+            } else {
+              verifiedEndedQuestions.push(question);
+            }
+          } catch (error) {
+            console.error(`Failed to verify question ${question.contract_question_id}:`, error);
+            verifiedEndedQuestions.push(question);
+          }
+        }
+
+        setEndedQuestions(verifiedEndedQuestions);
       }
     } catch (error) {
       console.error('Failed to load ended questions:', error);

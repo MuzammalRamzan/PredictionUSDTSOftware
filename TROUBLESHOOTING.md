@@ -69,6 +69,13 @@ The settle function now:
 - Automatically recovers from known error states
 - Logs detailed information for debugging
 
+#### 5. Automatic Blockchain Verification on Load
+The Admin Panel now verifies blockchain state when loading questions:
+- Checks each "ended but unsettled" question against the blockchain
+- Automatically syncs any questions that are already settled on blockchain
+- Only displays questions that truly need settlement
+- Prevents the "already settled" error by proactively detecting mismatches
+
 ### Prevention
 
 To prevent this issue in the future:
