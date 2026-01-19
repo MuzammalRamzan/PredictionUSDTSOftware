@@ -130,10 +130,17 @@ export const createQuestion = async (req, res) => {
 
 export const settleQuestion = async (req, res) => {
   try {
+    console.log('=== SETTLE QUESTION START ===');
+    console.log('Request params:', req.params);
+    console.log('Request body:', req.body);
+
     const { id } = req.params;
     const { result, adminAddress, transactionHash } = req.body;
 
+    console.log('Parsed values:', { id, result, adminAddress, transactionHash });
+
     if (result !== 'yes' && result !== 'no') {
+      console.log('Invalid result value:', result);
       return res.status(400).json({
         success: false,
         error: 'Result must be either "yes" or "no"'
@@ -141,6 +148,7 @@ export const settleQuestion = async (req, res) => {
     }
 
     if (!adminAddress) {
+      console.log('Missing admin address');
       return res.status(400).json({
         success: false,
         error: 'Admin address is required'
@@ -148,7 +156,11 @@ export const settleQuestion = async (req, res) => {
     }
 
     const adminAddresses = process.env.ADMIN_ADDRESSES?.split(',').map(addr => addr.toLowerCase()) || [];
+    console.log('Configured admin addresses:', adminAddresses);
+    console.log('Provided admin address:', adminAddress.toLowerCase());
+
     if (!adminAddresses.includes(adminAddress.toLowerCase())) {
+      console.log('Unauthorized admin address');
       return res.status(403).json({
         success: false,
         error: 'Unauthorized: Not an admin address'
@@ -156,39 +168,56 @@ export const settleQuestion = async (req, res) => {
     }
 
     if (!transactionHash) {
+      console.log('Missing transaction hash');
       return res.status(400).json({
         success: false,
         error: 'Transaction hash is required'
       });
     }
 
+    console.log('Finding question by ID:', id);
     const question = await Question.findById(id);
+    console.log('Question found:', question ? 'Yes' : 'No');
 
     if (!question) {
+      console.log('Question not found in database');
       return res.status(404).json({ success: false, error: 'Question not found' });
     }
 
+    console.log('Current question status:', question.status);
     if (question.status === 'settled') {
+      console.log('Question already settled');
       return res.status(400).json({ success: false, error: 'Question already settled' });
     }
 
+    console.log('Updating question status to settled');
     question.status = 'settled';
     question.result = result;
     question.settlement_date = new Date();
     question.updated_at = new Date();
-    await question.save();
 
-    await Bet.updateMany(
+    console.log('Saving question to database...');
+    await question.save();
+    console.log('Question saved successfully');
+
+    console.log('Updating winning bets...');
+    const winnerUpdate = await Bet.updateMany(
       { question_id: id, outcome: result },
       { is_winner: true }
     );
+    console.log('Winner bets updated:', winnerUpdate.modifiedCount);
 
-    await Bet.updateMany(
+    console.log('Updating losing bets...');
+    const loserUpdate = await Bet.updateMany(
       { question_id: id, outcome: { $ne: result } },
       { is_winner: false }
     );
+    console.log('Loser bets updated:', loserUpdate.modifiedCount);
 
     const data = { ...question.toObject(), id: question._id };
+
+    console.log('Settlement successful, sending response');
+    console.log('=== SETTLE QUESTION END ===');
 
     res.json({
       success: true,
@@ -196,7 +225,11 @@ export const settleQuestion = async (req, res) => {
       transactionHash
     });
   } catch (error) {
-    console.error('Error settling question:', error);
+    console.error('=== SETTLE QUESTION ERROR ===');
+    console.error('Error type:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('=== ERROR END ===');
     res.status(500).json({ success: false, error: error.message });
   }
 };
