@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Clock, Users, CheckCircle2, XCircle, TrendingUp } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -8,7 +9,16 @@ export default function BettingQuestionCard({
   isLoading = false,
 }) {
   const { isDark } = useTheme();
+  const [currentTime, setCurrentTime] = useState(Date.now());
   const totalParticipants = question.yesPool.participants + question.noPool.participants;
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const yesPercentage = totalParticipants > 0
     ? (question.yesPool.participants / totalParticipants) * 100
@@ -16,15 +26,13 @@ export default function BettingQuestionCard({
   const noPercentage = 100 - yesPercentage;
 
   const isQuestionEnded = () => {
-    const now = new Date();
     const end = new Date(question.endTime);
-    return end.getTime() - now.getTime() <= 0;
+    return end.getTime() - currentTime <= 0;
   };
 
   const getTimeRemaining = () => {
-    const now = new Date();
     const end = new Date(question.endTime);
-    const diff = end.getTime() - now.getTime();
+    const diff = end.getTime() - currentTime;
 
     if (diff <= 0) return 'Ended';
 
