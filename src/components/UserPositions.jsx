@@ -1,8 +1,11 @@
-import { TrendingUp, Clock, Trophy, CheckCircle2, XCircle, Wallet } from 'lucide-react';
+import { useState } from 'react';
+import { TrendingUp, Clock, Trophy, CheckCircle2, XCircle, Wallet, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 export default function UserPositions({ positions, walletConnected, onWithdraw, isLoading = false }) {
   const { isDark } = useTheme();
+  const [activePositionsPage, setActivePositionsPage] = useState(0);
+  const [settledPositionsPage, setSettledPositionsPage] = useState(0);
 
   if (!walletConnected) {
     return (
@@ -116,10 +119,56 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
                     </h3>
                   </div>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {activePositions.map((position) => (
+                    {activePositions.slice(activePositionsPage * 3, (activePositionsPage + 1) * 3).map((position) => (
                       <PositionCard key={position.questionId} position={position} onWithdraw={onWithdraw} isLoading={isLoading} />
                     ))}
                   </div>
+
+                  {activePositions.length > 3 && (
+                    <div className="flex items-center justify-center mt-6 space-x-4">
+                      <button
+                        onClick={() => setActivePositionsPage(p => Math.max(0, p - 1))}
+                        disabled={activePositionsPage === 0}
+                        className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
+                          activePositionsPage === 0
+                            ? isDark
+                              ? 'bg-zinc-800 text-gray-600 cursor-not-allowed'
+                              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : isDark
+                              ? 'bg-zinc-800 text-white hover:bg-zinc-700 border border-zinc-700 hover:border-red-600'
+                              : 'bg-white text-gray-900 hover:bg-red-50 border border-red-200 hover:border-red-400 shadow-sm hover:shadow-md'
+                        }`}
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                        <span>Previous</span>
+                      </button>
+
+                      <div className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg font-semibold ${
+                        isDark ? 'bg-zinc-800 text-white' : 'bg-white text-gray-900 border border-red-200'
+                      }`}>
+                        <span className="text-red-600">{activePositionsPage + 1}</span>
+                        <span className={isDark ? 'text-gray-500' : 'text-gray-400'}>/</span>
+                        <span>{Math.ceil(activePositions.length / 3)}</span>
+                      </div>
+
+                      <button
+                        onClick={() => setActivePositionsPage(p => Math.min(Math.ceil(activePositions.length / 3) - 1, p + 1))}
+                        disabled={activePositionsPage >= Math.ceil(activePositions.length / 3) - 1}
+                        className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
+                          activePositionsPage >= Math.ceil(activePositions.length / 3) - 1
+                            ? isDark
+                              ? 'bg-zinc-800 text-gray-600 cursor-not-allowed'
+                              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : isDark
+                              ? 'bg-zinc-800 text-white hover:bg-zinc-700 border border-zinc-700 hover:border-red-600'
+                              : 'bg-white text-gray-900 hover:bg-red-50 border border-red-200 hover:border-red-400 shadow-sm hover:shadow-md'
+                        }`}
+                      >
+                        <span>Next</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -133,10 +182,56 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
                     </h3>
                   </div>
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {settledPositions.map((position) => (
+                    {settledPositions.slice(settledPositionsPage * 3, (settledPositionsPage + 1) * 3).map((position) => (
                       <PositionCard key={position.questionId} position={position} onWithdraw={onWithdraw} isLoading={isLoading} />
                     ))}
                   </div>
+
+                  {settledPositions.length > 3 && (
+                    <div className="flex items-center justify-center mt-6 space-x-4">
+                      <button
+                        onClick={() => setSettledPositionsPage(p => Math.max(0, p - 1))}
+                        disabled={settledPositionsPage === 0}
+                        className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
+                          settledPositionsPage === 0
+                            ? isDark
+                              ? 'bg-zinc-800 text-gray-600 cursor-not-allowed'
+                              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : isDark
+                              ? 'bg-zinc-800 text-white hover:bg-zinc-700 border border-zinc-700 hover:border-red-600'
+                              : 'bg-white text-gray-900 hover:bg-red-50 border border-red-200 hover:border-red-400 shadow-sm hover:shadow-md'
+                        }`}
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                        <span>Previous</span>
+                      </button>
+
+                      <div className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg font-semibold ${
+                        isDark ? 'bg-zinc-800 text-white' : 'bg-white text-gray-900 border border-red-200'
+                      }`}>
+                        <span className="text-red-600">{settledPositionsPage + 1}</span>
+                        <span className={isDark ? 'text-gray-500' : 'text-gray-400'}>/</span>
+                        <span>{Math.ceil(settledPositions.length / 3)}</span>
+                      </div>
+
+                      <button
+                        onClick={() => setSettledPositionsPage(p => Math.min(Math.ceil(settledPositions.length / 3) - 1, p + 1))}
+                        disabled={settledPositionsPage >= Math.ceil(settledPositions.length / 3) - 1}
+                        className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
+                          settledPositionsPage >= Math.ceil(settledPositions.length / 3) - 1
+                            ? isDark
+                              ? 'bg-zinc-800 text-gray-600 cursor-not-allowed'
+                              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : isDark
+                              ? 'bg-zinc-800 text-white hover:bg-zinc-700 border border-zinc-700 hover:border-red-600'
+                              : 'bg-white text-gray-900 hover:bg-red-50 border border-red-200 hover:border-red-400 shadow-sm hover:shadow-md'
+                        }`}
+                      >
+                        <span>Next</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

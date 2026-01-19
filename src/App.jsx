@@ -5,7 +5,7 @@ import BettingQuestionCard from './components/BettingQuestion';
 import UserPositions from './components/UserPositions';
 import HowItWorks from './components/HowItWorks';
 import AdminPanel from './components/AdminPanel';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from './services/api';
 import { web3Service } from './services/web3';
 import { isAdminAddress } from './config/admin';
@@ -25,6 +25,7 @@ function App() {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [questionsPage, setQuestionsPage] = useState(0);
 
   const activePositionsCount = userPositions.filter(p => p.status === 'active').length;
   const isAdmin = isAdminAddress(walletAddress);
@@ -383,17 +384,65 @@ function App() {
               </div>
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {questions.map((question) => (
-                <BettingQuestionCard
-                  key={question.id}
-                  question={question}
-                  onPlaceBet={handlePlaceBet}
-                  walletConnected={!!walletAddress}
-                  isLoading={isLoading}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {questions.slice(questionsPage * 6, (questionsPage + 1) * 6).map((question) => (
+                  <BettingQuestionCard
+                    key={question.id}
+                    question={question}
+                    onPlaceBet={handlePlaceBet}
+                    walletConnected={!!walletAddress}
+                    isLoading={isLoading}
+                  />
+                ))}
+              </div>
+
+              {questions.length > 6 && (
+                <div className="flex items-center justify-center mt-10 space-x-4">
+                  <button
+                    onClick={() => setQuestionsPage(p => Math.max(0, p - 1))}
+                    disabled={questionsPage === 0}
+                    className={`flex items-center space-x-2 px-5 py-3 rounded-xl font-bold transition-all duration-200 ${
+                      questionsPage === 0
+                        ? isDark
+                          ? 'bg-zinc-800 text-gray-600 cursor-not-allowed'
+                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : isDark
+                          ? 'bg-zinc-800 text-white hover:bg-zinc-700 border-2 border-zinc-700 hover:border-red-600'
+                          : 'bg-white text-gray-900 hover:bg-red-50 border-2 border-red-200 hover:border-red-400 shadow-md hover:shadow-lg'
+                    }`}
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                    <span>Previous</span>
+                  </button>
+
+                  <div className={`flex items-center space-x-2 px-5 py-3 rounded-xl font-bold ${
+                    isDark ? 'bg-zinc-800 text-white' : 'bg-white text-gray-900 border-2 border-red-200'
+                  }`}>
+                    <span className="text-red-600">{questionsPage + 1}</span>
+                    <span className={isDark ? 'text-gray-500' : 'text-gray-400'}>/</span>
+                    <span>{Math.ceil(questions.length / 6)}</span>
+                  </div>
+
+                  <button
+                    onClick={() => setQuestionsPage(p => Math.min(Math.ceil(questions.length / 6) - 1, p + 1))}
+                    disabled={questionsPage >= Math.ceil(questions.length / 6) - 1}
+                    className={`flex items-center space-x-2 px-5 py-3 rounded-xl font-bold transition-all duration-200 ${
+                      questionsPage >= Math.ceil(questions.length / 6) - 1
+                        ? isDark
+                          ? 'bg-zinc-800 text-gray-600 cursor-not-allowed'
+                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : isDark
+                          ? 'bg-zinc-800 text-white hover:bg-zinc-700 border-2 border-zinc-700 hover:border-red-600'
+                          : 'bg-white text-gray-900 hover:bg-red-50 border-2 border-red-200 hover:border-red-400 shadow-md hover:shadow-lg'
+                    }`}
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
