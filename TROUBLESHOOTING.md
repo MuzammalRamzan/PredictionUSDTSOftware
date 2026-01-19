@@ -1,5 +1,31 @@
 # Troubleshooting Guide
 
+## Issue: "Blockchain Transaction Succeeded but Database Update Failed"
+
+### Problem Description
+After successfully settling a question on the blockchain, you see the message "Blockchain transaction succeeded but database update failed. Syncing now..." This indicates that the settlement was recorded on the blockchain but the database couldn't be updated immediately.
+
+### Root Cause
+This was caused by an incorrect API endpoint URL in the frontend. The sync endpoint was being called with the wrong URL pattern, causing the database synchronization to fail even though the blockchain transaction succeeded.
+
+### Solution
+This issue has been fixed in the latest version. The sync endpoint is now called with the correct URL pattern:
+- **Old (incorrect):** `/api/questions/${questionId}/sync`
+- **New (correct):** `/api/questions/sync/${questionId}`
+
+If you still see this error after the fix, it may indicate:
+1. The backend server is not running
+2. Network connectivity issues between frontend and backend
+3. MongoDB connection issues
+
+### Manual Recovery
+If the automatic sync fails, you can manually sync the question:
+1. Click the "Sync All Questions" button in the Admin Panel
+2. Or restart the backend server to ensure MongoDB is connected
+3. Refresh the page and the question should be marked as settled
+
+---
+
 ## Issue: "Already Settled" Error When Trying to Settle Questions
 
 ### Problem Description

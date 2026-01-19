@@ -49,7 +49,7 @@ export default function AdminPanel({ walletAddress, isLoading }) {
 
             if (blockchainQuestion.isSettled) {
               console.log(`Question ${question.contract_question_id} is settled on blockchain, syncing...`);
-              await fetch(`http://localhost:3001/api/questions/${question.contract_question_id}/sync`, {
+              await fetch(`http://localhost:3001/api/questions/sync/${question.contract_question_id}`, {
                 method: 'POST'
               });
             } else {
@@ -81,7 +81,7 @@ export default function AdminPanel({ walletAddress, isLoading }) {
         for (const question of data.data) {
           if (question.contract_question_id !== undefined) {
             try {
-              const syncResponse = await fetch(`http://localhost:3001/api/questions/${question.contract_question_id}/sync`, {
+              const syncResponse = await fetch(`http://localhost:3001/api/questions/sync/${question.contract_question_id}`, {
                 method: 'POST'
               });
 
@@ -123,7 +123,7 @@ export default function AdminPanel({ walletAddress, isLoading }) {
       if (blockchainQuestion.isSettled) {
         alert('This question is already settled on the blockchain. Syncing database...');
 
-        const response = await fetch(`http://localhost:3001/api/questions/${question.contract_question_id}/sync`, {
+        const response = await fetch(`http://localhost:3001/api/questions/sync/${question.contract_question_id}`, {
           method: 'POST'
         });
 
@@ -152,7 +152,7 @@ export default function AdminPanel({ walletAddress, isLoading }) {
         if (blockchainError.message && blockchainError.message.includes('Already settled')) {
           alert('Question was already settled on blockchain. Syncing database...');
 
-          const syncResponse = await fetch(`http://localhost:3001/api/questions/${question.contract_question_id}/sync`, {
+          const syncResponse = await fetch(`http://localhost:3001/api/questions/sync/${question.contract_question_id}`, {
             method: 'POST'
           });
 
@@ -190,7 +190,7 @@ export default function AdminPanel({ walletAddress, isLoading }) {
         if (blockchainSucceeded) {
           alert('Blockchain transaction succeeded but database update failed. Syncing now...');
 
-          const syncResponse = await fetch(`http://localhost:3001/api/questions/${question.contract_question_id}/sync`, {
+          const syncResponse = await fetch(`http://localhost:3001/api/questions/sync/${question.contract_question_id}`, {
             method: 'POST'
           });
 
