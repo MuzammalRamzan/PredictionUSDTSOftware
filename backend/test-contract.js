@@ -31,9 +31,9 @@ async function testContract() {
     console.log('Contract Owner:', owner);
     console.log('Is Owner?', owner.toLowerCase() === wallet.address.toLowerCase());
 
-    const ocroToken = await contract.ocroToken();
+    const ftrToken = await contract.ftrToken();
     const usdtToken = await contract.usdtToken();
-    console.log('OCRO Token:', ocroToken);
+    console.log('FTR Token:', ftrToken);
     console.log('USDT Token:', usdtToken);
 
     console.log('\n' + '='.repeat(60));

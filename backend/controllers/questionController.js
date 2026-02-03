@@ -107,10 +107,10 @@ export const createQuestion = async (req, res) => {
 
     await new PoolStat({
       question_id: question._id,
-      yes_ocro_total: 0,
+      yes_ftr_total: 0,
       yes_usdt_total: 0,
       yes_participants: 0,
-      no_ocro_total: 0,
+      no_ftr_total: 0,
       no_usdt_total: 0,
       no_participants: 0
     }).save();
@@ -314,10 +314,10 @@ export const syncQuestionFromBlockchain = async (req, res) => {
     await PoolStat.updateOne(
       { question_id: question._id },
       {
-        yes_ocro_total: ethers.formatEther(questionData.yesOcroTotal),
+        yes_ftr_total: ethers.formatEther(questionData.yesFtrTotal),
         yes_usdt_total: ethers.formatEther(questionData.yesUsdtTotal),
         yes_participants: Number(questionData.yesParticipants),
-        no_ocro_total: ethers.formatEther(questionData.noOcroTotal),
+        no_ftr_total: ethers.formatEther(questionData.noFtrTotal),
         no_usdt_total: ethers.formatEther(questionData.noUsdtTotal),
         no_participants: Number(questionData.noParticipants),
         updated_at: new Date()

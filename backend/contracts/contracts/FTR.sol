@@ -4,8 +4,8 @@ pragma solidity ^0.8.27;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract OCRO is ERC20 {
-    constructor(address recipient) ERC20("OCRO", "OCRO") {
+contract FTR is ERC20 {
+    constructor(address recipient) ERC20("FTR", "FTR") {
         _mint(recipient, 10000 * 10 ** decimals());
     }
 }

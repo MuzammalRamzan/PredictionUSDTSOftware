@@ -7,7 +7,7 @@ const poolStatSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  yes_ocro_total: {
+  yes_ftr_total: {
     type: Number,
     default: 0
   },
@@ -19,7 +19,7 @@ const poolStatSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  no_ocro_total: {
+  no_ftr_total: {
     type: Number,
     default: 0
   },
@@ -31,7 +31,7 @@ const poolStatSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  admin_fee_ocro: {
+  admin_fee_ftr: {
     type: Number,
     default: 0
   },

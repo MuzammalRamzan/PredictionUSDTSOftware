@@ -8,122 +8,158 @@ export default function Hero({ stats }) {
     <div className={`relative pt-32 pb-24 overflow-hidden ${
       isDark
         ? 'bg-transparent'
-        : 'bg-gradient-to-br from-red-50 via-white to-orange-50'
+        : 'bg-gradient-to-br from-yellow-50/80 via-white to-yellow-50/50'
     }`}>
-      <div className={`absolute inset-0 ${
-        isDark
-          ? 'bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.1),transparent_50%)]'
-          : 'bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.08),transparent_50%)]'
+      {/* Background Gradients */}
+      <div className={`absolute top-20 left-10 w-[500px] h-[500px] rounded-full blur-[120px] opacity-20 animate-pulse ${
+        isDark ? 'bg-yellow-600' : 'bg-yellow-400'
       }`}></div>
-      <div className={`absolute inset-0 ${
-        isDark
-          ? 'bg-[radial-gradient(circle_at_70%_80%,rgba(239,68,68,0.1),transparent_50%)]'
-          : 'bg-[radial-gradient(circle_at_70%_80%,rgba(239,68,68,0.08),transparent_50%)]'
+      <div className={`absolute bottom-20 right-10 w-[600px] h-[600px] rounded-full blur-[140px] opacity-15 animate-pulse delay-1000 ${
+        isDark ? 'bg-yellow-600' : 'bg-yellow-400'
       }`}></div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-5 py-2.5 rounded-full text-sm font-bold mb-8 shadow-lg">
+        <div className="text-center mb-24">
+          <div className={`inline-flex items-center space-x-2 backdrop-blur-xl border px-6 py-2.5 rounded-full text-sm font-bold mb-10 shadow-lg hover:scale-105 transition-transform duration-300 ring-1 cursor-default ${
+            isDark 
+              ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400 ring-yellow-500/20'
+              : 'bg-yellow-500/10 border-yellow-600/20 text-yellow-700 ring-yellow-600/20'
+          }`}>
             <Shield className="w-4 h-4" />
-            <span>Powered by Binance Smart Chain</span>
+            <span className="tracking-wide">Powered by Binance Smart Chain</span>
             <Sparkles className="w-4 h-4" />
           </div>
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold mb-8 leading-tight">
-            <span className={isDark ? 'text-white' : 'text-gray-900'}>World Cup 2026</span>
-            <span className={`block bg-gradient-to-r text-transparent bg-clip-text ${
+          <h1 className="text-6xl sm:text-7xl lg:text-9xl font-black mb-8 leading-[0.9] tracking-tighter">
+            <span className={`inline-block ${isDark ? 'text-white' : 'text-zinc-900'} drop-shadow-sm`}>
+              World Cup 2026
+            </span>
+            <span className={`block bg-gradient-to-r text-transparent bg-clip-text pb-4 ${
               isDark
-                ? 'from-red-500 via-red-600 to-red-500'
-                : 'from-red-600 via-red-700 to-red-600'
+                ? 'from-yellow-300 via-yellow-400 to-yellow-300 text-glow animate-text-shimmer bg-[length:200%_auto]'
+                : 'from-yellow-600 via-yellow-700 to-yellow-600'
             }`}>
               Prediction Pools
             </span>
           </h1>
 
-          <p className={`text-xl sm:text-2xl max-w-3xl mx-auto mb-12 leading-relaxed ${
-            isDark ? 'text-gray-300' : 'text-gray-700'
+          <p className={`text-xl sm:text-2xl max-w-3xl mx-auto mb-14 leading-relaxed font-medium ${
+            isDark ? 'text-zinc-400' : 'text-zinc-600'
           }`}>
             Stake FTR and USDT on World Cup matches. Transparent, trustless settlements powered by smart contracts.
           </p>
 
-          <div className="flex flex-wrap justify-center gap-5">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
             <a
               href="#active"
-              className="group inline-flex items-center space-x-3 bg-gradient-to-r from-red-600 to-red-700 text-white px-10 py-4 rounded-xl font-bold text-lg hover:from-red-500 hover:to-red-600 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105"
+              className="group relative w-full sm:w-auto inline-flex items-center justify-center space-x-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:from-yellow-400 hover:to-yellow-500 transition-all duration-300 shadow-[0_0_40px_-10px_rgba(234,179,8,0.6)] hover:shadow-[0_0_60px_-15px_rgba(234,179,8,0.8)] hover:-translate-y-1 overflow-hidden"
             >
-              <TrendingUp className="w-6 h-6" />
-              <span>Explore Markets</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <div className="absolute inset-0 bg-white/20 group-hover:translate-x-full duration-700 transition-transform -skew-x-12 -translate-x-full"></div>
+              <TrendingUp className="w-6 h-6 relative z-10" />
+              <span className="relative z-10">Explore Markets</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" />
             </a>
             <a
               href="#how"
-              className={`inline-flex items-center space-x-3 px-10 py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg ${
+              className={`w-full sm:w-auto inline-flex items-center justify-center space-x-3 px-10 py-5 rounded-2xl font-bold text-lg transition-all duration-300 backdrop-blur-md border ${
                 isDark
-                  ? 'bg-zinc-800/80 backdrop-blur-xl border-2 border-zinc-700 text-white hover:bg-zinc-700/80 hover:border-red-400/50'
-                  : 'bg-white border-2 border-red-200 text-gray-900 hover:bg-red-50 hover:border-red-500'
-              }`}
-            >
-              <span>Learn More</span>
-            </a>
-          </div>
-        </div>
+                  ? 'bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-yellow-500/30 hover:-translate-y-1 hover:shadow-lg hover:shadow-white/5'
+                  : 'bg-white/80 border-yellow-300/50 text-zinc-900 hover:bg-white hover:border-yellow-400 hover:-translate-y-1 hover:shadow-lg hover:shadow-yellow-500/10'
+      }`}
+    >
+      <span>Learn More</span>
+    </a>
+  </div>
+</div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-          <div className={`group rounded-2xl p-8 border-2 transition-all duration-300 hover:scale-105 ${
-            isDark
-              ? 'bg-zinc-800/50 backdrop-blur-xl border-zinc-700 hover:border-red-400/50 hover:shadow-2xl hover:shadow-red-500/20'
-              : 'bg-white border-red-100 hover:border-red-500 hover:shadow-xl hover:shadow-red-500/10'
-          }`}>
-            <div className="bg-gradient-to-br from-red-600 to-red-700 p-4 rounded-xl mb-4 inline-block shadow-md">
-              <Coins className="w-7 h-7 text-white" />
-            </div>
-            <div className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              {stats.totalVolume.ocro.toLocaleString()}
-            </div>
-            <div className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>FTR Volume</div>
-          </div>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+  {/* FTR Volume */}
+  <div className={`group relative p-8 rounded-3xl transition-all duration-500 hover:scale-[1.02] border backdrop-blur-xl ${
+    isDark 
+      ? 'bg-zinc-900/40 border-zinc-800 hover:bg-zinc-800/60 hover:border-yellow-500/30' 
+      : 'bg-white/60 border-white/80 hover:bg-white/80 hover:border-yellow-400/50 shadow-xl shadow-yellow-900/5'
+  }`}>
+    <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+      isDark 
+        ? 'bg-gradient-to-br from-yellow-500/10 via-transparent to-transparent' 
+        : 'bg-gradient-to-br from-yellow-500/5 via-transparent to-transparent'
+    }`}></div>
+    <div className="relative">
+      <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 p-3.5 rounded-2xl mb-6 inline-block shadow-lg shadow-yellow-500/30 group-hover:scale-110 transition-transform duration-500">
+        <Coins className="w-7 h-7 text-white" />
+      </div>
+      <div className={`text-4xl font-black mb-2 tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+        {stats.totalVolume.ftr.toLocaleString()}
+      </div>
+      <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-zinc-500' : 'text-zinc-600 group-hover:text-yellow-700'} transition-colors`}>FTR Volume</div>
+    </div>
+  </div>
 
-          <div className={`group rounded-2xl p-8 border-2 transition-all duration-300 hover:scale-105 ${
-            isDark
-              ? 'bg-zinc-800/50 backdrop-blur-xl border-zinc-700 hover:border-red-400/50 hover:shadow-2xl hover:shadow-red-500/20'
-              : 'bg-white border-red-100 hover:border-red-500 hover:shadow-xl hover:shadow-red-500/10'
-          }`}>
-            <div className="bg-gradient-to-br from-red-600 to-red-700 p-4 rounded-xl mb-4 inline-block shadow-md">
-              <Coins className="w-7 h-7 text-white" />
-            </div>
-            <div className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              {stats.totalVolume.usdt.toLocaleString()}
-            </div>
-            <div className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>USDT Volume</div>
-          </div>
+  {/* USDT Volume */}
+  <div className={`group relative p-8 rounded-3xl transition-all duration-500 hover:scale-[1.02] border backdrop-blur-xl ${
+    isDark 
+      ? 'bg-zinc-900/40 border-zinc-800 hover:bg-zinc-800/60 hover:border-green-500/30' 
+      : 'bg-white/60 border-white/80 hover:bg-white/80 hover:border-green-400/50 shadow-xl shadow-green-900/5'
+  }`}>
+     <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+      isDark 
+        ? 'bg-gradient-to-br from-green-500/10 via-transparent to-transparent' 
+        : 'bg-gradient-to-br from-green-500/5 via-transparent to-transparent'
+    }`}></div>
+    <div className="relative">
+      <div className="bg-gradient-to-br from-green-500 to-green-600 p-3.5 rounded-2xl mb-6 inline-block shadow-lg shadow-green-500/30 group-hover:scale-110 transition-transform duration-500">
+        <Coins className="w-7 h-7 text-white" />
+      </div>
+      <div className={`text-4xl font-black mb-2 tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+        {stats.totalVolume.usdt.toLocaleString()}
+      </div>
+      <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-zinc-500' : 'text-zinc-600 group-hover:text-green-700'} transition-colors`}>USDT Volume</div>
+    </div>
+  </div>
 
-          <div className={`group rounded-2xl p-8 border-2 transition-all duration-300 hover:scale-105 ${
-            isDark
-              ? 'bg-zinc-800/50 backdrop-blur-xl border-zinc-700 hover:border-red-400/50 hover:shadow-2xl hover:shadow-red-500/20'
-              : 'bg-white border-red-100 hover:border-red-500 hover:shadow-xl hover:shadow-red-500/10'
-          }`}>
-            <div className="bg-gradient-to-br from-red-700 to-red-800 p-4 rounded-xl mb-4 inline-block shadow-md">
-              <TrendingUp className="w-7 h-7 text-white" />
-            </div>
-            <div className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              {stats.activeQuestions}
-            </div>
-            <div className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Active Markets</div>
-          </div>
+  {/* Active Markets */}
+  <div className={`group relative p-8 rounded-3xl transition-all duration-500 hover:scale-[1.02] border backdrop-blur-xl ${
+    isDark 
+      ? 'bg-zinc-900/40 border-zinc-800 hover:bg-zinc-800/60 hover:border-blue-500/30' 
+      : 'bg-white/60 border-white/80 hover:bg-white/80 hover:border-blue-400/50 shadow-xl shadow-blue-900/5'
+  }`}>
+     <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+      isDark 
+        ? 'bg-gradient-to-br from-blue-500/10 via-transparent to-transparent' 
+        : 'bg-gradient-to-br from-blue-500/5 via-transparent to-transparent'
+    }`}></div>
+    <div className="relative">
+      <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3.5 rounded-2xl mb-6 inline-block shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform duration-500">
+        <TrendingUp className="w-7 h-7 text-white" />
+      </div>
+      <div className={`text-4xl font-black mb-2 tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+        {stats.activeQuestions}
+      </div>
+      <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-zinc-500' : 'text-zinc-600 group-hover:text-blue-700'} transition-colors`}>Active Markets</div>
+    </div>
+  </div>
 
-          <div className={`group rounded-2xl p-8 border-2 transition-all duration-300 hover:scale-105 ${
-            isDark
-              ? 'bg-zinc-800/50 backdrop-blur-xl border-zinc-700 hover:border-red-400/50 hover:shadow-2xl hover:shadow-red-500/20'
-              : 'bg-white border-red-100 hover:border-red-500 hover:shadow-xl hover:shadow-red-500/10'
-          }`}>
-            <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-4 rounded-xl mb-4 inline-block shadow-md">
-              <Users className="w-7 h-7 text-white" />
-            </div>
-            <div className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              {stats.totalParticipants.toLocaleString()}
-            </div>
-            <div className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Participants</div>
-          </div>
+  {/* Participants */}
+  <div className={`group relative p-8 rounded-3xl transition-all duration-500 hover:scale-[1.02] border backdrop-blur-xl ${
+    isDark 
+      ? 'bg-zinc-900/40 border-zinc-800 hover:bg-zinc-800/60 hover:border-purple-500/30' 
+      : 'bg-white/60 border-white/80 hover:bg-white/80 hover:border-purple-400/50 shadow-xl shadow-purple-900/5'
+  }`}>
+     <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+      isDark 
+        ? 'bg-gradient-to-br from-purple-500/10 via-transparent to-transparent' 
+        : 'bg-gradient-to-br from-purple-500/5 via-transparent to-transparent'
+    }`}></div>
+    <div className="relative">
+      <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-3.5 rounded-2xl mb-6 inline-block shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform duration-500">
+        <Users className="w-7 h-7 text-white" />
+      </div>
+      <div className={`text-4xl font-black mb-2 tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+        {stats.totalParticipants}
+      </div>
+      <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-zinc-500' : 'text-zinc-600 group-hover:text-purple-700'} transition-colors`}>Participants</div>
+    </div>
+  </div>
         </div>
       </div>
     </div>

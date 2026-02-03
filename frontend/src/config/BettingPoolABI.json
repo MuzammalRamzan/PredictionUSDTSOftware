@@ -3,7 +3,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_ocroToken",
+        "name": "_ftrToken",
         "type": "address"
       },
       {
@@ -21,7 +21,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "ocroAmount",
+        "name": "ftrAmount",
         "type": "uint256"
       },
       {
@@ -58,7 +58,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "ocroAmount",
+        "name": "ftrAmount",
         "type": "uint256"
       },
       {
@@ -133,7 +133,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "ocroAmount",
+        "name": "ftrAmount",
         "type": "uint256"
       },
       {
@@ -161,7 +161,7 @@
   },
   {
     "inputs": [],
-    "name": "FIXED_OCRO_AMOUNT",
+    "name": "FIXED_FTR_AMOUNT",
     "outputs": [
       {
         "internalType": "uint256",
@@ -187,7 +187,7 @@
   },
   {
     "inputs": [],
-    "name": "adminFeesOcro",
+    "name": "adminFeesFtr",
     "outputs": [
       {
         "internalType": "uint256",
@@ -238,7 +238,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "ocroAmount",
+        "name": "ftrAmount",
         "type": "uint256"
       },
       {
@@ -272,7 +272,7 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "ocroWinnings",
+        "name": "ftrWinnings",
         "type": "uint256"
       },
       {
@@ -309,6 +309,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "ftrToken",
+    "outputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -342,7 +355,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "yesOcroTotal",
+            "name": "yesFtrTotal",
             "type": "uint256"
           },
           {
@@ -352,7 +365,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "noOcroTotal",
+            "name": "noFtrTotal",
             "type": "uint256"
           },
           {
@@ -432,7 +445,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "ocroAmount",
+            "name": "ftrAmount",
             "type": "uint256"
           },
           {
@@ -449,19 +462,6 @@
         "internalType": "struct BettingPool.Bet",
         "name": "",
         "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "ocroToken",
-    "outputs": [
-      {
-        "internalType": "contract IERC20",
-        "name": "",
-        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -567,7 +567,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "yesOcroTotal",
+        "name": "yesFtrTotal",
         "type": "uint256"
       },
       {
@@ -577,7 +577,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "noOcroTotal",
+        "name": "noFtrTotal",
         "type": "uint256"
       },
       {

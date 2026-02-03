@@ -10,7 +10,7 @@ const withdrawalSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  ocro_amount: {
+  ftr_amount: {
     type: Number,
     required: true
   },
