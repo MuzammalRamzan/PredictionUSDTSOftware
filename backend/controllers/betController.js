@@ -7,19 +7,32 @@ import {ethers} from "ethers";
 
 export const recordBet = async (req, res) => {
   try {
-    const {questionId, userAddress, outcome, transactionHash} = req.body;
+    const {
+      questionId,
+      userAddress,
+      outcome,
+      transactionHash,
+      ftrAmount,
+      usdtAmount,
+    } = req.body;
 
-    if (!questionId || !userAddress || !outcome || !transactionHash) {
+    if (
+      !questionId ||
+      !userAddress ||
+      outcome === undefined ||
+      !transactionHash
+    ) {
       return res.status(400).json({
         success: false,
         error: "Missing required fields",
       });
     }
 
-    if (outcome !== "yes" && outcome !== "no") {
+    // Outcome is now an index (number)
+    if (typeof outcome !== "number" || outcome < 0) {
       return res.status(400).json({
         success: false,
-        error: 'Outcome must be either "yes" or "no"',
+        error: "Outcome must be a valid index (number)",
       });
     }
 
@@ -32,12 +45,15 @@ export const recordBet = async (req, res) => {
       });
     }
 
+    const betFtrAmount = ftrAmount ? parseFloat(ftrAmount) : 1;
+    const betUsdtAmount = usdtAmount ? parseFloat(usdtAmount) : 1;
+
     const bet = new Bet({
       question_id: questionId,
       user_address: userAddress.toLowerCase(),
       outcome,
-      ftr_amount: 1,
-      usdt_amount: 1,
+      ftr_amount: betFtrAmount,
+      usdt_amount: betUsdtAmount,
       transaction_hash: transactionHash,
     });
 
@@ -46,16 +62,23 @@ export const recordBet = async (req, res) => {
     const stats = await PoolStat.findOne({question_id: questionId});
 
     if (stats) {
-      if (outcome === "yes") {
-        stats.yes_ftr_total = parseFloat(stats.yes_ftr_total) + 1;
-        stats.yes_usdt_total = parseFloat(stats.yes_usdt_total) + 1;
-        stats.yes_participants = stats.yes_participants + 1;
-      } else {
-        stats.no_ftr_total = parseFloat(stats.no_ftr_total) + 1;
-        stats.no_usdt_total = parseFloat(stats.no_usdt_total) + 1;
-        stats.no_participants = stats.no_participants + 1;
+      // Initialize outcome_stats if not enough elements
+      while (stats.outcome_stats.length <= outcome) {
+        stats.outcome_stats.push({
+          ftr_total: 0,
+          usdt_total: 0,
+          participants: 0,
+        });
       }
 
+      stats.outcome_stats[outcome].ftr_total =
+        (stats.outcome_stats[outcome].ftr_total || 0) + betFtrAmount;
+      stats.outcome_stats[outcome].usdt_total =
+        (stats.outcome_stats[outcome].usdt_total || 0) + betUsdtAmount;
+      stats.outcome_stats[outcome].participants =
+        (stats.outcome_stats[outcome].participants || 0) + 1;
+
+      stats.markModified("outcome_stats");
       stats.updated_at = new Date();
       await stats.save();
     }

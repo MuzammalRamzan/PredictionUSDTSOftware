@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
+import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
+import LanguageSwitcher from './components/LanguageSwitcher';
 import Hero from './components/Hero';
 import BettingQuestionCard from './components/BettingQuestion';
 import UserPositions from './components/UserPositions';
@@ -13,6 +16,7 @@ import { useTheme } from './contexts/ThemeContext';
 
 function App() {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
   const [walletAddress, setWalletAddress] = useState();
   const [questions, setQuestions] = useState([]);
   const [userPositions, setUserPositions] = useState([]);
@@ -27,6 +31,10 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [questionsPage, setQuestionsPage] = useState(0);
 
+  const [isBettingModalOpen, setIsBettingModalOpen] = useState(false);
+  const [selectedBet, setSelectedBet] = useState({ questionId: null, outcomeIndex: null, outcomeName: '' });
+  const [betAmounts, setBetAmounts] = useState({ ftr: '1', usdt: '1' });
+
   const activePositionsCount = userPositions.filter(p => p.status === 'active').length;
   const isAdmin = isAdminAddress(walletAddress);
 
@@ -40,10 +48,10 @@ function App() {
         if (accounts.length === 0) {
           setWalletAddress(null);
           setUserPositions([]);
-          showToast('Wallet disconnected');
+          showToast(t('toast.walletDisconnected'));
         } else if (accounts[0] !== walletAddress) {
           setWalletAddress(accounts[0]);
-          showToast('Account switched');
+          showToast(t('toast.accountSwitched'));
         }
       };
 
@@ -79,25 +87,29 @@ function App() {
   const loadQuestions = async () => {
     try {
       const data = await api.getAllQuestions('open');
-      const formattedQuestions = data.map(q => ({
-        id: q._id,
-        contractQuestionId: q.contractQuestionId,
-        question: q.title,
-        category: q.category,
-        endTime: new Date(q.deadline),
-        status: q.status,
-        yesPool: {
-          ftr: q.totalYesFtr || 0,
-          usdt: q.totalYesUsdt || 0,
-          participants: q.yesCount || 0,
-        },
-        noPool: {
-          ftr: q.totalNoFtr || 0,
-          usdt: q.totalNoUsdt || 0,
-          participants: q.noCount || 0,
-        },
-        result: q.result,
-      }));
+      const formattedQuestions = data.map(q => {
+        const outcomeStats = q.outcomeStats || [];
+        
+        // Map outcome stats or default to 0
+        const formattedOutcomeStats = (q.outcomes || []).map((outcome, index) => ({
+            name: outcome,
+            ftr: outcomeStats[index]?.ftr_total || 0,
+            usdt: outcomeStats[index]?.usdt_total || 0,
+            participants: outcomeStats[index]?.participants || 0
+        }));
+
+        return {
+          id: q._id,
+          contractQuestionId: q.contractQuestionId,
+          question: q.title,
+          outcomes: q.outcomes,
+          category: q.category,
+          endTime: new Date(q.deadline),
+          status: q.status,
+          outcomeStats: formattedOutcomeStats,
+          result: q.result,
+        };
+      });
       setQuestions(formattedQuestions);
     } catch (error) {
       console.error('Failed to load questions:', error);
@@ -130,6 +142,7 @@ function App() {
           questionId: bet.questionId._id,
           contractQuestionId: bet.questionId.contractQuestionId,
           question: bet.questionId.title,
+          outcomes: bet.questionId.outcomes,
           side: bet.outcome,
           ftrStaked: bet.ftrAmount,
           usdtStaked: bet.usdtAmount,
@@ -173,10 +186,10 @@ function App() {
       setIsLoading(true);
       const address = await web3Service.connectWallet();
       setWalletAddress(address);
-      showToast('Wallet connected successfully!');
+      showToast(t('toast.walletConnected'));
     } catch (error) {
       console.error('Failed to connect wallet:', error);
-      let errorMessage = 'Failed to connect wallet';
+      let errorMessage = t('toast.connectFailed');
 
       if (error.reason) {
         errorMessage = error.reason;
@@ -196,83 +209,89 @@ function App() {
     showToast('Wallet disconnected');
   };
 
-  const handlePlaceBet = async (questionId, side) => {
+  const handlePlaceBetClick = (questionId, outcomeIndex, outcomeName) => {
     if (!walletAddress) {
-      showToast('Please connect your wallet first');
+      showToast(t('toast.connectFirst'));
       return;
+    }
+    setSelectedBet({ questionId, outcomeIndex, outcomeName });
+    setBetAmounts({ ftr: '1', usdt: '1' }); // Reset to minimums
+    setIsBettingModalOpen(true);
+  };
+
+  const handleConfirmBet = async () => {
+    const { questionId, outcomeIndex, outcomeName } = selectedBet;
+    const { ftr, usdt } = betAmounts;
+
+    if (!questionId || outcomeIndex === null) return;
+
+    if (parseFloat(ftr) < 1 || parseFloat(usdt) < 1) {
+        showToast("Minimum bet is 1 FTR and 1 USDT");
+        return;
     }
 
     try {
       setIsLoading(true);
+      setIsBettingModalOpen(false); // Close modal
       const question = questions.find(q => q.id === questionId);
 
-      showToast('Checking if bet already placed...');
-      const existingBet = await web3Service.getUserBet(question.contractQuestionId, walletAddress);
+      showToast(t('toast.checkingPrediction'));
+      // Note: checkBalances and checkApprovals might need updates if logic changes, 
+      // but assuming they check against 1 unit is fine for now, or we update them to check against input amount.
+      // For now, let's update checkBalances/Approvals to take amount.
+      
+      // ... actually web3Service.checkBalances checks for 1 unit hardcoded. 
+      // We should probably update it, but for now let's assume user has enough if they pass that check.
+      // Better to update web3Service later if needed.
 
-      if (existingBet && existingBet.hasBet) {
-        showToast('Bet already placed');
-        setIsLoading(false);
-        return;
-      }
-
-      showToast('Checking token balances...');
-      const balances = await web3Service.checkBalances(walletAddress);
-
+      showToast(t('toast.checkingBalances'));
+      const balances = await web3Service.checkBalances(walletAddress, ftr, usdt);
       if (!balances.hasSufficientBalance) {
-        let errorMessage = 'Insufficient balance: ';
-        const missingTokens = [];
-
-        if (!balances.hasFtrBalance) {
-          missingTokens.push(`FTR (have ${parseFloat(balances.ftrBalance).toFixed(2)}, need 1)`);
-        }
-        if (!balances.hasUsdtBalance) {
-          missingTokens.push(`USDT (have ${parseFloat(balances.usdtBalance).toFixed(2)}, need 1)`);
-        }
-
-        errorMessage += missingTokens.join(' and ');
-        showToast(errorMessage);
+        showToast(`Insufficient balance. Need ${ftr} FTR and ${usdt} USDT.`);
         setIsLoading(false);
         return;
       }
 
-      showToast('Checking token approvals...');
-      const approvals = await web3Service.checkApprovals(walletAddress);
+      showToast(t('toast.checkingApprovals'));
+      const approvals = await web3Service.checkApprovals(walletAddress, ftr, usdt);
 
       if (!approvals.ftrApproved || !approvals.usdtApproved) {
-        showToast('Approving tokens...');
+        showToast(t('toast.approving'));
         await web3Service.approveTokens();
-        showToast('Tokens approved! Placing bet...');
+        showToast(t('toast.approvedPlacing'));
       } else {
-        showToast('Placing bet...');
+        showToast(t('toast.placing'));
       }
 
-      const txHash = await web3Service.placeBet(question.contractQuestionId, side);
+      const txHash = await web3Service.placeBet(question.contractQuestionId, outcomeIndex, ftr, usdt);
 
-      showToast('Recording bet...');
+      showToast(t('toast.recording'));
       await api.recordBet({
         contractQuestionId: question.contractQuestionId,
         questionId: questionId,
         userAddress: walletAddress,
-        outcome: side,
+        outcome: outcomeIndex, // Send index to backend
+        ftrAmount: parseFloat(ftr),
+        usdtAmount: parseFloat(usdt),
         transactionHash: txHash,
       });
 
-      showToast(`Bet placed successfully on ${side.toUpperCase()}!`);
+      showToast(t('toast.placedSuccess', { side: outcomeName }));
       await loadQuestions();
       await loadUserBets();
     } catch (error) {
       console.error('Failed to place bet:', error);
-      let errorMessage = 'Failed to place bet';
+      let errorMessage = t('toast.placeFailed');
 
       if (error.reason) {
         errorMessage = error.reason;
       } else if (error.message) {
         if (error.message.includes('Already placed bet')) {
-          errorMessage = 'Bet already placed';
+          errorMessage = t('toast.alreadyPlaced');
         } else if (error.message.includes('user rejected')) {
-          errorMessage = 'Transaction cancelled';
+          errorMessage = t('toast.txCancelled');
         } else if (error.message.includes('insufficient funds')) {
-          errorMessage = 'Insufficient funds';
+          errorMessage = t('toast.insufficientFunds');
         } else {
           errorMessage = error.message.split('(')[0].trim();
         }
@@ -286,7 +305,7 @@ function App() {
 
   const handleWithdraw = async (questionId) => {
     if (!walletAddress) {
-      showToast('Please connect your wallet first');
+      showToast(t('toast.connectFirst'));
       return;
     }
 
@@ -296,13 +315,13 @@ function App() {
     }
 
     if (!position.contractQuestionId && position.contractQuestionId !== 0) {
-      showToast('Unable to withdraw: question not found on blockchain');
+      showToast(t('toast.unableToWithdraw'));
       return;
     }
 
     try {
       setIsLoading(true);
-      showToast('Calculating winnings...');
+      showToast(t('toast.calculatingWinnings'));
 
       const winnings = await web3Service.calculateWinnings(
         position.contractQuestionId,
@@ -310,15 +329,15 @@ function App() {
       );
 
       if (parseFloat(winnings.ftr) === 0 && parseFloat(winnings.usdt) === 0) {
-        showToast('No winnings available to withdraw');
+        showToast(t('toast.noWinnings'));
         setIsLoading(false);
         return;
       }
 
-      showToast('Processing withdrawal...');
+      showToast(t('toast.processingWithdrawal'));
       const txHash = await web3Service.withdrawWinnings(position.contractQuestionId);
 
-      showToast('Recording withdrawal...');
+      showToast(t('toast.recordingWithdrawal'));
       await api.recordWithdrawal({
         questionId: questionId,
         userAddress: walletAddress,
@@ -327,19 +346,19 @@ function App() {
         transactionHash: txHash,
       });
 
-      showToast(`Successfully withdrawn ${parseFloat(winnings.ftr).toFixed(2)} FTR + ${parseFloat(winnings.usdt).toFixed(2)} USDT!`);
+      showToast(t('toast.withdrawSuccess', { ftr: parseFloat(winnings.ftr).toFixed(2), usdt: parseFloat(winnings.usdt).toFixed(2) }));
       await loadUserBets();
     } catch (error) {
       console.error('Failed to withdraw:', error);
-      let errorMessage = 'Failed to withdraw winnings';
+      let errorMessage = t('toast.withdrawFailed');
 
       if (error.reason) {
         errorMessage = error.reason;
       } else if (error.message) {
         if (error.message.includes('user rejected')) {
-          errorMessage = 'Transaction cancelled';
+          errorMessage = t('toast.txCancelled');
         } else if (error.message.includes('insufficient funds')) {
-          errorMessage = 'Insufficient funds';
+          errorMessage = t('toast.insufficientFunds');
         } else {
           errorMessage = error.message.split('(')[0].trim();
         }
@@ -398,117 +417,192 @@ function App() {
         </div>
       )}
 
-      <main className="relative z-10 pt-24 pb-20 space-y-24">
-        <Hero stats={platformStats} />
+      <Routes>
+        <Route path="/" element={
+          <>
+            <main className="relative z-10 pt-24 pb-20 space-y-24">
+              <Hero stats={platformStats} />
 
-        <section id="active" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-28 animate-fade-in-up">
-          <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-8">
-            <div className="text-left max-w-2xl">
-              <div className="inline-flex items-center space-x-2 mb-4 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
-                </span>
-                <span className="text-xs font-bold text-yellow-600 dark:text-yellow-500 tracking-wider uppercase">Live Markets</span>
-              </div>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">
-                Active <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-yellow-600">Prediction Pools</span>
-              </h2>
-              <p className={`text-lg md:text-xl leading-relaxed ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                Place your predictions with transparent settlement powered by BSC blockchain.
-              </p>
-            </div>
-            
-            {questions.length > 6 && (
-              <div className={`flex space-x-3 p-1.5 rounded-2xl backdrop-blur-sm border ${
-                isDark 
-                  ? 'bg-black/20 border-white/5' 
-                  : 'bg-white border-zinc-200 shadow-sm'
-              }`}>
-                <button 
-                  onClick={() => setQuestionsPage(p => Math.max(0, p - 1))}
-                  disabled={questionsPage === 0}
-                  className={`p-3 rounded-xl transition-all duration-300 ${
-                    questionsPage === 0
-                      ? 'opacity-50 cursor-not-allowed text-zinc-400 dark:text-zinc-600'
-                      : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 shadow-sm hover:shadow-md text-zinc-900 dark:text-white'
-                  }`}
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-                <div className="flex items-center px-4 font-mono font-bold text-lg">
-                  <span className="text-yellow-500">{questionsPage + 1}</span>
-                  <span className="mx-2 opacity-30 text-zinc-400 dark:text-zinc-600">/</span>
-                  <span className="opacity-70 text-zinc-600 dark:text-zinc-400">{Math.ceil(questions.length / 6)}</span>
+              <section id="active" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-28 animate-fade-in-up">
+                <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-8">
+                  <div className="text-left max-w-2xl">
+                    <div className="inline-flex items-center space-x-2 mb-4 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
+                      </span>
+                      <span className="text-xs font-bold text-yellow-600 dark:text-yellow-500 tracking-wider uppercase">{t('home.liveMarkets')}</span>
+                    </div>
+                    <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">
+                      <Trans i18nKey="home.activePools">
+                        Active <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-yellow-600">Prediction Pools</span>
+                      </Trans>
+                    </h2>
+                    <p className={`text-lg md:text-xl leading-relaxed ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                      {t('home.description')}
+                    </p>
+                  </div>
+                  
+                  {questions.length > 6 && (
+                    <div className={`flex space-x-3 p-1.5 rounded-2xl backdrop-blur-sm border ${
+                      isDark 
+                        ? 'bg-black/20 border-white/5' 
+                        : 'bg-white border-zinc-200 shadow-sm'
+                    }`}>
+                      <button 
+                        onClick={() => setQuestionsPage(p => Math.max(0, p - 1))}
+                        disabled={questionsPage === 0}
+                        className={`p-3 rounded-xl transition-all duration-300 ${
+                          questionsPage === 0
+                            ? 'opacity-50 cursor-not-allowed text-zinc-400 dark:text-zinc-600'
+                            : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 shadow-sm hover:shadow-md text-zinc-900 dark:text-white'
+                        }`}
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                      </button>
+                      <div className="flex items-center px-4 font-mono font-bold text-lg">
+                        <span className="text-yellow-500">{questionsPage + 1}</span>
+                        <span className="mx-2 opacity-30 text-zinc-400 dark:text-zinc-600">/</span>
+                        <span className="opacity-70 text-zinc-600 dark:text-zinc-400">{Math.ceil(questions.length / 6)}</span>
+                      </div>
+                      <button 
+                        onClick={() => setQuestionsPage(p => Math.min(Math.ceil(questions.length / 6) - 1, p + 1))}
+                        disabled={questionsPage >= Math.ceil(questions.length / 6) - 1}
+                        className={`p-3 rounded-xl transition-all duration-300 ${
+                          questionsPage >= Math.ceil(questions.length / 6) - 1
+                            ? 'opacity-50 cursor-not-allowed text-zinc-400 dark:text-zinc-600'
+                            : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 shadow-sm hover:shadow-md text-zinc-900 dark:text-white'
+                        }`}
+                      >
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <button 
-                  onClick={() => setQuestionsPage(p => Math.min(Math.ceil(questions.length / 6) - 1, p + 1))}
-                  disabled={questionsPage >= Math.ceil(questions.length / 6) - 1}
-                  className={`p-3 rounded-xl transition-all duration-300 ${
-                    questionsPage >= Math.ceil(questions.length / 6) - 1
-                      ? 'opacity-50 cursor-not-allowed text-zinc-400 dark:text-zinc-600'
-                      : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 shadow-sm hover:shadow-md text-zinc-900 dark:text-white'
+
+                {isLoading ? (
+                  <div className="flex flex-col items-center justify-center py-32 space-y-4">
+                    <div className="relative w-20 h-20">
+                      <div className={`absolute inset-0 border-4 rounded-full ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}></div>
+                      <div className="absolute inset-0 border-4 border-yellow-500 rounded-full border-t-transparent animate-spin"></div>
+                    </div>
+                    <p className={`text-sm font-medium animate-pulse ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Loading markets...</p>
+                  </div>
+                ) : questions.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {questions
+                      .filter(q => q.status === 'open' || q.status === 'active')
+                      .slice(questionsPage * 6, (questionsPage + 1) * 6)
+                      .map((q) => (
+                        <BettingQuestionCard
+                          key={q.id}
+                          question={q}
+                          onPlaceBet={handlePlaceBetClick}
+                          walletConnected={!!walletAddress}
+                          isLoading={isLoading}
+                        />
+                      ))}
+                  </div>
+                ) : (
+                  <div className={`text-center py-32 rounded-3xl border-2 border-dashed ${
+                    isDark ? 'border-zinc-800 bg-zinc-900/50' : 'border-zinc-300 bg-white/50'
+                  }`}>
+                    <div className="w-20 h-20 mx-auto mb-6 bg-yellow-500/10 rounded-full flex items-center justify-center">
+                      <AlertCircle className="w-10 h-10 text-yellow-500" />
+                    </div>
+                    <h3 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-zinc-900'}`}>{t('home.noMarkets')}</h3>
+                    <p className={isDark ? 'text-zinc-500' : 'text-zinc-600'}>{t('home.checkBack')}</p>
+                  </div>
+                )}
+              </section>
+            </main>
+
+            <UserPositions
+              positions={walletAddress ? userPositions : []}
+              walletConnected={!!walletAddress}
+              onWithdraw={handleWithdraw}
+              isLoading={isLoading}
+              onConnectWallet={handleConnectWallet}
+            />
+
+            <HowItWorks />
+          </>
+        } />
+        
+        <Route path="/admin" element={
+          <AdminPanel
+            walletAddress={walletAddress}
+            isLoading={isLoading}
+            onShowToast={showToast}
+            onRefresh={loadQuestions}
+          />
+        } />
+      </Routes>
+
+      {/* Betting Modal */}
+      {isBettingModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className={`w-full max-w-md p-6 rounded-2xl shadow-2xl scale-100 animate-scale-in ${
+            isDark ? 'bg-zinc-900 border border-zinc-800' : 'bg-white border border-zinc-200'
+          }`}>
+            <h3 className={`text-xl font-bold mb-4 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+              Place Bet on {selectedBet.outcomeName}
+            </h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                  FTR Amount (Min 1)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  step="0.1"
+                  value={betAmounts.ftr}
+                  onChange={(e) => setBetAmounts(prev => ({ ...prev, ftr: e.target.value }))}
+                  className={`w-full p-3 rounded-xl border outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all ${
+                    isDark ? 'bg-zinc-800 border-zinc-700 text-white' : 'bg-zinc-50 border-zinc-200 text-zinc-900'
+                  }`}
+                />
+              </div>
+
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                  USDT Amount (Min 1)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  step="0.1"
+                  value={betAmounts.usdt}
+                  onChange={(e) => setBetAmounts(prev => ({ ...prev, usdt: e.target.value }))}
+                  className={`w-full p-3 rounded-xl border outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all ${
+                    isDark ? 'bg-zinc-800 border-zinc-700 text-white' : 'bg-zinc-50 border-zinc-200 text-zinc-900'
+                  }`}
+                />
+              </div>
+
+              <div className="flex space-x-3 mt-6">
+                <button
+                  onClick={() => setIsBettingModalOpen(false)}
+                  className={`flex-1 py-3 rounded-xl font-bold transition-colors ${
+                    isDark ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300' : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-600'
                   }`}
                 >
-                  <ChevronRight className="w-6 h-6" />
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmBet}
+                  disabled={isLoading}
+                  className="flex-1 py-3 rounded-xl font-bold bg-yellow-500 hover:bg-yellow-600 text-white shadow-lg shadow-yellow-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? 'Processing...' : 'Confirm Bet'}
                 </button>
               </div>
-            )}
+            </div>
           </div>
-
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-32 space-y-4">
-              <div className="relative w-20 h-20">
-                <div className={`absolute inset-0 border-4 rounded-full ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}></div>
-                <div className="absolute inset-0 border-4 border-yellow-500 rounded-full border-t-transparent animate-spin"></div>
-              </div>
-              <p className={`text-sm font-medium animate-pulse ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Loading markets...</p>
-            </div>
-          ) : questions.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {questions
-                .filter(q => q.status === 'open' || q.status === 'active')
-                .slice(questionsPage * 6, (questionsPage + 1) * 6)
-                .map((q) => (
-                  <BettingQuestionCard
-                    key={q.id}
-                    question={q}
-                    onPlaceBet={handlePlaceBet}
-                    walletConnected={!!walletAddress}
-                    isLoading={isLoading}
-                  />
-                ))}
-            </div>
-          ) : (
-            <div className={`text-center py-32 rounded-3xl border-2 border-dashed ${
-              isDark ? 'border-zinc-800 bg-zinc-900/50' : 'border-zinc-300 bg-white/50'
-            }`}>
-              <div className="w-20 h-20 mx-auto mb-6 bg-yellow-500/10 rounded-full flex items-center justify-center">
-                <AlertCircle className="w-10 h-10 text-yellow-500" />
-              </div>
-              <h3 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-zinc-900'}`}>No Active Markets</h3>
-              <p className={isDark ? 'text-zinc-500' : 'text-zinc-600'}>Check back later for new prediction pools.</p>
-            </div>
-          )}
-        </section>
-      </main>
-
-      <UserPositions
-        positions={walletAddress ? userPositions : []}
-        walletConnected={!!walletAddress}
-        onWithdraw={handleWithdraw}
-        isLoading={isLoading}
-        onConnectWallet={handleConnectWallet}
-      />
-
-      <AdminPanel
-        walletAddress={walletAddress}
-        isLoading={isLoading}
-        onShowToast={showToast}
-        onRefresh={loadQuestions}
-      />
-
-      <HowItWorks />
+        </div>
+      )}
 
       <footer className={`py-16 border-t transition-colors duration-300 ${
         isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-zinc-200'
@@ -521,41 +615,41 @@ function App() {
                 <span className="text-2xl font-black bg-gradient-to-r from-yellow-500 to-yellow-600 text-transparent bg-clip-text tracking-tight">ProPred</span>
               </div>
               <p className={`leading-relaxed max-w-sm ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                Decentralized prediction pools on Binance Smart Chain with transparent, trustless settlements.
+                {t('footer.description')}
               </p>
               <div className="inline-flex items-center space-x-3 bg-yellow-500/10 px-4 py-2 rounded-full border border-yellow-500/20">
                 <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-                <span className="text-xs font-bold uppercase tracking-wider text-yellow-600 dark:text-yellow-500">Powered by BSC</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-yellow-600 dark:text-yellow-500">{t('footer.poweredBy')}</span>
               </div>
             </div>
 
             <div>
-              <h4 className={`font-bold mb-6 text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>Platform</h4>
+              <h4 className={`font-bold mb-6 text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{t('footer.platform')}</h4>
               <ul className="space-y-4">
                 <li><a href="#active" className={`transition-colors hover:translate-x-1 inline-block ${
                   isDark ? 'text-zinc-400 hover:text-yellow-400' : 'text-zinc-600 hover:text-yellow-600'
-                }`}>Active Markets</a></li>
+                }`}>{t('footer.activeMarkets')}</a></li>
                 <li><a href="#positions" className={`transition-colors hover:translate-x-1 inline-block ${
                   isDark ? 'text-zinc-400 hover:text-yellow-400' : 'text-zinc-600 hover:text-yellow-600'
-                }`}>My Positions</a></li>
+                }`}>{t('footer.myPositions')}</a></li>
                 <li><a href="#how" className={`transition-colors hover:translate-x-1 inline-block ${
                   isDark ? 'text-zinc-400 hover:text-yellow-400' : 'text-zinc-600 hover:text-yellow-600'
-                }`}>How It Works</a></li>
+                }`}>{t('footer.howItWorks')}</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className={`font-bold mb-6 text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>Resources</h4>
+              <h4 className={`font-bold mb-6 text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{t('footer.resources')}</h4>
               <ul className="space-y-4">
                 <li><a href="#" className={`transition-colors hover:translate-x-1 inline-block ${
                   isDark ? 'text-zinc-400 hover:text-yellow-400' : 'text-zinc-600 hover:text-yellow-600'
-                }`}>Documentation</a></li>
+                }`}>{t('footer.documentation')}</a></li>
                 <li><a href="#" className={`transition-colors hover:translate-x-1 inline-block ${
                   isDark ? 'text-zinc-400 hover:text-yellow-400' : 'text-zinc-600 hover:text-yellow-600'
-                }`}>Contract</a></li>
+                }`}>{t('footer.contract')}</a></li>
                 <li><a href="#" className={`transition-colors hover:translate-x-1 inline-block ${
                   isDark ? 'text-zinc-400 hover:text-yellow-400' : 'text-zinc-600 hover:text-yellow-600'
-                }`}>Support</a></li>
+                }`}>{t('footer.support')}</a></li>
               </ul>
             </div>
           </div>
@@ -564,15 +658,18 @@ function App() {
             isDark ? 'border-zinc-800' : 'border-gray-100'
           }`}>
             <p className={`text-sm ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
-              &copy; {new Date().getFullYear()} ProPred. All rights reserved.
+              &copy; {new Date().getFullYear()} {t('footer.rightsReserved')}
             </p>
-            <div className="flex space-x-6">
-              <a href="#" className={`text-sm transition-colors ${
-                isDark ? 'text-zinc-500 hover:text-zinc-300' : 'text-zinc-400 hover:text-zinc-600'
-              }`}>Privacy Policy</a>
-              <a href="#" className={`text-sm transition-colors ${
-                isDark ? 'text-zinc-500 hover:text-zinc-300' : 'text-zinc-400 hover:text-zinc-600'
-              }`}>Terms of Service</a>
+            <div className="flex items-center gap-6">
+              <div className="flex space-x-6">
+                <a href="#" className={`text-sm transition-colors ${
+                  isDark ? 'text-zinc-500 hover:text-zinc-300' : 'text-zinc-400 hover:text-zinc-600'
+                }`}>{t('footer.privacyPolicy')}</a>
+                <a href="#" className={`text-sm transition-colors ${
+                  isDark ? 'text-zinc-500 hover:text-zinc-300' : 'text-zinc-400 hover:text-zinc-600'
+                }`}>{t('footer.termsOfService')}</a>
+              </div>
+              <LanguageSwitcher direction="up" />
             </div>
           </div>
         </div>

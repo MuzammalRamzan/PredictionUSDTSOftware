@@ -19,19 +19,17 @@ contract BettingPool {
         string title;
         uint256 deadline;
         bool isSettled;
-        bool result; // true = YES wins, false = NO wins
-        uint256 yesFtrTotal;
-        uint256 yesUsdtTotal;
-        uint256 noFtrTotal;
-        uint256 noUsdtTotal;
-        uint256 yesParticipants;
-        uint256 noParticipants;
+        uint256 result; // Index of winning outcome (0, 1, 2)
+        uint256 outcomeCount; // 2 or 3
+        uint256[3] outcomeFtrTotals;
+        uint256[3] outcomeUsdtTotals;
+        uint256[3] outcomeParticipants;
         bool exists;
     }
 
     struct Bet {
         address user;
-        bool outcome; // true = YES, false = NO
+        uint256 outcome; // Index of chosen outcome
         uint256 ftrAmount;
         uint256 usdtAmount;
         bool withdrawn;
@@ -41,8 +39,10 @@ contract BettingPool {
     IERC20 public immutable usdtToken;
     address public owner;
     uint256 public constant ADMIN_FEE_PERCENT = 10;
-    uint256 public constant FIXED_FTR_AMOUNT = 1 ether; // 1 FTR
-    uint256 public constant FIXED_USDT_AMOUNT = 1 ether; // 1 USDT (assuming 18 decimals)
+
+    // Minimum bet amounts
+    uint256 public constant MIN_FTR_AMOUNT = 1 ether;
+    uint256 public constant MIN_USDT_AMOUNT = 1 ether;
 
     uint256 public questionCount;
     mapping(uint256 => Question) public questions;
@@ -55,16 +55,17 @@ contract BettingPool {
     event QuestionCreated(
         uint256 indexed questionId,
         string title,
-        uint256 deadline
+        uint256 deadline,
+        uint256 outcomeCount
     );
     event BetPlaced(
         uint256 indexed questionId,
         address indexed user,
-        bool outcome,
+        uint256 outcome,
         uint256 ftrAmount,
         uint256 usdtAmount
     );
-    event QuestionSettled(uint256 indexed questionId, bool result);
+    event QuestionSettled(uint256 indexed questionId, uint256 result);
     event WinningsWithdrawn(
         uint256 indexed questionId,
         address indexed user,
@@ -86,30 +87,41 @@ contract BettingPool {
 
     function createQuestion(
         string memory _title,
-        uint256 _deadline
+        uint256 _deadline,
+        uint256 _outcomeCount
     ) external onlyOwner returns (uint256) {
         require(_deadline > block.timestamp, "Deadline must be in future");
+        require(
+            _outcomeCount >= 2 && _outcomeCount <= 3,
+            "Outcome count must be 2 or 3"
+        );
 
         uint256 questionId = questionCount++;
+        // Initialize arrays
+        uint256[3] memory zeroArray;
+
         questions[questionId] = Question({
             title: _title,
             deadline: _deadline,
             isSettled: false,
-            result: false,
-            yesFtrTotal: 0,
-            yesUsdtTotal: 0,
-            noFtrTotal: 0,
-            noUsdtTotal: 0,
-            yesParticipants: 0,
-            noParticipants: 0,
+            result: 0,
+            outcomeCount: _outcomeCount,
+            outcomeFtrTotals: zeroArray,
+            outcomeUsdtTotals: zeroArray,
+            outcomeParticipants: zeroArray,
             exists: true
         });
 
-        emit QuestionCreated(questionId, _title, _deadline);
+        emit QuestionCreated(questionId, _title, _deadline, _outcomeCount);
         return questionId;
     }
 
-    function placeBet(uint256 _questionId, bool _outcome) external {
+    function placeBet(
+        uint256 _questionId,
+        uint256 _outcome,
+        uint256 _ftrAmount,
+        uint256 _usdtAmount
+    ) external {
         Question storage question = questions[_questionId];
         require(question.exists, "Question does not exist");
         require(block.timestamp < question.deadline, "Betting closed");
@@ -118,18 +130,17 @@ contract BettingPool {
             bets[_questionId][msg.sender].user == address(0),
             "Already placed bet"
         );
+        require(_outcome < question.outcomeCount, "Invalid outcome index");
+        require(_ftrAmount >= MIN_FTR_AMOUNT, "Min 1 FTR required");
+        require(_usdtAmount >= MIN_USDT_AMOUNT, "Min 1 USDT required");
 
         // Transfer tokens from user
         require(
-            ftrToken.transferFrom(msg.sender, address(this), FIXED_FTR_AMOUNT),
+            ftrToken.transferFrom(msg.sender, address(this), _ftrAmount),
             "FTR transfer failed"
         );
         require(
-            usdtToken.transferFrom(
-                msg.sender,
-                address(this),
-                FIXED_USDT_AMOUNT
-            ),
+            usdtToken.transferFrom(msg.sender, address(this), _usdtAmount),
             "USDT transfer failed"
         );
 
@@ -137,66 +148,63 @@ contract BettingPool {
         bets[_questionId][msg.sender] = Bet({
             user: msg.sender,
             outcome: _outcome,
-            ftrAmount: FIXED_FTR_AMOUNT,
-            usdtAmount: FIXED_USDT_AMOUNT,
+            ftrAmount: _ftrAmount,
+            usdtAmount: _usdtAmount,
             withdrawn: false
         });
 
         questionBettors[_questionId].push(msg.sender);
 
         // Update pool totals
-        if (_outcome) {
-            question.yesFtrTotal += FIXED_FTR_AMOUNT;
-            question.yesUsdtTotal += FIXED_USDT_AMOUNT;
-            question.yesParticipants++;
-        } else {
-            question.noFtrTotal += FIXED_FTR_AMOUNT;
-            question.noUsdtTotal += FIXED_USDT_AMOUNT;
-            question.noParticipants++;
-        }
+        question.outcomeFtrTotals[_outcome] += _ftrAmount;
+        question.outcomeUsdtTotals[_outcome] += _usdtAmount;
+        question.outcomeParticipants[_outcome]++;
 
         emit BetPlaced(
             _questionId,
             msg.sender,
             _outcome,
-            FIXED_FTR_AMOUNT,
-            FIXED_USDT_AMOUNT
+            _ftrAmount,
+            _usdtAmount
         );
     }
 
     function settleQuestion(
         uint256 _questionId,
-        bool _result
+        uint256 _result
     ) external onlyOwner {
         Question storage question = questions[_questionId];
         require(question.exists, "Question does not exist");
         require(block.timestamp >= question.deadline, "Deadline not reached");
         require(!question.isSettled, "Already settled");
+        require(_result < question.outcomeCount, "Invalid result index");
 
         question.isSettled = true;
         question.result = _result;
 
-        // Calculate admin fees from losing pool
-        uint256 losingFtr = _result
-            ? question.noFtrTotal
-            : question.yesFtrTotal;
-        uint256 losingUsdt = _result
-            ? question.noUsdtTotal
-            : question.yesUsdtTotal;
-        uint256 winningFtr = _result
-            ? question.yesFtrTotal
-            : question.noFtrTotal;
+        // Calculate fees from losing pools
+        uint256 totalLosingFtr = 0;
+        uint256 totalLosingUsdt = 0;
+
+        for (uint256 i = 0; i < question.outcomeCount; i++) {
+            if (i != _result) {
+                totalLosingFtr += question.outcomeFtrTotals[i];
+                totalLosingUsdt += question.outcomeUsdtTotals[i];
+            }
+        }
+
+        uint256 winningFtr = question.outcomeFtrTotals[_result];
 
         uint256 feeFtr;
         uint256 feeUsdt;
 
         if (winningFtr == 0) {
             // No winners. Admin takes ALL losing pool.
-            feeFtr = losingFtr;
-            feeUsdt = losingUsdt;
+            feeFtr = totalLosingFtr;
+            feeUsdt = totalLosingUsdt;
         } else {
-            feeFtr = (losingFtr * ADMIN_FEE_PERCENT) / 100;
-            feeUsdt = (losingUsdt * ADMIN_FEE_PERCENT) / 100;
+            feeFtr = (totalLosingFtr * ADMIN_FEE_PERCENT) / 100;
+            feeUsdt = (totalLosingUsdt * ADMIN_FEE_PERCENT) / 100;
         }
 
         adminFeesFtr += feeFtr;
@@ -225,33 +233,46 @@ contract BettingPool {
             return (0, 0);
         }
 
-        // Get winning and losing pool totals
-        uint256 winningFtr = question.result
-            ? question.yesFtrTotal
-            : question.noFtrTotal;
-        uint256 winningUsdt = question.result
-            ? question.yesUsdtTotal
-            : question.noUsdtTotal;
-        uint256 losingFtr = question.result
-            ? question.noFtrTotal
-            : question.yesFtrTotal;
-        uint256 losingUsdt = question.result
-            ? question.noUsdtTotal
-            : question.yesUsdtTotal;
+        // Get winning pool total
+        uint256 winningFtrTotal = question.outcomeFtrTotals[question.result];
+        uint256 winningUsdtTotal = question.outcomeUsdtTotals[question.result];
 
-        // Calculate user's share of losing pool (after admin fee)
-        uint256 losingFtrAfterFee = losingFtr -
-            ((losingFtr * ADMIN_FEE_PERCENT) / 100);
-        uint256 losingUsdtAfterFee = losingUsdt -
-            ((losingUsdt * ADMIN_FEE_PERCENT) / 100);
+        // Get total losing pool
+        uint256 totalLosingFtr = 0;
+        uint256 totalLosingUsdt = 0;
 
-        // User gets their original stake + proportional share of losing pool
-        ftrWinnings =
-            userBet.ftrAmount +
-            ((losingFtrAfterFee * userBet.ftrAmount) / winningFtr);
-        usdtWinnings =
-            userBet.usdtAmount +
-            ((losingUsdtAfterFee * userBet.usdtAmount) / winningUsdt);
+        for (uint256 i = 0; i < question.outcomeCount; i++) {
+            if (i != question.result) {
+                totalLosingFtr += question.outcomeFtrTotals[i];
+                totalLosingUsdt += question.outcomeUsdtTotals[i];
+            }
+        }
+
+        // Calculate share of losing pool (after admin fee)
+        uint256 losingFtrAfterFee = totalLosingFtr -
+            ((totalLosingFtr * ADMIN_FEE_PERCENT) / 100);
+        uint256 losingUsdtAfterFee = totalLosingUsdt -
+            ((totalLosingUsdt * ADMIN_FEE_PERCENT) / 100);
+
+        // User gets original stake + proportional share of losing pool
+
+        if (winningFtrTotal > 0) {
+            ftrWinnings =
+                userBet.ftrAmount +
+                (losingFtrAfterFee * userBet.ftrAmount) /
+                winningFtrTotal;
+        } else {
+            ftrWinnings = userBet.ftrAmount;
+        }
+
+        if (winningUsdtTotal > 0) {
+            usdtWinnings =
+                userBet.usdtAmount +
+                (losingUsdtAfterFee * userBet.usdtAmount) /
+                winningUsdtTotal;
+        } else {
+            usdtWinnings = userBet.usdtAmount;
+        }
 
         return (ftrWinnings, usdtWinnings);
     }
@@ -269,18 +290,22 @@ contract BettingPool {
             _questionId,
             msg.sender
         );
-        require(ftrWinnings > 0, "No winnings");
+        require(ftrWinnings > 0 || usdtWinnings > 0, "No winnings");
 
         userBet.withdrawn = true;
 
-        require(
-            ftrToken.transfer(msg.sender, ftrWinnings),
-            "FTR transfer failed"
-        );
-        require(
-            usdtToken.transfer(msg.sender, usdtWinnings),
-            "USDT transfer failed"
-        );
+        if (ftrWinnings > 0) {
+            require(
+                ftrToken.transfer(msg.sender, ftrWinnings),
+                "FTR transfer failed"
+            );
+        }
+        if (usdtWinnings > 0) {
+            require(
+                usdtToken.transfer(msg.sender, usdtWinnings),
+                "USDT transfer failed"
+            );
+        }
 
         emit WinningsWithdrawn(
             _questionId,

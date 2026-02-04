@@ -1,63 +1,54 @@
 import { Wallet, TrendingUp, Trophy, Shield, Coins, Target, TrendingDown, Calculator, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 
 export default function HowItWorks() {
   const { isDark } = useTheme();
-  const [yesParticipants, setYesParticipants] = useState(30);
-  const [noParticipants, setNoParticipants] = useState(70);
+  const { t } = useTranslation();
+  const [othersOnYourSide, setOthersOnYourSide] = useState(30);
+  const [losingPoolSize, setLosingPoolSize] = useState(70);
   const [adminFee, setAdminFee] = useState(10);
-  const [winningOutcome, setWinningOutcome] = useState('yes');
+  const [yourBets, setYourBets] = useState(1);
 
-  const yourBets = 1;
+  // Calculate total pools including user's bet
+  const totalWinningPool = othersOnYourSide + yourBets;
+  const totalLosingPool = losingPoolSize;
 
-  const totalYesOcro = yesParticipants;
-  const totalYesUsdt = yesParticipants;
-  const totalNoOcro = noParticipants;
-  const totalNoUsdt = noParticipants;
+  const adminFeeAmount = (totalLosingPool * adminFee / 100);
+  const netLosingPool = totalLosingPool - adminFeeAmount;
 
-  const losingPoolOcro = winningOutcome === 'yes' ? totalNoOcro : totalYesOcro;
-  const losingPoolUsdt = winningOutcome === 'yes' ? totalNoUsdt : totalYesUsdt;
-  const winningPoolTotal = winningOutcome === 'yes' ? totalYesOcro : totalNoOcro;
-
-  const adminFeeOcro = (losingPoolOcro * adminFee / 100).toFixed(2);
-  const adminFeeUsdt = (losingPoolUsdt * adminFee / 100).toFixed(2);
-
-  const remainingOcro = (losingPoolOcro - adminFeeOcro).toFixed(2);
-  const remainingUsdt = (losingPoolUsdt - adminFeeUsdt).toFixed(2);
-
-  const yourShare = ((yourBets / winningPoolTotal) * 100).toFixed(2);
-  const yourWinningsOcro = (remainingOcro * yourBets / winningPoolTotal).toFixed(2);
-  const yourWinningsUsdt = (remainingUsdt * yourBets / winningPoolTotal).toFixed(2);
-
-  const totalPayoutOcro = (parseFloat(yourBets) + parseFloat(yourWinningsOcro)).toFixed(2);
-  const totalPayoutUsdt = (parseFloat(yourBets) + parseFloat(yourWinningsUsdt)).toFixed(2);
-
-  const profitPercentage = ((parseFloat(yourWinningsOcro) / yourBets) * 100).toFixed(0);
+  const yourShareRatio = yourBets / totalWinningPool;
+  
+  // Winnings (same for both FTR and USDT since logic is identical in this sim)
+  const yourWinnings = netLosingPool * yourShareRatio;
+  
+  const totalPayout = (yourBets + yourWinnings).toFixed(2);
+  const profitPercentage = ((yourWinnings / yourBets) * 100).toFixed(0);
 
   const steps = [
     {
       icon: <Wallet className="w-6 h-6" />,
-      title: 'Connect Wallet',
-      description: 'Connect your BSC-compatible wallet with FTR and USDT tokens.',
+      title: t('howItWorks.step1Title'),
+      description: t('howItWorks.step1Desc'),
       color: 'from-yellow-600 to-yellow-700',
     },
     {
       icon: <Target className="w-6 h-6" />,
-      title: 'Choose Pool',
-      description: 'Browse World Cup predictions and select an outcome.',
+      title: t('howItWorks.step2Title'),
+      description: t('howItWorks.step2Desc'),
       color: 'from-yellow-700 to-yellow-800',
     },
     {
       icon: <Coins className="w-6 h-6" />,
-      title: 'Place Bet',
-      description: 'Stake 1 FTR + 1 USDT on your predicted outcome.',
+      title: t('howItWorks.step3Title'),
+      description: t('howItWorks.step3Desc'),
       color: 'from-yellow-500 to-yellow-600',
     },
     {
       icon: <Trophy className="w-6 h-6" />,
-      title: 'Withdraw Winnings',
-      description: 'After settlement, winners withdraw their share of the pool.',
+      title: t('howItWorks.step4Title'),
+      description: t('howItWorks.step4Desc'),
       color: 'from-yellow-400 to-yellow-500',
     },
   ];
@@ -65,18 +56,18 @@ export default function HowItWorks() {
   const features = [
     {
       icon: <Shield className="w-6 h-6" />,
-      title: 'Transparent & Secure',
-      description: 'Smart contract on BSC ensures all transactions are transparent and tamper-proof.',
+      title: t('howItWorks.feature1Title'),
+      description: t('howItWorks.feature1Desc'),
     },
     {
       icon: <Coins className="w-6 h-6" />,
-      title: 'Dual Token System',
-      description: 'Stake both FTR and USDT tokens for balanced participation.',
+      title: t('howItWorks.feature2Title'),
+      description: t('howItWorks.feature2Desc'),
     },
     {
       icon: <TrendingUp className="w-6 h-6" />,
-      title: 'Fair Distribution',
-      description: 'Winners receive proportional shares based on their stake.',
+      title: t('howItWorks.feature3Title'),
+      description: t('howItWorks.feature3Desc'),
     },
   ];
 
@@ -99,13 +90,13 @@ export default function HowItWorks() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
             </span>
-            <span className="text-xs font-bold text-yellow-600 dark:text-yellow-500 tracking-widest uppercase">Simple Process</span>
+            <span className="text-xs font-bold text-yellow-600 dark:text-yellow-500 tracking-widest uppercase">{t('howItWorks.simpleProcess')}</span>
           </div>
           <h2 className={`text-4xl md:text-5xl font-black mb-6 tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-            How It Works
+            {t('howItWorks.title')}
           </h2>
-          <p className={`text-xl max-w-2xl mx-auto font-medium leading-relaxed ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
-            Join the next generation of decentralized prediction markets in four simple steps.
+          <p className={`text-xl max-w-2xl mx-auto font-medium leading-relaxed ${isDark ? 'text-zinc-200' : 'text-zinc-600'}`}>
+            {t('howItWorks.subtitle')}
           </p>
         </div>
 
@@ -137,7 +128,7 @@ export default function HowItWorks() {
                 </div>
                 
                 <h3 className={`text-xl font-bold mb-3 relative z-10 ${isDark ? 'text-white' : 'text-zinc-900'}`}>{step.title}</h3>
-                <p className={`text-sm leading-relaxed font-medium relative z-10 ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>{step.description}</p>
+                <p className={`text-sm leading-relaxed font-medium relative z-10 ${isDark ? 'text-gray-300' : 'text-zinc-600'}`}>{step.description}</p>
               </div>
             </div>
           ))}
@@ -149,9 +140,9 @@ export default function HowItWorks() {
               <div className={`p-3 rounded-2xl ${isDark ? 'bg-zinc-800 shadow-inner' : 'bg-white shadow-lg'}`}>
                 <Calculator className="w-8 h-8 text-yellow-500" />
               </div>
-              <h3 className={`text-3xl font-black tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>Profit Calculator</h3>
+              <h3 className={`text-3xl font-black tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>{t('howItWorks.calculatorTitle')}</h3>
             </div>
-            <p className={`text-lg ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Estimate your potential winnings based on pool participation</p>
+            <p className={`text-lg ${isDark ? 'text-zinc-200' : 'text-zinc-600'}`}>{t('howItWorks.calculatorSubtitle')}</p>
           </div>
 
           <div className={`glass-card rounded-[2.5rem] p-1 shadow-2xl overflow-hidden ${
@@ -170,12 +161,12 @@ export default function HowItWorks() {
                    <div className={`p-2 rounded-lg ${isDark ? 'bg-zinc-800' : 'bg-white shadow-sm'}`}>
                      <Calculator className="w-5 h-5 text-yellow-500" />
                    </div>
-                   <span className={`font-bold text-lg ${isDark ? 'text-white' : 'text-zinc-900'}`}>Profit Simulator</span>
+                   <span className={`font-bold text-lg ${isDark ? 'text-white' : 'text-zinc-900'}`}>{t('howItWorks.profitSimulator')}</span>
                 </div>
                 <div className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full ${
                   isDark ? 'bg-yellow-500/10 text-yellow-400' : 'bg-yellow-50 text-yellow-600'
                 }`}>
-                  Live Estimates
+                  {t('howItWorks.liveEstimates')}
                 </div>
               </div>
 
@@ -184,78 +175,49 @@ export default function HowItWorks() {
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                   {/* Controls */}
                   <div className="space-y-8">
-                    <div>
-                      <label className={`block text-xs font-bold uppercase tracking-widest mb-4 ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
-                        Predicted Outcome
-                      </label>
-                      <div className="grid grid-cols-2 gap-4">
-                        <button
-                          onClick={() => setWinningOutcome('yes')}
-                          className={`relative overflow-hidden group p-4 rounded-2xl border transition-all duration-300 ${
-                            winningOutcome === 'yes'
-                              ? 'bg-yellow-500 border-yellow-400 shadow-[0_0_30px_rgba(234,179,8,0.3)]'
-                              : isDark
-                                ? 'bg-zinc-800/50 border-zinc-700 hover:border-zinc-600'
-                                : 'bg-white border-zinc-200 hover:border-zinc-300'
-                          }`}
-                        >
-                          <div className="relative z-10 flex flex-col items-center space-y-2">
-                            <span className={`text-sm font-bold ${winningOutcome === 'yes' ? 'text-yellow-100' : 'text-zinc-500'}`}>WIN</span>
-                            <span className={`text-2xl font-black tracking-tight ${winningOutcome === 'yes' ? 'text-white' : isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>YES</span>
-                          </div>
-                          {winningOutcome === 'yes' && (
-                            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 to-transparent"></div>
-                          )}
-                        </button>
-
-                        <button
-                          onClick={() => setWinningOutcome('no')}
-                          className={`relative overflow-hidden group p-4 rounded-2xl border transition-all duration-300 ${
-                            winningOutcome === 'no'
-                              ? 'bg-zinc-600 border-zinc-500 shadow-[0_0_30px_rgba(82,82,91,0.3)]'
-                              : isDark
-                                ? 'bg-zinc-800/50 border-zinc-700 hover:border-zinc-600'
-                                : 'bg-white border-zinc-200 hover:border-zinc-300'
-                          }`}
-                        >
-                          <div className="relative z-10 flex flex-col items-center space-y-2">
-                            <span className={`text-sm font-bold ${winningOutcome === 'no' ? 'text-zinc-100' : 'text-zinc-500'}`}>WIN</span>
-                            <span className={`text-2xl font-black tracking-tight ${winningOutcome === 'no' ? 'text-white' : isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>NO</span>
-                          </div>
-                          {winningOutcome === 'no' && (
-                            <div className="absolute inset-0 bg-gradient-to-br from-zinc-400/20 to-transparent"></div>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
                     <div className="space-y-6">
+                      {/* Your Stake Input */}
                       <div className="space-y-3">
                         <div className="flex justify-between items-end">
-                          <span className={`text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>YES Pool Size</span>
-                          <span className={`font-mono font-bold ${isDark ? 'text-yellow-400' : 'text-yellow-600'}`}>{yesParticipants} Users</span>
+                          <span className={`text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>{t('howItWorks.yourStake')}</span>
+                          <span className={`font-mono font-bold ${isDark ? 'text-white' : 'text-zinc-900'}`}>{yourBets} FTR/USDT</span>
                         </div>
                         <input
                           type="range"
                           min="1"
                           max="1000"
-                          value={yesParticipants}
-                          onChange={(e) => setYesParticipants(Number(e.target.value))}
+                          value={yourBets}
+                          onChange={(e) => setYourBets(Number(e.target.value))}
+                          className="w-full h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 hover:accent-emerald-400 transition-all"
+                        />
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-end">
+                          <span className={`text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>{t('howItWorks.yourSidePool')}</span>
+                          <span className={`font-mono font-bold ${isDark ? 'text-yellow-400' : 'text-yellow-600'}`}>{othersOnYourSide} FTR/USDT</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="1"
+                          max="1000"
+                          value={othersOnYourSide}
+                          onChange={(e) => setOthersOnYourSide(Number(e.target.value))}
                           className="w-full h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-yellow-500 hover:accent-yellow-400 transition-all"
                         />
                       </div>
 
                       <div className="space-y-3">
                         <div className="flex justify-between items-end">
-                          <span className={`text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>NO Pool Size</span>
-                          <span className={`font-mono font-bold ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>{noParticipants} Users</span>
+                          <span className={`text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>{t('howItWorks.otherSidePool')}</span>
+                          <span className={`font-mono font-bold ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>{losingPoolSize} FTR/USDT</span>
                         </div>
                         <input
                           type="range"
                           min="1"
                           max="1000"
-                          value={noParticipants}
-                          onChange={(e) => setNoParticipants(Number(e.target.value))}
+                          value={losingPoolSize}
+                          onChange={(e) => setLosingPoolSize(Number(e.target.value))}
                           className="w-full h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-zinc-500 hover:accent-zinc-400 transition-all"
                         />
                       </div>
@@ -271,21 +233,21 @@ export default function HowItWorks() {
                         : 'bg-white/90 border-zinc-200 shadow-xl'
                     }`}>
                       <div className="flex items-center justify-between mb-8">
-                        <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
-                          Estimated Returns
+                        <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-zinc-400' : 'text-zinc-400'}`}>
+                          {t('howItWorks.estimatedReturns')}
                         </div>
                         <div className={`px-3 py-1 rounded-full text-xs font-bold ${
                           isDark ? 'bg-yellow-500/10 text-yellow-400' : 'bg-yellow-100 text-yellow-700'
                         }`}>
-                          {profitPercentage}% ROI
+                          {profitPercentage}% {t('howItWorks.roi')}
                         </div>
                       </div>
                       
                       <div className="space-y-6 text-center">
                         <div className="space-y-2">
-                          <div className={`text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>Total Payout</div>
+                          <div className={`text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>{t('howItWorks.totalPayout')}</div>
                           <div className={`text-6xl font-black tracking-tighter ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-                            {totalPayoutOcro}<span className="text-3xl text-yellow-500 ml-2">FTR</span>
+                            {totalPayout}<span className="text-3xl text-yellow-500 ml-2">FTR</span>
                           </div>
                         </div>
 
@@ -293,8 +255,8 @@ export default function HowItWorks() {
 
                         <div className="flex items-center justify-center space-x-2">
                           <span className={`text-2xl font-bold ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>+</span>
-                          <span className={`text-3xl font-bold ${isDark ? 'text-zinc-300' : 'text-zinc-600'}`}>
-                            {totalPayoutUsdt}<span className="text-lg ml-1">USDT</span>
+                          <span className={`text-3xl font-bold ${isDark ? 'text-emerald-400' : 'text-zinc-600'}`}>
+                            {totalPayout}<span className="text-lg ml-1">USDT</span>
                           </span>
                         </div>
                       </div>
@@ -302,7 +264,7 @@ export default function HowItWorks() {
                       <div className={`mt-8 p-4 rounded-xl text-xs leading-relaxed font-medium text-center ${
                         isDark ? 'bg-zinc-800/50 text-zinc-500' : 'bg-zinc-50 text-zinc-500'
                       }`}>
-                        Based on a standard 1 FTR + 1 USDT bet. Platform fee ({adminFee}%) is deducted from the losing pool before distribution.
+                        {t('howItWorks.calculatorDisclaimer', { fee: adminFee, stake: yourBets })}
                       </div>
                     </div>
                   </div>
@@ -327,7 +289,7 @@ export default function HowItWorks() {
                 {feature.icon}
               </div>
               <h3 className={`text-lg font-bold mb-3 ${isDark ? 'text-white' : 'text-zinc-900'}`}>{feature.title}</h3>
-              <p className={`text-sm leading-relaxed font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>{feature.description}</p>
+              <p className={`text-sm leading-relaxed font-medium ${isDark ? 'text-zinc-200' : 'text-zinc-600'}`}>{feature.description}</p>
             </div>
           ))}
         </div>

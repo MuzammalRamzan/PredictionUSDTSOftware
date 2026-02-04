@@ -51,9 +51,9 @@
       },
       {
         "indexed": false,
-        "internalType": "bool",
+        "internalType": "uint256",
         "name": "outcome",
-        "type": "bool"
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -91,6 +91,12 @@
         "internalType": "uint256",
         "name": "deadline",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "outcomeCount",
+        "type": "uint256"
       }
     ],
     "name": "QuestionCreated",
@@ -107,9 +113,9 @@
       },
       {
         "indexed": false,
-        "internalType": "bool",
+        "internalType": "uint256",
         "name": "result",
-        "type": "bool"
+        "type": "uint256"
       }
     ],
     "name": "QuestionSettled",
@@ -161,7 +167,7 @@
   },
   {
     "inputs": [],
-    "name": "FIXED_FTR_AMOUNT",
+    "name": "MIN_FTR_AMOUNT",
     "outputs": [
       {
         "internalType": "uint256",
@@ -174,7 +180,7 @@
   },
   {
     "inputs": [],
-    "name": "FIXED_USDT_AMOUNT",
+    "name": "MIN_USDT_AMOUNT",
     "outputs": [
       {
         "internalType": "uint256",
@@ -232,9 +238,9 @@
         "type": "address"
       },
       {
-        "internalType": "bool",
+        "internalType": "uint256",
         "name": "outcome",
-        "type": "bool"
+        "type": "uint256"
       },
       {
         "internalType": "uint256",
@@ -295,6 +301,11 @@
         "internalType": "uint256",
         "name": "_deadline",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_outcomeCount",
+        "type": "uint256"
       }
     ],
     "name": "createQuestion",
@@ -349,39 +360,29 @@
             "type": "bool"
           },
           {
-            "internalType": "bool",
+            "internalType": "uint256",
             "name": "result",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "yesFtrTotal",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "yesUsdtTotal",
+            "name": "outcomeCount",
             "type": "uint256"
           },
           {
-            "internalType": "uint256",
-            "name": "noFtrTotal",
-            "type": "uint256"
+            "internalType": "uint256[3]",
+            "name": "outcomeFtrTotals",
+            "type": "uint256[3]"
           },
           {
-            "internalType": "uint256",
-            "name": "noUsdtTotal",
-            "type": "uint256"
+            "internalType": "uint256[3]",
+            "name": "outcomeUsdtTotals",
+            "type": "uint256[3]"
           },
           {
-            "internalType": "uint256",
-            "name": "yesParticipants",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "noParticipants",
-            "type": "uint256"
+            "internalType": "uint256[3]",
+            "name": "outcomeParticipants",
+            "type": "uint256[3]"
           },
           {
             "internalType": "bool",
@@ -439,9 +440,9 @@
             "type": "address"
           },
           {
-            "internalType": "bool",
+            "internalType": "uint256",
             "name": "outcome",
-            "type": "bool"
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -488,9 +489,19 @@
         "type": "uint256"
       },
       {
-        "internalType": "bool",
+        "internalType": "uint256",
         "name": "_outcome",
-        "type": "bool"
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_ftrAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_usdtAmount",
+        "type": "uint256"
       }
     ],
     "name": "placeBet",
@@ -561,38 +572,13 @@
         "type": "bool"
       },
       {
-        "internalType": "bool",
+        "internalType": "uint256",
         "name": "result",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "yesFtrTotal",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "yesUsdtTotal",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "noFtrTotal",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "noUsdtTotal",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "yesParticipants",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "noParticipants",
+        "name": "outcomeCount",
         "type": "uint256"
       },
       {
@@ -612,9 +598,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "bool",
+        "internalType": "uint256",
         "name": "_result",
-        "type": "bool"
+        "type": "uint256"
       }
     ],
     "name": "settleQuestion",

@@ -1,8 +1,10 @@
 import { TrendingUp, Shield, Coins, Users, Sparkles, ArrowRight } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 export default function Hero({ stats }) {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <div className={`relative pt-32 pb-24 overflow-hidden ${
@@ -26,27 +28,27 @@ export default function Hero({ stats }) {
               : 'bg-yellow-500/10 border-yellow-600/20 text-yellow-700 ring-yellow-600/20'
           }`}>
             <Shield className="w-4 h-4" />
-            <span className="tracking-wide">Powered by Binance Smart Chain</span>
+            <span className="tracking-wide">{t('hero.poweredBy')}</span>
             <Sparkles className="w-4 h-4" />
           </div>
 
           <h1 className="text-6xl sm:text-7xl lg:text-9xl font-black mb-8 leading-[0.9] tracking-tighter">
             <span className={`inline-block ${isDark ? 'text-white' : 'text-zinc-900'} drop-shadow-sm`}>
-              World Cup 2026
+              {t('hero.titleLine1')}
             </span>
             <span className={`block bg-gradient-to-r text-transparent bg-clip-text pb-4 ${
               isDark
                 ? 'from-yellow-300 via-yellow-400 to-yellow-300 text-glow animate-text-shimmer bg-[length:200%_auto]'
                 : 'from-yellow-600 via-yellow-700 to-yellow-600'
             }`}>
-              Prediction Pools
+              {t('hero.titleLine2')}
             </span>
           </h1>
 
           <p className={`text-xl sm:text-2xl max-w-3xl mx-auto mb-14 leading-relaxed font-medium ${
-            isDark ? 'text-zinc-400' : 'text-zinc-600'
+            isDark ? 'text-zinc-200' : 'text-zinc-600'
           }`}>
-            Stake FTR and USDT on World Cup matches. Transparent, trustless settlements powered by smart contracts.
+            {t('hero.subtitle')}
           </p>
 
           <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
@@ -56,7 +58,7 @@ export default function Hero({ stats }) {
             >
               <div className="absolute inset-0 bg-white/20 group-hover:translate-x-full duration-700 transition-transform -skew-x-12 -translate-x-full"></div>
               <TrendingUp className="w-6 h-6 relative z-10" />
-              <span className="relative z-10">Explore Markets</span>
+              <span className="relative z-10">{t('hero.exploreMarkets')}</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" />
             </a>
             <a
@@ -67,7 +69,7 @@ export default function Hero({ stats }) {
                   : 'bg-white/80 border-yellow-300/50 text-zinc-900 hover:bg-white hover:border-yellow-400 hover:-translate-y-1 hover:shadow-lg hover:shadow-yellow-500/10'
       }`}
     >
-      <span>Learn More</span>
+      <span>{t('hero.learnMore')}</span>
     </a>
   </div>
 </div>
@@ -91,7 +93,7 @@ export default function Hero({ stats }) {
       <div className={`text-4xl font-black mb-2 tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>
         {stats.totalVolume.ftr.toLocaleString()}
       </div>
-      <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-zinc-500' : 'text-zinc-600 group-hover:text-yellow-700'} transition-colors`}>FTR Volume</div>
+      <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-zinc-200' : 'text-zinc-600 group-hover:text-yellow-700'} transition-colors`}>{t('hero.ftrVolume')}</div>
     </div>
   </div>
 
@@ -113,7 +115,7 @@ export default function Hero({ stats }) {
       <div className={`text-4xl font-black mb-2 tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>
         {stats.totalVolume.usdt.toLocaleString()}
       </div>
-      <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-zinc-500' : 'text-zinc-600 group-hover:text-green-700'} transition-colors`}>USDT Volume</div>
+      <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-zinc-200' : 'text-zinc-600 group-hover:text-green-700'} transition-colors`}>{t('hero.usdtVolume')}</div>
     </div>
   </div>
 
@@ -135,7 +137,7 @@ export default function Hero({ stats }) {
       <div className={`text-4xl font-black mb-2 tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>
         {stats.activeQuestions}
       </div>
-      <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-zinc-500' : 'text-zinc-600 group-hover:text-blue-700'} transition-colors`}>Active Markets</div>
+      <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-zinc-300' : 'text-zinc-600 group-hover:text-blue-700'} transition-colors`}>{t('hero.activeMarkets')}</div>
     </div>
   </div>
 
@@ -157,7 +159,7 @@ export default function Hero({ stats }) {
       <div className={`text-4xl font-black mb-2 tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>
         {stats.totalParticipants}
       </div>
-      <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-zinc-500' : 'text-zinc-600 group-hover:text-purple-700'} transition-colors`}>Participants</div>
+      <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-zinc-300' : 'text-zinc-600 group-hover:text-purple-700'} transition-colors`}>{t('hero.participants')}</div>
     </div>
   </div>
         </div>

@@ -7,30 +7,12 @@ const poolStatSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  yes_ftr_total: {
-    type: Number,
-    default: 0
-  },
-  yes_usdt_total: {
-    type: Number,
-    default: 0
-  },
-  yes_participants: {
-    type: Number,
-    default: 0
-  },
-  no_ftr_total: {
-    type: Number,
-    default: 0
-  },
-  no_usdt_total: {
-    type: Number,
-    default: 0
-  },
-  no_participants: {
-    type: Number,
-    default: 0
-  },
+  // Array of stats where index matches the outcome index
+  outcome_stats: [{
+    ftr_total: { type: Number, default: 0 },
+    usdt_total: { type: Number, default: 0 },
+    participants: { type: Number, default: 0 }
+  }],
   admin_fee_ftr: {
     type: Number,
     default: 0

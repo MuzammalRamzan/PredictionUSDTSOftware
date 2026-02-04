@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { TrendingUp, Clock, Trophy, CheckCircle2, XCircle, Wallet, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 export default function UserPositions({ positions, walletConnected, onWithdraw, isLoading = false, onConnectWallet }) {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
   const [activePositionsPage, setActivePositionsPage] = useState(0);
   const [settledPositionsPage, setSettledPositionsPage] = useState(0);
 
@@ -19,8 +21,8 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-12">
-          <h2 className={`text-4xl font-black mb-4 tracking-tighter ${isDark ? 'text-white' : 'text-gray-900'}`}>My Positions</h2>
-          <p className={`text-lg font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Connect your wallet to view your betting positions</p>
+          <h2 className={`text-4xl font-black mb-4 tracking-tighter ${isDark ? 'text-white' : 'text-gray-900'}`}>{t('positions.title')}</h2>
+          <p className={`text-lg font-medium ${isDark ? 'text-gray-200' : 'text-gray-600'}`}>{t('positions.connectToView')}</p>
         </div>
         <div className="flex justify-center">
           <div className={`glass-card rounded-3xl p-16 max-w-lg w-full text-center border relative overflow-hidden ${
@@ -30,16 +32,16 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
             <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl shadow-yellow-500/10 relative z-10 ${
               isDark ? 'bg-zinc-800 border border-zinc-700' : 'bg-gradient-to-br from-yellow-50 to-white border border-yellow-200'
             }`}>
-              <Wallet className={`w-10 h-10 ${isDark ? 'text-gray-400' : 'text-yellow-600'}`} />
+              <Wallet className={`w-10 h-10 ${isDark ? 'text-gray-300' : 'text-yellow-600'}`} />
             </div>
-            <h3 className={`text-2xl font-black mb-3 tracking-tight relative z-10 ${isDark ? 'text-white' : 'text-zinc-900'}`}>No Wallet Connected</h3>
-            <p className={`text-base font-medium relative z-10 ${isDark ? 'text-gray-400' : 'text-zinc-600'} mb-8`}>Connect your wallet to view and manage your positions</p>
+            <h3 className={`text-2xl font-black mb-3 tracking-tight relative z-10 ${isDark ? 'text-white' : 'text-zinc-900'}`}>{t('positions.connectTitle')}</h3>
+            <p className={`text-base font-medium relative z-10 ${isDark ? 'text-gray-200' : 'text-zinc-600'} mb-8`}>{t('positions.connectSubtitle')}</p>
             <button
               onClick={onConnectWallet}
               disabled={isLoading}
               className="relative z-10 bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-500 hover:to-yellow-600 text-white font-black tracking-wide py-4 px-10 rounded-2xl transition-all shadow-lg hover:shadow-yellow-500/30 hover:-translate-y-1 active:scale-95"
             >
-              Connect Wallet
+              {t('header.connectWallet')}
             </button>
           </div>
         </div>
@@ -50,7 +52,8 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
 
   const activePositions = positions.filter(p => p.status === 'active');
   const settledPositions = positions.filter(p => p.status !== 'active');
-  const totalStaked = positions.reduce((acc, p) => acc + p.ftrStaked + p.usdtStaked, 0);
+  const totalFtrStaked = positions.reduce((acc, p) => acc + p.ftrStaked, 0);
+  const totalUsdtStaked = positions.reduce((acc, p) => acc + p.usdtStaked, 0);
   const totalWon = settledPositions.filter(p => p.status === 'won').length;
 
   return (
@@ -64,8 +67,8 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
-          <h2 className={`text-4xl font-black mb-4 tracking-tighter ${isDark ? 'text-white' : 'text-zinc-900'}`}>My Positions</h2>
-          <p className={`text-lg font-medium ${isDark ? 'text-gray-400' : 'text-zinc-600'}`}>Track your active bets and view your betting history</p>
+          <h2 className={`text-4xl font-black mb-4 tracking-tighter ${isDark ? 'text-white' : 'text-zinc-900'}`}>{t('positions.title')}</h2>
+          <p className={`text-lg font-medium ${isDark ? 'text-gray-200' : 'text-zinc-600'}`}>{t('positions.subtitle')}</p>
         </div>
 
         {positions.length === 0 ? (
@@ -77,15 +80,15 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
               <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl shadow-yellow-500/10 relative z-10 ${
                 isDark ? 'bg-zinc-800 border border-zinc-700' : 'bg-gradient-to-br from-yellow-50 to-white border border-yellow-200'
               }`}>
-                <TrendingUp className={`w-10 h-10 ${isDark ? 'text-gray-400' : 'text-yellow-600'}`} />
+                <TrendingUp className={`w-10 h-10 ${isDark ? 'text-gray-300' : 'text-yellow-600'}`} />
               </div>
-              <h3 className={`text-2xl font-black mb-3 tracking-tight relative z-10 ${isDark ? 'text-white' : 'text-zinc-900'}`}>No Positions Yet</h3>
-              <p className={`text-base mb-8 font-medium relative z-10 ${isDark ? 'text-gray-400' : 'text-zinc-600'}`}>Place your first bet to get started</p>
+              <h3 className={`text-2xl font-black mb-3 tracking-tight relative z-10 ${isDark ? 'text-white' : 'text-zinc-900'}`}>{t('positions.noPositionsTitle')}</h3>
+              <p className={`text-base mb-8 font-medium relative z-10 ${isDark ? 'text-gray-200' : 'text-zinc-600'}`}>{t('positions.noPositionsSubtitle')}</p>
               <a
                 href="#active"
                 className="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-600 to-yellow-700 text-white px-8 py-4 rounded-2xl font-black tracking-wide hover:from-yellow-500 hover:to-yellow-600 transition-all shadow-lg hover:shadow-yellow-500/30 hover:-translate-y-1 active:scale-95 relative z-10"
               >
-                <span>Browse Markets</span>
+                <span>{t('positions.browseMarkets')}</span>
               </a>
             </div>
           </div>
@@ -99,7 +102,7 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
               }`}>
                 <div className={`absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-opacity duration-500 group-hover:opacity-70 ${isDark ? 'opacity-30' : 'opacity-50'}`}></div>
                 <div className="flex items-center justify-between mb-4 relative z-10">
-                  <span className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-yellow-500' : 'text-yellow-800'}`}>Active Positions</span>
+                  <span className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-yellow-500' : 'text-yellow-800'}`}>{t('positions.activePositionsCard')}</span>
                   <div className={`p-2 rounded-xl ${isDark ? 'bg-yellow-500/10' : 'bg-yellow-200'}`}>
                     <Clock className={`w-6 h-6 ${isDark ? 'text-yellow-500' : 'text-yellow-800'}`} />
                   </div>
@@ -114,7 +117,7 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
               }`}>
                 <div className={`absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-opacity duration-500 group-hover:opacity-70 ${isDark ? 'opacity-30' : 'opacity-50'}`}></div>
                 <div className="flex items-center justify-between mb-4 relative z-10">
-                  <span className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-emerald-500' : 'text-emerald-800'}`}>Won</span>
+                  <span className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-emerald-500' : 'text-emerald-800'}`}>{t('positions.wonCard')}</span>
                   <div className={`p-2 rounded-xl ${isDark ? 'bg-emerald-500/10' : 'bg-emerald-200'}`}>
                     <Trophy className={`w-6 h-6 ${isDark ? 'text-emerald-500' : 'text-emerald-800'}`} />
                   </div>
@@ -129,13 +132,13 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
               }`}>
                 <div className={`absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 rounded-full blur-3xl -mr-16 -mt-16 transition-opacity duration-500 group-hover:opacity-100 opacity-0`}></div>
                 <div className="flex items-center justify-between mb-4 relative z-10">
-                  <span className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-zinc-400 group-hover:text-yellow-500/80' : 'text-zinc-600 group-hover:text-yellow-700'} transition-colors`}>Total Staked</span>
+                  <span className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-zinc-200 group-hover:text-yellow-500/80' : 'text-zinc-600 group-hover:text-yellow-700'} transition-colors`}>{t('positions.totalStaked')}</span>
                   <div className={`p-2 rounded-xl transition-colors ${isDark ? 'bg-zinc-800 group-hover:bg-yellow-500/10' : 'bg-zinc-100 group-hover:bg-yellow-50'}`}>
                     <TrendingUp className={`w-6 h-6 transition-colors ${isDark ? 'text-zinc-400 group-hover:text-yellow-500' : 'text-zinc-600 group-hover:text-yellow-600'}`} />
                   </div>
                 </div>
-                <p className={`text-2xl font-black tracking-tight relative z-10 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-                  {totalStaked / 2} <span className={`text-base font-bold ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>FTR + USDT</span>
+                <p className={`text-xl font-black tracking-tight relative z-10 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+                  {totalFtrStaked} <span className={`text-sm font-bold ${isDark ? 'text-yellow-500' : 'text-zinc-500'}`}>FTR</span> + {totalUsdtStaked} <span className={`text-sm font-bold ${isDark ? 'text-emerald-400' : 'text-zinc-500'}`}>USDT</span>
                 </p>
               </div>
             </div>
@@ -146,7 +149,7 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
                   <div className="flex items-center justify-between mb-6">
                     <h3 className={`text-2xl font-black flex items-center space-x-3 tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>
                       <div className="w-1.5 h-8 bg-yellow-500 rounded-full"></div>
-                      <span>Active Positions</span>
+                      <span>{t('positions.activePositionsSection')}</span>
                       <span className="text-sm font-bold px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-600 border border-yellow-500/20">
                         {activePositions.length}
                       </span>
@@ -174,7 +177,7 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
                         }`}
                       >
                         <ChevronLeft className="w-5 h-5" />
-                        <span>Previous</span>
+                        <span>{t('positions.previous')}</span>
                       </button>
 
                       <div className={`flex items-center space-x-3 px-6 py-3 rounded-2xl font-black text-lg ${
@@ -198,7 +201,7 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
                               : 'bg-white text-zinc-900 hover:bg-yellow-50 border border-yellow-200 hover:border-yellow-400 shadow-sm hover:shadow-md hover:-translate-y-1'
                         }`}
                       >
-                        <span>Next</span>
+                        <span>{t('positions.next')}</span>
                         <ChevronRight className="w-5 h-5" />
                       </button>
                     </div>
@@ -211,7 +214,7 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
                   <div className="flex items-center justify-between mb-6">
                     <h3 className={`text-2xl font-black flex items-center space-x-3 tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>
                       <div className={`w-1.5 h-8 rounded-full ${isDark ? 'bg-yellow-800' : 'bg-yellow-600/50'}`}></div>
-                      <span>Settled Positions</span>
+                      <span>{t('positions.settledPositionsSection')}</span>
                       <span className={`text-sm font-bold px-3 py-1 rounded-full border ${isDark ? 'bg-yellow-900/20 text-yellow-600 border-yellow-800/30' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>
                         {settledPositions.length}
                       </span>
@@ -239,7 +242,7 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
                         }`}
                       >
                         <ChevronLeft className="w-5 h-5" />
-                        <span>Previous</span>
+                        <span>{t('positions.previous')}</span>
                       </button>
 
                       <div className={`flex items-center space-x-3 px-6 py-3 rounded-2xl font-black text-lg ${
@@ -263,7 +266,7 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
                               : 'bg-white text-gray-900 hover:bg-yellow-50 border border-yellow-200 hover:border-yellow-400 shadow-sm hover:shadow-md hover:-translate-y-1'
                         }`}
                       >
-                        <span>Next</span>
+                        <span>{t('positions.next')}</span>
                         <ChevronRight className="w-5 h-5" />
                       </button>
                     </div>
@@ -280,12 +283,13 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
 
 function PositionCard({ position, onWithdraw, isLoading = false }) {
   const { isDark } = useTheme();
+  const { t, i18n } = useTranslation();
 
   const getStatusInfo = () => {
     switch (position.status) {
       case 'active':
         return {
-          badge: 'Active',
+          badge: t('positions.activeBadge'),
           containerClass: isDark 
             ? 'glass-card border-yellow-500/30 hover:border-yellow-500/50 bg-gradient-to-br from-yellow-900/10 to-yellow-800/10' 
             : 'glass-card border-yellow-300/50 hover:border-yellow-400 bg-gradient-to-br from-yellow-50/80 to-yellow-100/80',
@@ -296,7 +300,7 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
         };
       case 'won':
         return {
-          badge: 'Won',
+          badge: t('positions.wonBadge'),
           containerClass: isDark 
             ? 'glass-card border-emerald-500/30 hover:border-emerald-500/50 bg-gradient-to-br from-emerald-900/10 to-emerald-800/10' 
             : 'glass-card border-emerald-300/50 hover:border-emerald-400 bg-gradient-to-br from-emerald-50/80 to-emerald-100/80',
@@ -307,12 +311,12 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
         };
       case 'lost':
         return {
-          badge: 'Lost',
+          badge: t('positions.lost'),
           containerClass: isDark 
-            ? 'glass-card border-zinc-500/30 hover:border-zinc-500/50 bg-gradient-to-br from-zinc-900/10 to-zinc-800/10' 
-            : 'glass-card border-zinc-200 hover:border-zinc-300 bg-zinc-50/50',
+            ? 'glass-card border-zinc-700/50 hover:border-zinc-600 bg-zinc-800/30' 
+            : 'glass-card border-zinc-200 hover:border-zinc-300 bg-white/60',
           statusBadge: isDark 
-            ? 'bg-zinc-500/10 text-zinc-400 border border-zinc-500/20' 
+            ? 'bg-zinc-800 text-zinc-400 border border-zinc-700' 
             : 'bg-zinc-100 text-zinc-600 border border-zinc-200',
           icon: <XCircle className="w-3.5 h-3.5" />,
         };
@@ -327,21 +331,24 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
   };
 
   const statusInfo = getStatusInfo();
-  const sideColor = position.side === 'yes'
-    ? 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white shadow-lg shadow-yellow-500/20 ring-1 ring-yellow-500/50'
-    : 'bg-zinc-600 text-white shadow-lg shadow-zinc-500/20 ring-1 ring-zinc-500/50';
+  
+  // Dynamic color based on outcome index
+  const getSideColor = (index) => {
+    if (index === 0) return 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white shadow-lg shadow-yellow-500/20 ring-1 ring-yellow-500/50';
+    if (index === 1) return 'bg-zinc-600 text-white shadow-lg shadow-zinc-500/20 ring-1 ring-zinc-500/50';
+    return 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 ring-1 ring-blue-500/50';
+  };
+  
+  const sideColor = getSideColor(position.side);
+  const outcomeName = position.outcomes?.[position.side] || `Option ${position.side + 1}`;
 
   return (
     <div className={`rounded-3xl border transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group ${statusInfo.containerClass}`}>
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
           <span className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-black tracking-wide ${sideColor}`}>
-            {position.side === 'yes' ? (
-              <CheckCircle2 className="w-3.5 h-3.5" />
-            ) : (
-              <XCircle className="w-3.5 h-3.5" />
-            )}
-            <span>{position.side.toUpperCase()}</span>
+             <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>{outcomeName.toUpperCase()}</span>
           </span>
           <span className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-xl text-xs font-bold uppercase tracking-wider ${statusInfo.statusBadge}`}>
             {statusInfo.icon}
@@ -356,7 +363,7 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
         <div className="space-y-4">
           <div className={`rounded-2xl p-4 transition-colors ${isDark ? 'bg-zinc-900/40 border border-zinc-700/50 group-hover:bg-zinc-900/60' : 'bg-white/60 border border-gray-100 group-hover:bg-white/80'}`}>
             <div className={`flex items-center justify-between text-xs mb-2 font-bold uppercase tracking-wider ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-              <span>Staked</span>
+              <span>{t('positions.totalStaked')}</span>
             </div>
             <div className={`font-black text-sm flex items-center justify-between ${isDark ? 'text-white' : 'text-gray-900'}`}>
               <span>{position.ftrStaked} FTR</span>
@@ -372,7 +379,7 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
               <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl -mr-10 -mt-10 animate-pulse"></div>
               <div className="relative z-10">
                 <div className="flex items-center justify-between text-xs mb-2">
-                  <span className={`font-bold uppercase tracking-wider ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>Payout</span>
+                  <span className={`font-bold uppercase tracking-wider ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>{t('positions.payout')}</span>
                   <Trophy className={`w-3.5 h-3.5 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
                 </div>
                 <div className={`font-bold text-sm flex items-center justify-between ${isDark ? 'text-emerald-100' : 'text-emerald-900'}`}>
@@ -387,9 +394,9 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
           <div className={`flex items-center justify-between text-xs pt-4 border-t ${
             isDark ? 'text-gray-500 border-zinc-700/50' : 'text-gray-400 border-gray-100'
           }`}>
-            <span>Placed on</span>
+            <span>{t('positions.placedOn')}</span>
             <span className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-              {new Date(position.timestamp).toLocaleDateString('en-US', {
+              {new Date(position.timestamp).toLocaleDateString(i18n.language, {
                 month: 'short',
                 day: 'numeric',
                 hour: '2-digit',
@@ -407,7 +414,7 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
               isDark ? 'bg-zinc-800/50 text-gray-400 border-zinc-700/50' : 'bg-gray-50 text-gray-500 border-gray-200'
             }`}>
               <CheckCircle2 className="w-4 h-4" />
-              <span>Withdrawn</span>
+              <span>{t('positions.withdrawn')}</span>
             </div>
           ) : (
             <button
@@ -415,7 +422,7 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
               disabled={isLoading}
               className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-500 hover:to-yellow-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-yellow-500/20 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 group"
             >
-              <span>Withdraw Winnings</span>
+              <span>{t('positions.withdrawWinnings')}</span>
               <Trophy className="w-4 h-4 group-hover:scale-110 transition-transform" />
             </button>
           )}

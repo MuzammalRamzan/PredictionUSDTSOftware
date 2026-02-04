@@ -91,7 +91,8 @@ export const web3Service = {
     const ftrToken = await this.getTokenContract(FTR_TOKEN_ADDRESS);
     const usdtToken = await this.getTokenContract(USDT_TOKEN_ADDRESS);
 
-    const amount = ethers.parseEther("1");
+    // Approve max amount to avoid repeated approvals
+    const amount = ethers.MaxUint256;
 
     const ftrTx = await ftrToken.approve(validContractAddress, amount);
     await ftrTx.wait();
@@ -102,26 +103,43 @@ export const web3Service = {
     return true;
   },
 
-  async checkBalances(userAddress) {
+  async getAdminFees() {
+    try {
+      const contract = await this.getContract();
+      const ftrFees = await contract.adminFeesFtr();
+      const usdtFees = await contract.adminFeesUsdt();
+
+      return {
+        ftr: ethers.formatEther(ftrFees),
+        usdt: ethers.formatEther(usdtFees),
+      };
+    } catch (error) {
+      console.error("Failed to fetch admin fees:", error);
+      return {ftr: "0.0", usdt: "0.0"};
+    }
+  },
+
+  async checkBalances(userAddress, amountFtr = "1", amountUsdt = "1") {
     const ftrToken = await this.getTokenContract(FTR_TOKEN_ADDRESS);
     const usdtToken = await this.getTokenContract(USDT_TOKEN_ADDRESS);
 
     const ftrBalance = await ftrToken.balanceOf(userAddress);
     const usdtBalance = await usdtToken.balanceOf(userAddress);
 
-    const requiredAmount = ethers.parseEther("1");
+    const requiredFtr = ethers.parseEther(amountFtr.toString());
+    const requiredUsdt = ethers.parseEther(amountUsdt.toString());
 
     return {
       ftrBalance: ethers.formatEther(ftrBalance),
       usdtBalance: ethers.formatEther(usdtBalance),
-      hasFtrBalance: ftrBalance >= requiredAmount,
-      hasUsdtBalance: usdtBalance >= requiredAmount,
+      hasFtrBalance: ftrBalance >= requiredFtr,
+      hasUsdtBalance: usdtBalance >= requiredUsdt,
       hasSufficientBalance:
-        ftrBalance >= requiredAmount && usdtBalance >= requiredAmount,
+        ftrBalance >= requiredFtr && usdtBalance >= requiredUsdt,
     };
   },
 
-  async checkApprovals(userAddress) {
+  async checkApprovals(userAddress, amountFtr = "1", amountUsdt = "1") {
     const validContractAddress = validateAddress(
       CONTRACT_ADDRESS,
       "Contract address",
@@ -138,17 +156,23 @@ export const web3Service = {
       validContractAddress,
     );
 
-    const requiredAmount = ethers.parseEther("1");
+    const requiredFtr = ethers.parseEther(amountFtr.toString());
+    const requiredUsdt = ethers.parseEther(amountUsdt.toString());
 
     return {
-      ftrApproved: ftrAllowance >= requiredAmount,
-      usdtApproved: usdtAllowance >= requiredAmount,
+      ftrApproved: ftrAllowance >= requiredFtr,
+      usdtApproved: usdtAllowance >= requiredUsdt,
     };
   },
 
-  async placeBet(questionId, outcome) {
+  async placeBet(questionId, outcomeIndex, amountFtr, amountUsdt) {
     const contract = await this.getContract();
-    const tx = await contract.placeBet(questionId, outcome === "yes");
+    const tx = await contract.placeBet(
+      questionId,
+      outcomeIndex,
+      ethers.parseEther(amountFtr.toString()),
+      ethers.parseEther(amountUsdt.toString()),
+    );
     const receipt = await tx.wait();
     return receipt.hash;
   },
@@ -184,9 +208,13 @@ export const web3Service = {
     return bet;
   },
 
-  async createQuestion(title, deadlineTimestamp) {
+  async createQuestion(title, deadlineTimestamp, outcomeCount) {
     const contract = await this.getContract();
-    const tx = await contract.createQuestion(title, deadlineTimestamp);
+    const tx = await contract.createQuestion(
+      title,
+      deadlineTimestamp,
+      outcomeCount,
+    );
     const receipt = await tx.wait();
 
     const event = receipt.logs.find((log) => {

@@ -29,20 +29,19 @@ export const api = {
     return filtered.map((q) => {
       const poolStats = q.pool_stats && q.pool_stats[0] ? q.pool_stats[0] : {};
       return {
+        id: q._id, // Add id alias for easier access
         _id: q._id,
         contractQuestionId: q.contract_question_id,
+        question: q.title, // Map title to question for frontend compatibility
         title: q.title,
         description: q.description,
         category: q.category || "General",
+        outcomes: q.outcomes || [],
+        outcomeStats: poolStats.outcome_stats || [],
+        endTime: q.deadline, // Map deadline to endTime
         deadline: q.deadline,
         status: q.status,
         result: q.result,
-        totalYesFtr: parseFloat(poolStats.yes_ftr_total || 0),
-        totalYesUsdt: parseFloat(poolStats.yes_usdt_total || 0),
-        totalNoFtr: parseFloat(poolStats.no_ftr_total || 0),
-        totalNoUsdt: parseFloat(poolStats.no_usdt_total || 0),
-        yesCount: parseInt(poolStats.yes_participants || 0),
-        noCount: parseInt(poolStats.no_participants || 0),
       };
     });
   },
@@ -57,6 +56,7 @@ export const api = {
       title: question.title,
       description: question.description,
       category: question.category || "General",
+      outcomes: question.outcomes,
       deadline: question.deadline,
       status: question.status,
       result: question.result,
@@ -92,6 +92,8 @@ export const api = {
         questionId: data.questionId,
         userAddress: data.userAddress,
         outcome: data.outcome,
+        ftrAmount: data.ftrAmount,
+        usdtAmount: data.usdtAmount,
         transactionHash: data.transactionHash,
       }),
     });
@@ -108,6 +110,7 @@ export const api = {
         title: bet.questions?.title,
         status: bet.questions?.status,
         result: bet.questions?.result,
+        outcomes: bet.questions?.outcomes,
         deadline: bet.questions?.deadline,
         contractQuestionId: bet.questions?.contract_question_id,
       },

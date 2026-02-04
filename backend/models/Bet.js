@@ -12,8 +12,7 @@ const betSchema = new mongoose.Schema(
       required: true,
     },
     outcome: {
-      type: String,
-      enum: ["yes", "no"],
+      type: Number,
       required: true,
     },
     ftr_amount: {
@@ -41,6 +40,4 @@ const betSchema = new mongoose.Schema(
 
 betSchema.index({question_id: 1});
 betSchema.index({user_address: 1});
-betSchema.index({transaction_hash: 1});
-
 export default mongoose.model("Bet", betSchema);
