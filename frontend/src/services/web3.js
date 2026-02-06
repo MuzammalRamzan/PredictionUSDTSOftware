@@ -47,16 +47,37 @@ export const web3Service = {
     let expectedChainId;
     let networkName;
 
+    let rpcUrls;
+    let nativeCurrency;
+
     if (import.meta.env.VITE_NETWORK === "mainnet") {
       expectedChainId = "0x38";
       networkName = "BSC Mainnet";
+      rpcUrls = ["https://bsc-dataseed.binance.org/"];
+      nativeCurrency = {
+        name: "BNB",
+        symbol: "BNB",
+        decimals: 18,
+      };
     } else if (import.meta.env.VITE_NETWORK === "testnet") {
       expectedChainId = "0x61";
       networkName = "BSC Testnet";
+      rpcUrls = ["https://data-seed-prebsc-1-s1.binance.org:8545/"];
+      nativeCurrency = {
+        name: "BNB",
+        symbol: "tBNB",
+        decimals: 18,
+      };
     } else {
       // Default to localhost/hardhat for development
       expectedChainId = "0x7a69"; // 31337
       networkName = "Localhost 8545";
+      rpcUrls = ["http://127.0.0.1:8545/"];
+      nativeCurrency = {
+        name: "ETH",
+        symbol: "ETH",
+        decimals: 18,
+      };
     }
 
     if (chainId !== expectedChainId) {
@@ -76,12 +97,8 @@ export const web3Service = {
                 {
                   chainId: expectedChainId,
                   chainName: networkName,
-                  rpcUrls: ["http://127.0.0.1:8545/"],
-                  nativeCurrency: {
-                    name: "ETH",
-                    symbol: "ETH", // 2-6 characters long
-                    decimals: 18,
-                  },
+                  rpcUrls: rpcUrls,
+                  nativeCurrency: nativeCurrency,
                 },
               ],
             });
