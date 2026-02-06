@@ -17,12 +17,11 @@
   },
   "hero": {
     "poweredBy": "Powered by Binance Smart Chain",
-    "titleLine1": "World Cup 2026",
-    "titleLine2": "Prediction Pools",
-    "subtitle": "Stake FTR and USDT on World Cup matches. Transparent, trustless settlements powered by smart contracts.",
+    "titleLine1": "Decentralized",
+    "titleLine2": "Prediction Markets",
+    "subtitle": "Stake USDT on Crypto, Politics, Sports, and more. Transparent, trustless settlements powered by smart contracts.",
     "exploreMarkets": "Explore Markets",
     "learnMore": "Learn More",
-    "ftrVolume": "FTR Volume",
     "usdtVolume": "USDT Volume",
     "totalPredictions": "Total Predictions",
     "activeUsers": "Active Users",
@@ -33,11 +32,11 @@
     "title": "How It Works",
     "subtitle": "Simple, transparent, and decentralized prediction markets",
     "step1Title": "Connect Wallet",
-    "step1Desc": "Connect your BSC-compatible wallet with FTR and USDT tokens.",
+    "step1Desc": "Connect your BSC-compatible wallet with USDT tokens.",
     "step2Title": "Choose Pool",
-    "step2Desc": "Browse World Cup predictions and select an outcome.",
+    "step2Desc": "Browse diverse markets like Crypto, Politics, Sports and select an outcome.",
     "step3Title": "Place Prediction",
-    "step3Desc": "Stake your FTR + USDT on your predicted outcome.",
+    "step3Desc": "Stake your USDT on your predicted outcome.",
     "step4Title": "Withdraw Winnings",
     "step4Desc": "After settlement, winners withdraw their share of the pool.",
     "calculatorTitle": "Profit Calculator",
@@ -51,8 +50,8 @@
     "profit": "Profit",
     "feature1Title": "Transparent & Secure",
     "feature1Desc": "Smart contract on BSC ensures all transactions are transparent and tamper-proof.",
-    "feature2Title": "Dual Token System",
-    "feature2Desc": "Stake both FTR and USDT tokens for balanced participation.",
+    "feature2Title": "USDT Stablecoin",
+    "feature2Desc": "Stake USDT for stable and reliable participation.",
     "feature3Title": "Fair Distribution",
     "feature3Desc": "Winners receive proportional shares based on their stake.",
     "simpleProcess": "Simple Process",
@@ -64,7 +63,7 @@
     "roi": "ROI",
     "totalPayout": "Total Payout",
     "yourStake": "Your Stake",
-    "calculatorDisclaimer": "Based on your {{stake}} FTR + {{stake}} USDT stake. Platform fee ({{fee}}%) is deducted from the losing pool before distribution."
+    "calculatorDisclaimer": "Based on your {{stake}} USDT stake. Platform fee ({{fee}}%) is deducted from the losing pool before distribution."
   },
   "positions": {
     "title": "My Positions",
@@ -94,7 +93,9 @@
     "placedOn": "Placed on",
     "withdrawn": "Withdrawn",
     "withdrawWinnings": "Withdraw Winnings",
-    "activePositionsCard": "Active Positions"
+    "activePositionsCard": "Active Positions",
+    "activeBadge": "Active",
+    "lostMessage": "Don't give up! Try again and win big."
   },
   "bettingCard": {
     "endsIn": "left",
@@ -161,7 +162,9 @@
       "signTransaction": "Sign transaction in MetaMask to create question on blockchain...",
       "creatingDb": "Creating question in database...",
       "createSuccess": "Question created successfully!",
-      "createFailed": "Failed to create question: {{error}}"
+      "createFailed": "Failed to create question: {{error}}",
+      "feesWithdrawnSuccess": "Platform fees withdrawn successfully!",
+      "feesWithdrawFailed": "Failed to withdraw platform fees."
     }
   },
   "home": {
@@ -203,7 +206,7 @@
     "noWinnings": "No winnings available to withdraw",
     "processingWithdrawal": "Processing withdrawal...",
     "recordingWithdrawal": "Recording withdrawal...",
-    "withdrawSuccess": "Successfully withdrawn {{ftr}} FTR + {{usdt}} USDT!",
+    "withdrawSuccess": "Successfully withdrawn {{usdt}} USDT!",
     "withdrawFailed": "Failed to withdraw winnings",
     "unableToWithdraw": "Unable to withdraw: question not found on blockchain"
   },

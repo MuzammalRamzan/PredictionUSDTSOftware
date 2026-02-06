@@ -6,7 +6,16 @@ import {ethers} from "ethers";
 
 export const getAllQuestions = async (req, res) => {
   try {
-    const {status, category, search, page = 1, limit = 10} = req.query;
+    const {
+      status,
+      category,
+      subcategory,
+      country,
+      level,
+      search,
+      page = 1,
+      limit = 10,
+    } = req.query;
 
     const filter = {};
     if (status) {
@@ -23,6 +32,9 @@ export const getAllQuestions = async (req, res) => {
       }
     }
     if (category) filter.category = category;
+    if (subcategory) filter.subcategory = subcategory;
+    if (country) filter.country = country;
+    if (level) filter.level = level;
     if (search) {
       filter.title = {$regex: search, $options: "i"};
     }
@@ -38,18 +50,26 @@ export const getAllQuestions = async (req, res) => {
       Question.countDocuments(filter),
     ]);
 
-    const questionsWithStats = await Promise.all(
-      questions.map(async (question) => {
-        const stats = await PoolStat.findOne({
-          question_id: question._id,
-        }).lean();
-        return {
-          ...question,
-          id: question._id,
-          pool_stats: stats ? [{...stats, id: stats._id}] : [],
-        };
-      }),
-    );
+    // Optimize: Fetch all PoolStats in one query instead of N+1
+    const questionIds = questions.map((q) => q._id);
+    const allStats = await PoolStat.find({
+      question_id: {$in: questionIds},
+    }).lean();
+
+    // Create a map for quick lookup
+    const statsMap = {};
+    allStats.forEach((stat) => {
+      statsMap[stat.question_id.toString()] = stat;
+    });
+
+    const questionsWithStats = questions.map((question) => {
+      const stats = statsMap[question._id.toString()];
+      return {
+        ...question,
+        id: question._id,
+        pool_stats: stats ? [{...stats, id: stats._id}] : [],
+      };
+    });
 
     res.json({
       success: true,
@@ -102,6 +122,9 @@ export const createQuestion = async (req, res) => {
       title,
       description,
       category,
+      subcategory,
+      country,
+      level,
       deadline,
       outcomes,
       adminAddress,
@@ -145,6 +168,9 @@ export const createQuestion = async (req, res) => {
       title,
       description,
       category: category || "general",
+      subcategory: subcategory || "",
+      country: country || "",
+      level: level || "",
       deadline,
       contract_question_id: contractQuestionId,
       status: "open",
@@ -155,7 +181,6 @@ export const createQuestion = async (req, res) => {
 
     // Initialize stats for each outcome
     const initialStats = (outcomes || ["Yes", "No"]).map(() => ({
-      ftr_total: 0,
       usdt_total: 0,
       participants: 0,
     }));
@@ -396,7 +421,6 @@ export const syncQuestionFromBlockchain = async (req, res) => {
 
     for (let i = 0; i < outcomeCount; i++) {
       outcomeStats.push({
-        ftr_total: ethers.formatEther(questionData.outcomeFtrTotals[i]),
         usdt_total: ethers.formatEther(questionData.outcomeUsdtTotals[i]),
         participants: Number(questionData.outcomeParticipants[i]),
       });

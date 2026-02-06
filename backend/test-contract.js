@@ -27,14 +27,11 @@ async function testContract() {
     const questionCount = await contract.questionCount();
     console.log('Total Questions:', questionCount.toString());
 
-    const owner = await contract.owner();
-    console.log('Contract Owner:', owner);
-    console.log('Is Owner?', owner.toLowerCase() === wallet.address.toLowerCase());
-
-    const ftrToken = await contract.ftrToken();
     const usdtToken = await contract.usdtToken();
-    console.log('FTR Token:', ftrToken);
     console.log('USDT Token:', usdtToken);
+
+    // Verify owner
+    const owner = await contract.owner();
 
     console.log('\n' + '='.repeat(60));
     console.log('CREATING TEST QUESTION');

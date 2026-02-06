@@ -6,12 +6,13 @@ async function main() {
   const network = hre.network.name;
   console.log(`Network: ${network}`);
 
-  // User provided addresses
-  const ftrTokenAddress = "0x33b6745987a1f40F9cb9900d913a016154dd6Eb4";
-  const usdtTokenAddress = "0x246D836ba7F33cb2f20e86A975dAe23A3CBfbc4D";
+  const usdtTokenAddress = "0x246D836ba7F33cb2f20e86A975dAe23A3CBfbc4D"; // BSC Testnet USDT (Corrected from debug)
 
-  console.log(`FTR Token: ${ftrTokenAddress}`);
-  console.log(`USDT Token: ${usdtTokenAddress}`);
+  console.log("Deploying updated BettingPool...");
+  console.log("USDT Token:", usdtTokenAddress);
+
+  const developerAddress = "0x9A85Ea37365Af51583F41F89D75A1733524b4148";
+  console.log("Developer Address:", developerAddress);
 
   const [deployer] = await hre.ethers.getSigners();
   console.log(`\nDeploying with account: ${deployer.address}`);
@@ -21,8 +22,8 @@ async function main() {
 
   const BettingPool = await hre.ethers.getContractFactory("BettingPool");
   const bettingPool = await BettingPool.deploy(
-    ftrTokenAddress,
     usdtTokenAddress,
+    developerAddress,
   );
 
   await bettingPool.waitForDeployment();

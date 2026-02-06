@@ -14,6 +14,18 @@ const questionSchema = new mongoose.Schema(
       type: String,
       default: "general",
     },
+    subcategory: {
+      type: String,
+      default: "",
+    },
+    country: {
+      type: String,
+      default: "",
+    },
+    level: {
+      type: String,
+      default: "",
+    },
     deadline: {
       type: Date,
       required: true,
@@ -47,4 +59,8 @@ const questionSchema = new mongoose.Schema(
 
 questionSchema.index({status: 1});
 questionSchema.index({deadline: 1});
+questionSchema.index({category: 1});
+questionSchema.index({subcategory: 1});
+questionSchema.index({country: 1});
+questionSchema.index({level: 1});
 export default mongoose.model("Question", questionSchema);

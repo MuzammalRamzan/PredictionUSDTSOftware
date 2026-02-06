@@ -19,10 +19,9 @@
     "poweredBy": "由币安智能链支持",
     "titleLine1": "2026世界杯",
     "titleLine2": "预测池",
-    "subtitle": "质押 FTR 和 USDT 参与世界杯比赛预测。基于智能合约的透明、无需信任结算。",
+    "subtitle": "质押 USDT 参与世界杯比赛预测。基于智能合约的透明、无需信任结算。",
     "exploreMarkets": "探索市场",
     "learnMore": "了解更多",
-    "ftrVolume": "FTR 交易量",
     "usdtVolume": "USDT 交易量",
     "totalPredictions": "总预测数",
     "activeUsers": "活跃用户"
@@ -31,11 +30,11 @@
     "title": "如何运作",
     "subtitle": "简单、透明、去中心化的预测市场",
     "step1Title": "连接钱包",
-    "step1Desc": "连接您的支持 FTR 和 USDT 代币的 BSC 钱包。",
+    "step1Desc": "连接您的支持 USDT 代币的 BSC 钱包。",
     "step2Title": "选择预测池",
     "step2Desc": "浏览世界杯预测并选择结果。",
     "step3Title": "进行预测",
-    "step3Desc": "为您预测的结果质押 1 FTR + 1 USDT。",
+    "step3Desc": "为您预测的结果质押 1 USDT。",
     "step4Title": "提取奖金",
     "step4Desc": "结算后，获胜者提取他们在池中的份额。",
     "calculatorTitle": "利润计算器",
@@ -50,7 +49,7 @@
     "feature1Title": "透明且安全",
     "feature1Desc": "BSC 上的智能合约确保所有交易透明且不可篡改。",
     "feature2Title": "双代币系统",
-    "feature2Desc": "质押 FTR 和 USDT 代币以实现平衡参与。",
+    "feature2Desc": "质押 USDT 代币以实现平衡参与。",
     "feature3Title": "公平分配",
     "feature3Desc": "获胜者根据其质押比例获得相应份额。",
     "simpleProcess": "简单流程",
@@ -65,7 +64,7 @@
     "estimatedReturns": "预计回报",
     "roi": "投资回报率",
     "totalPayout": "总赔付",
-    "calculatorDisclaimer": "基于标准的 1 FTR + 1 USDT 预测。平台费用 ({{fee}}%) 将在分配前从失败池中扣除。"
+    "calculatorDisclaimer": "基于标准的 1 USDT 预测。平台费用 ({{fee}}%) 将在分配前从失败池中扣除。"
   },
   "positions": {
     "title": "我的持仓",
@@ -204,7 +203,7 @@
     "noWinnings": "没有可提取的奖金",
     "processingWithdrawal": "正在处理提款...",
     "recordingWithdrawal": "正在记录提款...",
-    "withdrawSuccess": "成功提取 {{ftr}} FTR + {{usdt}} USDT！",
+    "withdrawSuccess": "成功提取 {{usdt}} USDT！",
     "withdrawFailed": "提取奖金失败",
     "unableToWithdraw": "无法提取：在区块链上未找到问题"
   },

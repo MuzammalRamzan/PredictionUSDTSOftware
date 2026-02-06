@@ -4,7 +4,9 @@ import BettingPoolABI from './BettingPoolABI.json' with { type: 'json' };
 
 dotenv.config();
 
-const RPC_URL = process.env.NETWORK === 'mainnet'
+const RPC_URL = process.env.NETWORK === 'localhost'
+  ? 'http://127.0.0.1:8545/'
+  : process.env.NETWORK === 'mainnet'
   ? process.env.BSC_RPC_URL
   : process.env.BSC_TESTNET_RPC_URL;
 

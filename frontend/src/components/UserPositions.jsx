@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TrendingUp, Clock, Trophy, CheckCircle2, XCircle, Wallet, ChevronLeft, ChevronRight } from 'lucide-react';
+import { TrendingUp, Clock, Trophy, CheckCircle2, XCircle, Wallet, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 
@@ -52,7 +52,6 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
 
   const activePositions = positions.filter(p => p.status === 'active');
   const settledPositions = positions.filter(p => p.status !== 'active');
-  const totalFtrStaked = positions.reduce((acc, p) => acc + p.ftrStaked, 0);
   const totalUsdtStaked = positions.reduce((acc, p) => acc + p.usdtStaked, 0);
   const totalWon = settledPositions.filter(p => p.status === 'won').length;
 
@@ -137,8 +136,8 @@ export default function UserPositions({ positions, walletConnected, onWithdraw, 
                     <TrendingUp className={`w-6 h-6 transition-colors ${isDark ? 'text-zinc-400 group-hover:text-yellow-500' : 'text-zinc-600 group-hover:text-yellow-600'}`} />
                   </div>
                 </div>
-                <p className={`text-xl font-black tracking-tight relative z-10 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-                  {totalFtrStaked} <span className={`text-sm font-bold ${isDark ? 'text-yellow-500' : 'text-zinc-500'}`}>FTR</span> + {totalUsdtStaked} <span className={`text-sm font-bold ${isDark ? 'text-emerald-400' : 'text-zinc-500'}`}>USDT</span>
+                <p className={`text-4xl font-black tracking-tight relative z-10 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+                  {totalUsdtStaked} <span className={`text-lg font-bold ${isDark ? 'text-emerald-400' : 'text-zinc-600'}`}>USDT</span>
                 </p>
               </div>
             </div>
@@ -313,11 +312,11 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
         return {
           badge: t('positions.lost'),
           containerClass: isDark 
-            ? 'glass-card border-zinc-700/50 hover:border-zinc-600 bg-zinc-800/30' 
-            : 'glass-card border-zinc-200 hover:border-zinc-300 bg-white/60',
+            ? 'glass-card border-red-500/50 hover:border-red-500/70 bg-gradient-to-br from-red-900/20 to-red-800/20' 
+            : 'glass-card border-red-400/60 hover:border-red-500 bg-gradient-to-br from-red-100/90 to-red-200/90',
           statusBadge: isDark 
-            ? 'bg-zinc-800 text-zinc-400 border border-zinc-700' 
-            : 'bg-zinc-100 text-zinc-600 border border-zinc-200',
+            ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
+            : 'bg-red-200 text-red-900 border border-red-300',
           icon: <XCircle className="w-3.5 h-3.5" />,
         };
       default:
@@ -361,14 +360,15 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
         </h4>
 
         <div className="space-y-4">
-          <div className={`rounded-2xl p-4 transition-colors ${isDark ? 'bg-zinc-900/40 border border-zinc-700/50 group-hover:bg-zinc-900/60' : 'bg-white/60 border border-gray-100 group-hover:bg-white/80'}`}>
-            <div className={`flex items-center justify-between text-xs mb-2 font-bold uppercase tracking-wider ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+          <div className={`rounded-2xl p-4 transition-colors ${isDark ? 'bg-zinc-900/60 border border-zinc-700/50 group-hover:bg-zinc-900/80' : 'bg-white/90 border border-gray-200 group-hover:bg-white'}`}>
+            <div className={`flex items-center justify-between text-xs mb-2 font-bold uppercase tracking-wider ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               <span>{t('positions.totalStaked')}</span>
             </div>
-            <div className={`font-black text-sm flex items-center justify-between ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              <span>{position.ftrStaked} FTR</span>
-              <span className={isDark ? 'text-zinc-600' : 'text-gray-300'}>+</span>
-              <span>{position.usdtStaked} USDT</span>
+            <div className={`flex items-baseline justify-between ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <div className="flex items-baseline space-x-1">
+                <span className="text-lg font-black">{position.usdtStaked}</span>
+                <span className={`text-xs font-extrabold ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>USDT</span>
+              </div>
             </div>
           </div>
 
@@ -383,8 +383,6 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
                   <Trophy className={`w-3.5 h-3.5 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
                 </div>
                 <div className={`font-bold text-sm flex items-center justify-between ${isDark ? 'text-emerald-100' : 'text-emerald-900'}`}>
-                  <span>{position.payout.ftr.toFixed(2)} FTR</span>
-                  <span className={isDark ? 'text-emerald-800' : 'text-emerald-300'}>+</span>
                   <span>{position.payout.usdt.toFixed(2)} USDT</span>
                 </div>
               </div>
@@ -426,6 +424,26 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
               <Trophy className="w-4 h-4 group-hover:scale-110 transition-transform" />
             </button>
           )}
+        </div>
+      )}
+
+      {position.status === 'lost' && (
+        <div className="px-6 pb-6 pt-0">
+          <div className={`relative overflow-hidden rounded-2xl p-5 text-center border group/msg transition-all duration-300 ${
+             isDark ? 'bg-gradient-to-br from-red-500/5 to-orange-500/5 border-red-500/20 hover:border-red-500/30' : 'bg-gradient-to-br from-red-50 to-orange-50 border-red-100 hover:border-red-200'
+          }`}>
+             <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full blur-3xl -mr-16 -mt-16 transition-transform duration-700 group-hover/msg:scale-125"></div>
+             <div className="absolute bottom-0 left-0 w-32 h-32 bg-orange-500/5 rounded-full blur-3xl -ml-16 -mb-16 transition-transform duration-700 group-hover/msg:scale-125"></div>
+             
+             <div className="relative z-10 flex flex-col items-center gap-3">
+                <div className={`p-3 rounded-full shadow-lg transform transition-transform duration-300 group-hover/msg:rotate-12 ${isDark ? 'bg-gradient-to-br from-red-500/20 to-orange-500/20 text-red-400 shadow-red-900/20' : 'bg-white text-red-500 shadow-red-100'}`}>
+                   <Sparkles className="w-5 h-5" /> 
+                </div>
+                <p className={`text-sm font-bold italic leading-relaxed max-w-[90%] mx-auto ${isDark ? 'text-red-200/90' : 'text-red-700/90'}`}>
+                  "{t('positions.lostMessage')}"
+                </p>
+             </div>
+          </div>
         </div>
       )}
     </div>

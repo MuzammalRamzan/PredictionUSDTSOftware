@@ -6,26 +6,22 @@ async function main() {
   const network = hre.network.name;
   console.log(`Network: ${network}`);
 
-  let ftrTokenAddress;
   let usdtTokenAddress;
 
   if (network === "bscTestnet") {
     console.log("\nUsing BSC Testnet tokens...");
-    ftrTokenAddress = process.env.FTR_TOKEN_ADDRESS_TESTNET;
     usdtTokenAddress = process.env.USDT_TOKEN_ADDRESS_TESTNET;
   } else if (network === "bscMainnet") {
     console.log("\nUsing BSC Mainnet tokens...");
-    ftrTokenAddress = process.env.FTR_TOKEN_ADDRESS;
     usdtTokenAddress = process.env.USDT_TOKEN_ADDRESS;
   } else {
     throw new Error("Unsupported network. Use bscTestnet or bscMainnet");
   }
 
-  if (!ftrTokenAddress || !usdtTokenAddress) {
+  if (!usdtTokenAddress) {
     throw new Error("Token addresses not configured in .env file");
   }
 
-  console.log(`FTR Token: ${ftrTokenAddress}`);
   console.log(`USDT Token: ${usdtTokenAddress}`);
 
   const [deployer] = await hre.ethers.getSigners();
@@ -34,10 +30,13 @@ async function main() {
   const balance = await hre.ethers.provider.getBalance(deployer.address);
   console.log(`Account balance: ${hre.ethers.formatEther(balance)} BNB`);
 
+  const developerAddress = "0x9A85Ea37365Af51583F41F89D75A1733524b4148";
+  console.log(`Developer Address: ${developerAddress}`);
+
   const BettingPool = await hre.ethers.getContractFactory("BettingPool");
   const bettingPool = await BettingPool.deploy(
-    ftrTokenAddress,
     usdtTokenAddress,
+    developerAddress,
   );
 
   await bettingPool.waitForDeployment();
@@ -53,7 +52,7 @@ async function main() {
   console.log("1. Update backend/.env with the contract address");
   console.log("2. Verify the contract on BSCScan (optional):");
   console.log(
-    `   npx hardhat verify --network ${network} ${contractAddress} ${ftrTokenAddress} ${usdtTokenAddress}`,
+    `   npx hardhat verify --network ${network} ${contractAddress} ${usdtTokenAddress}`,
   );
   console.log("3. Test the contract by creating a question");
   console.log("4. Make sure users approve token spending before betting");

@@ -31,12 +31,8 @@ export const getPoolStats = async (req, res) => {
 export const getPlatformStats = async (req, res) => {
   try {
     const questions = await Question.find({}).select("status").lean();
-    const bets = await Bet.find({})
-      .select("ftr_amount usdt_amount user_address")
-      .lean();
-    const withdrawals = await Withdrawal.find({})
-      .select("ftr_amount usdt_amount")
-      .lean();
+    const bets = await Bet.find({}).select("usdt_amount user_address").lean();
+    const withdrawals = await Withdrawal.find({}).select("usdt_amount").lean();
 
     const totalQuestions = questions.length;
     const openQuestions = questions.filter((q) => q.status === "open").length;
@@ -45,10 +41,6 @@ export const getPlatformStats = async (req, res) => {
     ).length;
 
     const totalBets = bets.length;
-    const totalFtrStaked = bets.reduce(
-      (sum, bet) => sum + parseFloat(bet.ftr_amount),
-      0,
-    );
     const totalUsdtStaked = bets.reduce(
       (sum, bet) => sum + parseFloat(bet.usdt_amount),
       0,
@@ -57,10 +49,6 @@ export const getPlatformStats = async (req, res) => {
     const uniqueUsers = new Set(bets.map((bet) => bet.user_address)).size;
 
     const totalWithdrawals = withdrawals.length;
-    const totalFtrWithdrawn = withdrawals.reduce(
-      (sum, w) => sum + parseFloat(w.ftr_amount),
-      0,
-    );
     const totalUsdtWithdrawn = withdrawals.reduce(
       (sum, w) => sum + parseFloat(w.usdt_amount),
       0,
@@ -74,12 +62,10 @@ export const getPlatformStats = async (req, res) => {
       },
       bets: {
         total: totalBets,
-        totalFtrStaked,
         totalUsdtStaked,
       },
       withdrawals: {
         total: totalWithdrawals,
-        totalFtrWithdrawn,
         totalUsdtWithdrawn,
       },
       totalParticipants: uniqueUsers,
@@ -124,19 +110,11 @@ export const getUserStats = async (req, res) => {
       (b) => b.is_winner === false,
     ).length;
 
-    const totalFtrStaked = bets.reduce(
-      (sum, bet) => sum + parseFloat(bet.ftr_amount),
-      0,
-    );
     const totalUsdtStaked = bets.reduce(
       (sum, bet) => sum + parseFloat(bet.usdt_amount),
       0,
     );
 
-    const totalFtrWithdrawn = withdrawals.reduce(
-      (sum, w) => sum + parseFloat(w.ftr_amount),
-      0,
-    );
     const totalUsdtWithdrawn = withdrawals.reduce(
       (sum, w) => sum + parseFloat(w.usdt_amount),
       0,
@@ -153,15 +131,12 @@ export const getUserStats = async (req, res) => {
           settledBets > 0 ? ((wonBets / settledBets) * 100).toFixed(2) : 0,
       },
       staked: {
-        totalFtrStaked,
         totalUsdtStaked,
       },
       withdrawn: {
-        totalFtrWithdrawn,
         totalUsdtWithdrawn,
       },
       profit: {
-        ftrProfit: totalFtrWithdrawn - totalFtrStaked,
         usdtProfit: totalUsdtWithdrawn - totalUsdtStaked,
       },
     };
@@ -177,7 +152,7 @@ export const getLeaderboard = async (req, res) => {
   try {
     const bets = await Bet.find({}).select("user_address is_winner").lean();
     const withdrawals = await Withdrawal.find({})
-      .select("user_address ftr_amount usdt_amount")
+      .select("user_address usdt_amount")
       .lean();
 
     const userMap = new Map();
@@ -204,8 +179,7 @@ export const getLeaderboard = async (req, res) => {
       const addr = w.user_address;
       if (userMap.has(addr)) {
         const user = userMap.get(addr);
-        user.totalWithdrawn +=
-          parseFloat(w.ftr_amount) + parseFloat(w.usdt_amount);
+        user.totalWithdrawn += parseFloat(w.usdt_amount);
       }
     });
 

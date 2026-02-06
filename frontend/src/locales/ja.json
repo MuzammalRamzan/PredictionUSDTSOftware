@@ -19,10 +19,9 @@
     "poweredBy": "Binance Smart Chain 提供",
     "titleLine1": "2026年ワールドカップ",
     "titleLine2": "予測プール",
-    "subtitle": "FTRとUSDTをステークしてワールドカップの試合結果を予測。スマートコントラクトによる透明で信頼不要な決済。",
+    "subtitle": "USDTをステークしてワールドカップの試合結果を予測。スマートコントラクトによる透明で信頼不要な決済。",
     "exploreMarkets": "マーケットを見る",
     "learnMore": "詳細を見る",
-    "ftrVolume": "FTR 取引高",
     "usdtVolume": "USDT 取引高",
     "totalPredictions": "総予測数",
     "activeUsers": "アクティブユーザー"
@@ -31,11 +30,11 @@
     "title": "仕組み",
     "subtitle": "シンプルで透明性の高い分散型予測市場",
     "step1Title": "ウォレット接続",
-    "step1Desc": "FTRおよびUSDTトークン対応のBSC互換ウォレットを接続します。",
+    "step1Desc": "USDTトークン対応のBSC互換ウォレットを接続します。",
     "step2Title": "プール選択",
     "step2Desc": "ワールドカップの予測を閲覧し、結果を選択します。",
     "step3Title": "予測する",
-    "step3Desc": "予測した結果に1 FTR + 1 USDTをステークします。",
+    "step3Desc": "予測した結果に1 USDTをステークします。",
     "step4Title": "配当の引き出し",
     "step4Desc": "決済後、勝者はプールから配当を引き出します。",
     "calculatorTitle": "利益計算機",
@@ -50,7 +49,7 @@
     "feature1Title": "透明性と安全性",
     "feature1Desc": "BSC上のスマートコントラクトにより、すべての取引は透明で改ざん不可能です。",
     "feature2Title": "デュアルトークンシステム",
-    "feature2Desc": "バランスの取れた参加のためにFTRとUSDTの両方をステークします。",
+    "feature2Desc": "バランスの取れた参加のためにUSDTをステークします。",
     "feature3Title": "公平な分配",
     "feature3Desc": "勝者はステーク量に応じて比例配分を受け取ります。",
     "simpleProcess": "簡単なプロセス",
@@ -65,7 +64,7 @@
     "estimatedReturns": "推定リターン",
     "roi": "投資利益率 (ROI)",
     "totalPayout": "総支払額",
-    "calculatorDisclaimer": "標準的な1 FTR + 1 USDTの予測に基づいています。プラットフォーム手数料（{{fee}}%）は分配前に敗者のプールから差し引かれます。"
+    "calculatorDisclaimer": "標準的な1 USDTの予測に基づいています。プラットフォーム手数料（{{fee}}%）は分配前に敗者のプールから差し引かれます。"
   },
   "positions": {
     "title": "マイポジション",
@@ -204,7 +203,7 @@
     "noWinnings": "引き出し可能な配当はありません",
     "processingWithdrawal": "引き出し処理中...",
     "recordingWithdrawal": "引き出しを記録中...",
-    "withdrawSuccess": "{{ftr}} FTR + {{usdt}} USDT の引き出しに成功しました！",
+    "withdrawSuccess": "{{usdt}} USDT の引き出しに成功しました！",
     "withdrawFailed": "配当の引き出しに失敗しました",
     "unableToWithdraw": "引き出し不可: ブロックチェーン上で質問が見つかりません"
   },

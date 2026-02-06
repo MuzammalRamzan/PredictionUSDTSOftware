@@ -11,38 +11,20 @@ async function main() {
   const balance = await hre.ethers.provider.getBalance(deployer.address);
   console.log("Account balance:", hre.ethers.formatEther(balance), "BNB");
 
-  console.log("\n" + "=".repeat(60));
-  console.log("STEP 1: DEPLOYING USDT TOKEN");
-  console.log("=".repeat(60));
-
-  const USDT = await hre.ethers.getContractFactory("USDT");
-  const usdt = await USDT.deploy(deployer.address);
-  await usdt.waitForDeployment();
-  const usdtAddress = await usdt.getAddress();
-  console.log("✅ USDT deployed to:", usdtAddress);
-
-  const usdtBalance = await usdt.balanceOf(deployer.address);
-  console.log("   Initial USDT balance:", hre.ethers.formatUnits(usdtBalance, 18), "USDT");
+  // User provided USDT address
+  const usdtAddress = "0x246D836ba7F33cb2f20e86A975dAe23A3CBfbc4D";
+  console.log("\nUsing existing USDT Token:", usdtAddress);
 
   console.log("\n" + "=".repeat(60));
-  console.log("STEP 2: DEPLOYING FTR TOKEN");
+  console.log("STEP 1: DEPLOYING BETTING POOL CONTRACT");
   console.log("=".repeat(60));
 
-  const FTR = await hre.ethers.getContractFactory("FTR");
-  const ftr = await FTR.deploy(deployer.address);
-  await ftr.waitForDeployment();
-  const ftrAddress = await ftr.getAddress();
-  console.log("✅ FTR deployed to:", ftrAddress);
-
-  const ftrBalance = await ftr.balanceOf(deployer.address);
-  console.log("   Initial FTR balance:", hre.ethers.formatUnits(ftrBalance, 18), "FTR");
-
-  console.log("\n" + "=".repeat(60));
-  console.log("STEP 3: DEPLOYING BETTING POOL CONTRACT");
-  console.log("=".repeat(60));
+  const developerAddress = "0x9A85Ea37365Af51583F41F89D75A1733524b4148";
+  console.log("Developer Address:", developerAddress);
 
   const BettingPool = await hre.ethers.getContractFactory("BettingPool");
-  const bettingPool = await BettingPool.deploy(ftrAddress, usdtAddress);
+  // Pass USDT address and Developer address
+  const bettingPool = await BettingPool.deploy(usdtAddress, developerAddress);
   await bettingPool.waitForDeployment();
   const bettingPoolAddress = await bettingPool.getAddress();
   console.log("✅ BettingPool deployed to:", bettingPoolAddress);
@@ -52,22 +34,32 @@ async function main() {
   console.log("=".repeat(60));
   console.log("\n📝 CONTRACT ADDRESSES:");
   console.log("   USDT Token:        ", usdtAddress);
-  console.log("   FTR Token:         ", ftrAddress);
   console.log("   Betting Pool:      ", bettingPoolAddress);
   console.log("\n👤 DEPLOYER:");
   console.log("   Address:           ", deployer.address);
-  console.log("   Remaining Balance: ", hre.ethers.formatEther(await hre.ethers.provider.getBalance(deployer.address)), "BNB");
+  console.log(
+    "   Remaining Balance: ",
+    hre.ethers.formatEther(
+      await hre.ethers.provider.getBalance(deployer.address),
+    ),
+    "BNB",
+  );
   console.log("\n" + "=".repeat(60));
   console.log("DEPLOYMENT COMPLETED SUCCESSFULLY ✅");
   console.log("=".repeat(60));
 
   console.log("\n💾 Save these addresses for your configuration:");
-  console.log(JSON.stringify({
-    usdt: usdtAddress,
-    ftr: ftrAddress,
-    bettingPool: bettingPoolAddress,
-    deployer: deployer.address
-  }, null, 2));
+  console.log(
+    JSON.stringify(
+      {
+        usdt: usdtAddress,
+        bettingPool: bettingPoolAddress,
+        deployer: deployer.address,
+      },
+      null,
+      2,
+    ),
+  );
 }
 
 main()

@@ -74,35 +74,13 @@ export default function Hero({ stats }) {
   </div>
 </div>
 
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-  {/* FTR Volume */}
-  <div className={`group relative p-8 rounded-3xl transition-all duration-500 hover:scale-[1.02] border backdrop-blur-xl ${
-    isDark 
-      ? 'bg-zinc-900/40 border-zinc-800 hover:bg-zinc-800/60 hover:border-yellow-500/30' 
-      : 'bg-white/60 border-white/80 hover:bg-white/80 hover:border-yellow-400/50 shadow-xl shadow-yellow-900/5'
-  }`}>
-    <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
-      isDark 
-        ? 'bg-gradient-to-br from-yellow-500/10 via-transparent to-transparent' 
-        : 'bg-gradient-to-br from-yellow-500/5 via-transparent to-transparent'
-    }`}></div>
-    <div className="relative">
-      <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 p-3.5 rounded-2xl mb-6 inline-block shadow-lg shadow-yellow-500/30 group-hover:scale-110 transition-transform duration-500">
-        <Coins className="w-7 h-7 text-white" />
-      </div>
-      <div className={`text-4xl font-black mb-2 tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-        {stats.totalVolume.ftr.toLocaleString()}
-      </div>
-      <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-zinc-200' : 'text-zinc-600 group-hover:text-yellow-700'} transition-colors`}>{t('hero.ftrVolume')}</div>
-    </div>
-  </div>
-
-  {/* USDT Volume */}
-  <div className={`group relative p-8 rounded-3xl transition-all duration-500 hover:scale-[1.02] border backdrop-blur-xl ${
-    isDark 
-      ? 'bg-zinc-900/40 border-zinc-800 hover:bg-zinc-800/60 hover:border-green-500/30' 
-      : 'bg-white/60 border-white/80 hover:bg-white/80 hover:border-green-400/50 shadow-xl shadow-green-900/5'
-  }`}>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+        {/* USDT Volume */}
+        <div className={`group relative p-8 rounded-3xl transition-all duration-500 hover:scale-[1.02] border backdrop-blur-xl ${
+          isDark 
+            ? 'bg-zinc-900/40 border-zinc-800 hover:bg-zinc-800/60 hover:border-green-500/30' 
+            : 'bg-white/60 border-white/80 hover:bg-white/80 hover:border-green-400/50 shadow-xl shadow-green-900/5'
+        }`}>
      <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
       isDark 
         ? 'bg-gradient-to-br from-green-500/10 via-transparent to-transparent' 

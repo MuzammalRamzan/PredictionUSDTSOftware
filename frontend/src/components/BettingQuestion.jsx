@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock, Users, CheckCircle2, XCircle, TrendingUp } from 'lucide-react';
+import { Clock, Users, CheckCircle2, XCircle, TrendingUp, Coins } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 
@@ -15,6 +15,7 @@ export default function BettingQuestionCard({
   
   // Calculate total participants from all outcomes
   const totalParticipants = question.outcomeStats?.reduce((sum, stat) => sum + stat.participants, 0) || 0;
+  const totalVolume = question.outcomeStats?.reduce((sum, stat) => sum + (stat.usdt || 0), 0) || 0;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -25,9 +26,9 @@ export default function BettingQuestionCard({
   }, []);
 
   const getPercentage = (index) => {
-    if (totalParticipants === 0) return 0;
-    const participants = question.outcomeStats?.[index]?.participants || 0;
-    return (participants / totalParticipants) * 100;
+    if (totalVolume === 0) return 0;
+    const volume = question.outcomeStats?.[index]?.usdt || 0;
+    return (volume / totalVolume) * 100;
   };
 
   const isQuestionEnded = () => {
@@ -99,11 +100,22 @@ export default function BettingQuestionCard({
         </h3>
 
         <div className="mt-auto space-y-6">
-          <div className="flex items-center justify-between text-xs">
-            <span className={`font-bold tracking-wide uppercase ${isDark ? 'text-zinc-300' : 'text-zinc-600'}`}>{t('bettingCard.poolVolume')}</span>
-            <div className="flex items-center space-x-2 bg-zinc-100 dark:bg-zinc-800/50 px-2.5 py-1 rounded-lg">
-              <Users className={`w-3.5 h-3.5 ${isDark ? 'text-zinc-300' : 'text-zinc-600'}`} />
-              <span className={`font-black ${isDark ? 'text-zinc-200' : 'text-zinc-800'}`}>{totalParticipants}</span>
+          <div className="grid grid-cols-2 gap-4 text-xs">
+            {/* Volume */}
+            <div>
+                <span className={`block font-bold tracking-wide uppercase mb-1.5 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>{t('bettingCard.poolVolume')}</span>
+                <div className={`flex items-center space-x-2 px-3 py-2 rounded-xl ${isDark ? 'bg-zinc-800/50' : 'bg-zinc-100'}`}>
+                  <Coins className={`w-4 h-4 ${isDark ? 'text-yellow-500' : 'text-yellow-600'}`} />
+                  <span className={`font-black text-sm ${isDark ? 'text-zinc-200' : 'text-zinc-800'}`}>{totalVolume.toFixed(2)} USDT</span>
+                </div>
+            </div>
+            {/* Participants */}
+            <div>
+                <span className={`block font-bold tracking-wide uppercase mb-1.5 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>Participants</span>
+                <div className={`flex items-center space-x-2 px-3 py-2 rounded-xl ${isDark ? 'bg-zinc-800/50' : 'bg-zinc-100'}`}>
+                  <Users className={`w-4 h-4 ${isDark ? 'text-blue-500' : 'text-blue-600'}`} />
+                  <span className={`font-black text-sm ${isDark ? 'text-zinc-200' : 'text-zinc-800'}`}>{totalParticipants}</span>
+                </div>
             </div>
           </div>
 
@@ -143,6 +155,9 @@ export default function BettingQuestionCard({
                         <span className={`font-bold uppercase tracking-wider ${isDark ? 'text-zinc-300' : 'text-zinc-600'}`}>{outcome}</span>
                         <span className={`font-black text-lg drop-shadow-sm ${index === 0 ? 'text-yellow-500' : (index === 1 ? 'text-zinc-500' : 'text-blue-500')}`}>
                             {getPercentage(index).toFixed(0)}%
+                        </span>
+                        <span className={`text-[10px] font-bold mt-0.5 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                            {(question.outcomeStats?.[index]?.usdt || 0).toFixed(2)} USDT
                         </span>
                     </div>
                 ))}
@@ -205,7 +220,7 @@ export default function BettingQuestionCard({
               <div className={`p-1.5 rounded-full ${isDark ? 'bg-yellow-500/10' : 'bg-yellow-100'}`}>
                 <TrendingUp className="w-3 h-3 text-yellow-500" />
               </div>
-              <span className={`text-sm font-black ${isDark ? 'text-white' : 'text-zinc-900'}`}>Flexible (Min 1 FTR/USDT)</span>
+              <span className={`text-sm font-black ${isDark ? 'text-white' : 'text-zinc-900'}`}>Flexible (Min 1 USDT)</span>
             </div>
           </div>
         </div>

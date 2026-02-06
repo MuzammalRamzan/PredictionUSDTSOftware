@@ -10,35 +10,49 @@ const handleResponse = async (response) => {
 };
 
 export const api = {
-  async getAllQuestions(status = null, category = null) {
-    const response = await fetch(`${API_BASE_URL}/questions`);
+  async getAllQuestions(status = null, category = null, filters = {}) {
+    const params = new URLSearchParams();
+    if (status) params.append("status", status);
+    if (category) params.append("category", category);
+    if (filters.subcategory) params.append("subcategory", filters.subcategory);
+    if (filters.country) params.append("country", filters.country);
+    if (filters.level) params.append("level", filters.level);
+
+    const response = await fetch(
+      `${API_BASE_URL}/questions?${params.toString()}`,
+    );
     const questions = await handleResponse(response);
 
-    let filtered = questions;
-    if (status) {
-      filtered = filtered.filter((q) => {
-        if (status === "open") return q.status === "open";
-        if (status === "settled") return q.status === "settled";
-        return true;
-      });
-    }
-    if (category) {
-      filtered = filtered.filter((q) => q.category === category);
-    }
+    // Client-side filtering is no longer strictly necessary if backend handles it,
+    // but we can keep it for consistency or remove it.
+    // Since we updated backend to handle these, we can return questions directly
+    // but the existing code does some mapping.
 
-    return filtered.map((q) => {
+    return questions.map((q) => {
       const poolStats = q.pool_stats && q.pool_stats[0] ? q.pool_stats[0] : {};
+      const outcomeStats = poolStats.outcome_stats || [];
+      const formattedOutcomeStats = (q.outcomes || []).map(
+        (outcome, index) => ({
+          name: outcome,
+          usdt: outcomeStats[index]?.usdt_total || 0,
+          participants: outcomeStats[index]?.participants || 0,
+        }),
+      );
+
       return {
-        id: q._id, // Add id alias for easier access
+        id: q._id,
         _id: q._id,
         contractQuestionId: q.contract_question_id,
-        question: q.title, // Map title to question for frontend compatibility
+        question: q.title,
         title: q.title,
         description: q.description,
         category: q.category || "General",
+        subcategory: q.subcategory,
+        country: q.country,
+        level: q.level,
         outcomes: q.outcomes || [],
-        outcomeStats: poolStats.outcome_stats || [],
-        endTime: q.deadline, // Map deadline to endTime
+        outcomeStats: formattedOutcomeStats,
+        endTime: q.deadline,
         deadline: q.deadline,
         status: q.status,
         result: q.result,
@@ -71,9 +85,13 @@ export const api = {
       },
       body: JSON.stringify({
         contractQuestionId: data.contractQuestionId,
-        question: data.title,
+        title: data.title, // Send title as title
+        question: data.title, // Keep legacy field just in case
         description: data.description,
         category: data.category,
+        subcategory: data.subcategory,
+        country: data.country,
+        level: data.level,
         endTime: data.deadline,
         creator: data.creator,
         minBetAmount: data.minBetAmount || "1",
@@ -92,7 +110,6 @@ export const api = {
         questionId: data.questionId,
         userAddress: data.userAddress,
         outcome: data.outcome,
-        ftrAmount: data.ftrAmount,
         usdtAmount: data.usdtAmount,
         transactionHash: data.transactionHash,
       }),
@@ -115,7 +132,6 @@ export const api = {
         contractQuestionId: bet.questions?.contract_question_id,
       },
       outcome: bet.outcome,
-      ftrAmount: bet.ftr_amount,
       usdtAmount: bet.usdt_amount,
       createdAt: bet.created_at,
       payout: bet.payout,
@@ -135,8 +151,7 @@ export const api = {
     const data = await handleResponse(response);
 
     return {
-      ftr: data.potentialWinnings || "0",
-      usdt: data.potentialWinnings || "0",
+      usdtAmount: data.usdtAmount,
     };
   },
 
@@ -149,7 +164,6 @@ export const api = {
       body: JSON.stringify({
         questionId: data.questionId,
         userAddress: data.userAddress,
-        ftrAmount: data.ftrAmount,
         usdtAmount: data.usdtAmount,
         transactionHash: data.transactionHash,
       }),
@@ -185,9 +199,7 @@ export const api = {
     const stats = await handleResponse(response);
 
     return {
-      totalYesFtr: parseFloat(stats.yes_ftr_total || 0),
       totalYesUsdt: parseFloat(stats.yes_usdt_total || 0),
-      totalNoFtr: parseFloat(stats.no_ftr_total || 0),
       totalNoUsdt: parseFloat(stats.no_usdt_total || 0),
       yesCount: stats.yes_participants || 0,
       noCount: stats.no_participants || 0,
@@ -201,7 +213,6 @@ export const api = {
     const stats = await handleResponse(response);
 
     return {
-      totalVolumeFtr: parseFloat(stats.bets?.totalFtrStaked || 0),
       totalVolumeUsdt: parseFloat(stats.bets?.totalUsdtStaked || 0),
       totalQuestions: stats.questions?.total || 0,
       activeQuestions: stats.questions?.open || 0,
@@ -219,7 +230,6 @@ export const api = {
       lostBets: stats.bets?.lost || 0,
       activeBets: stats.bets?.active || 0,
       winRate: stats.bets?.winRate || "0",
-      totalStakedFtr: parseFloat(stats.staked?.totalFtrStaked || 0),
       totalStakedUsdt: parseFloat(stats.staked?.totalUsdtStaked || 0),
     };
   },

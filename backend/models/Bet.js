@@ -15,10 +15,6 @@ const betSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    ftr_amount: {
-      type: Number,
-      default: 1,
-    },
     usdt_amount: {
       type: Number,
       default: 1,

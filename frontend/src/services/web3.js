@@ -2,12 +2,10 @@ import {ethers} from "ethers";
 import BettingPoolABI from "../config/BettingPoolABI.json";
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
-const FTR_TOKEN_ADDRESS = import.meta.env.VITE_FTR_TOKEN_ADDRESS;
 const USDT_TOKEN_ADDRESS = import.meta.env.VITE_USDT_TOKEN_ADDRESS;
 
 console.log("Web3 Service Configuration:", {
   CONTRACT_ADDRESS,
-  FTR_TOKEN_ADDRESS,
   USDT_TOKEN_ADDRESS,
   NETWORK: import.meta.env.VITE_NETWORK,
 });
@@ -45,15 +43,59 @@ export const web3Service = {
     });
 
     const chainId = await window.ethereum.request({method: "eth_chainId"});
-    const expectedChainId =
-      import.meta.env.VITE_NETWORK === "mainnet" ? "0x38" : "0x61";
+
+    let expectedChainId;
+    let networkName;
+
+    if (import.meta.env.VITE_NETWORK === "mainnet") {
+      expectedChainId = "0x38";
+      networkName = "BSC Mainnet";
+    } else if (import.meta.env.VITE_NETWORK === "testnet") {
+      expectedChainId = "0x61";
+      networkName = "BSC Testnet";
+    } else {
+      // Default to localhost/hardhat for development
+      expectedChainId = "0x7a69"; // 31337
+      networkName = "Localhost 8545";
+    }
 
     if (chainId !== expectedChainId) {
-      const networkName =
-        import.meta.env.VITE_NETWORK === "mainnet"
-          ? "BSC Mainnet"
-          : "BSC Testnet";
-      throw new Error(`Please switch to ${networkName}`);
+      // Try to switch network automatically
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{chainId: expectedChainId}],
+        });
+      } catch (switchError) {
+        // This error code indicates that the chain has not been added to MetaMask.
+        if (switchError.code === 4902) {
+          try {
+            await window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [
+                {
+                  chainId: expectedChainId,
+                  chainName: networkName,
+                  rpcUrls: ["http://127.0.0.1:8545/"],
+                  nativeCurrency: {
+                    name: "ETH",
+                    symbol: "ETH", // 2-6 characters long
+                    decimals: 18,
+                  },
+                },
+              ],
+            });
+          } catch (addError) {
+            throw new Error(
+              `Please add and switch to ${networkName} manually.`,
+            );
+          }
+        } else {
+          throw new Error(
+            `Please switch to ${networkName} (Chain ID: ${expectedChainId})`,
+          );
+        }
+      }
     }
 
     return accounts[0];
@@ -88,166 +130,214 @@ export const web3Service = {
       CONTRACT_ADDRESS,
       "Contract address",
     );
-    const ftrToken = await this.getTokenContract(FTR_TOKEN_ADDRESS);
     const usdtToken = await this.getTokenContract(USDT_TOKEN_ADDRESS);
 
     // Approve max amount to avoid repeated approvals
     const amount = ethers.MaxUint256;
 
-    const ftrTx = await ftrToken.approve(validContractAddress, amount);
-    await ftrTx.wait();
-
     const usdtTx = await usdtToken.approve(validContractAddress, amount);
     await usdtTx.wait();
-
-    return true;
   },
 
-  async getAdminFees() {
-    try {
-      const contract = await this.getContract();
-      const ftrFees = await contract.adminFeesFtr();
-      const usdtFees = await contract.adminFeesUsdt();
-
-      return {
-        ftr: ethers.formatEther(ftrFees),
-        usdt: ethers.formatEther(usdtFees),
-      };
-    } catch (error) {
-      console.error("Failed to fetch admin fees:", error);
-      return {ftr: "0.0", usdt: "0.0"};
-    }
-  },
-
-  async checkBalances(userAddress, amountFtr = "1", amountUsdt = "1") {
-    const ftrToken = await this.getTokenContract(FTR_TOKEN_ADDRESS);
-    const usdtToken = await this.getTokenContract(USDT_TOKEN_ADDRESS);
-
-    const ftrBalance = await ftrToken.balanceOf(userAddress);
-    const usdtBalance = await usdtToken.balanceOf(userAddress);
-
-    const requiredFtr = ethers.parseEther(amountFtr.toString());
-    const requiredUsdt = ethers.parseEther(amountUsdt.toString());
-
-    return {
-      ftrBalance: ethers.formatEther(ftrBalance),
-      usdtBalance: ethers.formatEther(usdtBalance),
-      hasFtrBalance: ftrBalance >= requiredFtr,
-      hasUsdtBalance: usdtBalance >= requiredUsdt,
-      hasSufficientBalance:
-        ftrBalance >= requiredFtr && usdtBalance >= requiredUsdt,
-    };
-  },
-
-  async checkApprovals(userAddress, amountFtr = "1", amountUsdt = "1") {
+  async getAllowances(userAddress) {
     const validContractAddress = validateAddress(
       CONTRACT_ADDRESS,
       "Contract address",
     );
-    const ftrToken = await this.getTokenContract(FTR_TOKEN_ADDRESS);
     const usdtToken = await this.getTokenContract(USDT_TOKEN_ADDRESS);
 
-    const ftrAllowance = await ftrToken.allowance(
-      userAddress,
-      validContractAddress,
-    );
     const usdtAllowance = await usdtToken.allowance(
       userAddress,
       validContractAddress,
     );
 
-    const requiredFtr = ethers.parseEther(amountFtr.toString());
-    const requiredUsdt = ethers.parseEther(amountUsdt.toString());
-
     return {
-      ftrApproved: ftrAllowance >= requiredFtr,
-      usdtApproved: usdtAllowance >= requiredUsdt,
+      usdt: ethers.formatUnits(usdtAllowance, 18),
     };
   },
 
-  async placeBet(questionId, outcomeIndex, amountFtr, amountUsdt) {
-    const contract = await this.getContract();
-    const tx = await contract.placeBet(
+  async checkBalances(userAddress, usdtAmount) {
+    try {
+      console.log("[Web3] Checking balances for:", userAddress);
+      console.log("[Web3] Using USDT Address:", USDT_TOKEN_ADDRESS);
+
+      const usdtToken = await this.getTokenContract(USDT_TOKEN_ADDRESS);
+      console.log("[Web3] Token contract initialized at:", usdtToken.target);
+
+      const usdtBalance = await usdtToken.balanceOf(userAddress);
+      console.log("[Web3] Raw balance:", usdtBalance.toString());
+
+      // Handle cases where amount is 0 or undefined
+      const amountStr = usdtAmount ? usdtAmount.toString() : "0";
+      const usdtWei = ethers.parseUnits(amountStr, 18);
+
+      return {
+        hasSufficientBalance: usdtBalance >= usdtWei,
+        usdtBalance: ethers.formatUnits(usdtBalance, 18),
+      };
+    } catch (error) {
+      console.error("[Web3] Error in checkBalances:", error);
+      console.error("[Web3] Failed Address:", USDT_TOKEN_ADDRESS);
+      throw error;
+    }
+  },
+
+  async checkApprovals(userAddress, usdtAmount) {
+    const validContractAddress = validateAddress(
+      CONTRACT_ADDRESS,
+      "Contract address",
+    );
+    const usdtToken = await this.getTokenContract(USDT_TOKEN_ADDRESS);
+    const usdtAllowance = await usdtToken.allowance(
+      userAddress,
+      validContractAddress,
+    );
+
+    const amountWei = usdtAmount
+      ? ethers.parseUnits(usdtAmount.toString(), 18)
+      : 0n;
+
+    return {
+      usdtApproved: usdtAllowance >= amountWei,
+    };
+  },
+
+  async placeBet(questionId, outcomeIndex, usdtAmount) {
+    console.log("[Web3] placeBet called:", {
       questionId,
       outcomeIndex,
-      ethers.parseEther(amountFtr.toString()),
-      ethers.parseEther(amountUsdt.toString()),
-    );
-    const receipt = await tx.wait();
-    return receipt.hash;
+      usdtAmount,
+    });
+
+    const contract = await this.getContract();
+    if (!contract) {
+      throw new Error("Failed to initialize contract");
+    }
+
+    if (typeof contract.placeBet !== "function") {
+      console.error("[Web3] placeBet method missing on contract:", contract);
+      throw new Error("Contract method 'placeBet' not found. Check ABI.");
+    }
+
+    // Convert to Wei (assuming 18 decimals)
+    const usdtWei = ethers.parseUnits(usdtAmount.toString(), 18);
+    console.log("[Web3] Placing bet with args:", {
+      questionId,
+      outcomeIndex,
+      usdtWei: usdtWei.toString(),
+    });
+
+    try {
+      // Manual gas limit might be needed for localhost if estimation fails
+      const tx = await contract.placeBet(questionId, outcomeIndex, usdtWei);
+      console.log("[Web3] Bet tx sent:", tx.hash);
+
+      await tx.wait();
+      console.log("[Web3] Bet tx confirmed");
+      return tx.hash;
+    } catch (error) {
+      console.error("[Web3] Error in placeBet:", error);
+      throw error;
+    }
+  },
+
+  async calculateWinnings(questionId, userAddress) {
+    const contract = await this.getContract();
+    const winnings = await contract.calculateWinnings(questionId, userAddress);
+    // Contract returns a single uint256 now
+    return {
+      usdt: ethers.formatUnits(winnings, 18),
+    };
   },
 
   async withdrawWinnings(questionId) {
     const contract = await this.getContract();
     const tx = await contract.withdrawWinnings(questionId);
-    const receipt = await tx.wait();
-    return receipt.hash;
+    await tx.wait();
+    return tx.hash;
   },
 
-  async calculateWinnings(questionId, userAddress) {
-    const contract = await this.getContract();
-    const [ftrWinnings, usdtWinnings] = await contract.calculateWinnings(
-      questionId,
-      userAddress,
-    );
-    return {
-      ftr: ethers.formatEther(ftrWinnings),
-      usdt: ethers.formatEther(usdtWinnings),
-    };
-  },
-
-  async getQuestion(questionId) {
-    const contract = await this.getContract();
-    const question = await contract.getQuestion(questionId);
-    return question;
-  },
-
-  async getUserBet(questionId, userAddress) {
-    const contract = await this.getContract();
-    const bet = await contract.getUserBet(questionId, userAddress);
-    return bet;
-  },
-
-  async createQuestion(title, deadlineTimestamp, outcomeCount) {
-    const contract = await this.getContract();
-    const tx = await contract.createQuestion(
+  async createQuestion(title, deadline, outcomeCount) {
+    console.log("[Web3] createQuestion called with:", {
       title,
-      deadlineTimestamp,
+      deadline,
       outcomeCount,
-    );
-    const receipt = await tx.wait();
-
-    const event = receipt.logs.find((log) => {
-      try {
-        const parsed = contract.interface.parseLog({
-          topics: log.topics,
-          data: log.data,
-        });
-        return parsed.name === "QuestionCreated";
-      } catch {
-        return false;
-      }
     });
+    const contract = await this.getContract();
+    console.log("[Web3] Contract instance obtained:", contract.target);
 
-    let contractQuestionId = 0;
-    if (event) {
-      const decodedLog = contract.interface.parseLog({
-        topics: event.topics,
-        data: event.data,
-      });
-      contractQuestionId = Number(decodedLog.args[0]);
+    console.log("[Web3] Sending createQuestion transaction...");
+    const tx = await contract.createQuestion(title, deadline, outcomeCount);
+    console.log("[Web3] Transaction sent:", tx.hash);
+
+    console.log("[Web3] Waiting for transaction confirmation...");
+    const receipt = await tx.wait();
+    console.log("[Web3] Transaction confirmed:", receipt);
+
+    // Parse event to get questionId
+    let contractQuestionId = null;
+
+    for (const log of receipt.logs) {
+      try {
+        const parsedLog = contract.interface.parseLog(log);
+        if (parsedLog && parsedLog.name === "QuestionCreated") {
+          contractQuestionId = parsedLog.args[0].toString();
+          console.log(
+            "[Web3] Found QuestionCreated event. ID:",
+            contractQuestionId,
+          );
+          break;
+        }
+      } catch (e) {
+        // Ignore logs that don't match
+      }
+    }
+
+    if (!contractQuestionId) {
+      console.warn("[Web3] Warning: QuestionCreated event not found in logs!");
     }
 
     return {
-      transactionHash: receipt.hash,
+      transactionHash: tx.hash,
       contractQuestionId,
     };
   },
 
-  async settleQuestion(contractQuestionId, result) {
+  async settleQuestion(questionId, result) {
     const contract = await this.getContract();
-    const tx = await contract.settleQuestion(contractQuestionId, result);
-    const receipt = await tx.wait();
-    return receipt.hash;
+    const tx = await contract.settleQuestion(questionId, result);
+    await tx.wait();
+    return tx.hash;
+  },
+
+  async getQuestion(questionId) {
+    const contract = await this.getContract();
+    const data = await contract.getQuestion(questionId);
+
+    return {
+      title: data[0],
+      deadline: Number(data[1]),
+      isSettled: data[2],
+      result: Number(data[3]),
+      outcomeCount: Number(data[4]),
+      outcomeUsdtTotals: data[5],
+      outcomeParticipants: data[6],
+      exists: data[7],
+    };
+  },
+
+  async getAdminFees() {
+    const contract = await this.getContract();
+    const usdt = await contract.adminFeesUsdt();
+    return {
+      usdt: ethers.formatUnits(usdt, 18),
+    };
+  },
+
+  async withdrawAdminFees() {
+    const contract = await this.getContract();
+    const tx = await contract.withdrawAdminFees();
+    await tx.wait();
+    return tx.hash;
   },
 };

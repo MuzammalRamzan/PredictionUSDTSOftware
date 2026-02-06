@@ -1,56 +1,47 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-interface IERC20 {
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
-    function transfer(
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
-    function balanceOf(address account) external view returns (uint256);
-}
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract BettingPool {
+contract BettingPool is ReentrancyGuard {
+    using SafeERC20 for IERC20;
+
     struct Question {
         string title;
         uint256 deadline;
         bool isSettled;
         uint256 result; // Index of winning outcome (0, 1, 2)
         uint256 outcomeCount; // 2 or 3
-        uint256[3] outcomeFtrTotals;
         uint256[3] outcomeUsdtTotals;
         uint256[3] outcomeParticipants;
         bool exists;
+        bool isCancelled;
     }
 
     struct Bet {
         address user;
         uint256 outcome; // Index of chosen outcome
-        uint256 ftrAmount;
         uint256 usdtAmount;
         bool withdrawn;
     }
 
-    IERC20 public immutable ftrToken;
     IERC20 public immutable usdtToken;
     address public owner;
+    address public developerAddress;
     uint256 public constant ADMIN_FEE_PERCENT = 10;
 
     // Minimum bet amounts
-    uint256 public constant MIN_FTR_AMOUNT = 1 ether;
-    uint256 public constant MIN_USDT_AMOUNT = 1 ether;
+    uint256 public constant MIN_USDT_AMOUNT = 1 * 10 ** 18; // 1 USDT (assuming 18 decimals)
 
     uint256 public questionCount;
     mapping(uint256 => Question) public questions;
     mapping(uint256 => mapping(address => Bet)) public bets;
     mapping(uint256 => address[]) public questionBettors;
 
-    uint256 public adminFeesFtr;
     uint256 public adminFeesUsdt;
+    uint256 public totalUserLiabilities; // Track total USDT owed to users (active bets + winnings)
 
     event QuestionCreated(
         uint256 indexed questionId,
@@ -62,27 +53,39 @@ contract BettingPool {
         uint256 indexed questionId,
         address indexed user,
         uint256 outcome,
-        uint256 ftrAmount,
         uint256 usdtAmount
     );
     event QuestionSettled(uint256 indexed questionId, uint256 result);
+    event QuestionCancelled(uint256 indexed questionId);
+    event RefundClaimed(
+        uint256 indexed questionId,
+        address indexed user,
+        uint256 amount
+    );
+    event DeveloperAddressUpdated(
+        address indexed oldAddress,
+        address indexed newAddress
+    );
+    event OwnerAddressUpdated(
+        address indexed oldAddress,
+        address indexed newAddress
+    );
     event WinningsWithdrawn(
         uint256 indexed questionId,
         address indexed user,
-        uint256 ftrAmount,
         uint256 usdtAmount
     );
-    event AdminFeesWithdrawn(uint256 ftrAmount, uint256 usdtAmount);
+    event AdminFeesWithdrawn(uint256 usdtAmount);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Not owner");
         _;
     }
 
-    constructor(address _ftrToken, address _usdtToken) {
-        ftrToken = IERC20(_ftrToken);
+    constructor(address _usdtToken, address _developerAddress) {
         usdtToken = IERC20(_usdtToken);
         owner = msg.sender;
+        developerAddress = _developerAddress;
     }
 
     function createQuestion(
@@ -106,10 +109,10 @@ contract BettingPool {
             isSettled: false,
             result: 0,
             outcomeCount: _outcomeCount,
-            outcomeFtrTotals: zeroArray,
             outcomeUsdtTotals: zeroArray,
             outcomeParticipants: zeroArray,
-            exists: true
+            exists: true,
+            isCancelled: false
         });
 
         emit QuestionCreated(questionId, _title, _deadline, _outcomeCount);
@@ -119,36 +122,30 @@ contract BettingPool {
     function placeBet(
         uint256 _questionId,
         uint256 _outcome,
-        uint256 _ftrAmount,
         uint256 _usdtAmount
-    ) external {
+    ) external nonReentrant {
         Question storage question = questions[_questionId];
         require(question.exists, "Question does not exist");
         require(block.timestamp < question.deadline, "Betting closed");
         require(!question.isSettled, "Question already settled");
+        require(!question.isCancelled, "Question is cancelled");
         require(
             bets[_questionId][msg.sender].user == address(0),
             "Already placed bet"
         );
         require(_outcome < question.outcomeCount, "Invalid outcome index");
-        require(_ftrAmount >= MIN_FTR_AMOUNT, "Min 1 FTR required");
         require(_usdtAmount >= MIN_USDT_AMOUNT, "Min 1 USDT required");
 
         // Transfer tokens from user
-        require(
-            ftrToken.transferFrom(msg.sender, address(this), _ftrAmount),
-            "FTR transfer failed"
-        );
-        require(
-            usdtToken.transferFrom(msg.sender, address(this), _usdtAmount),
-            "USDT transfer failed"
-        );
+        usdtToken.safeTransferFrom(msg.sender, address(this), _usdtAmount);
+
+        // Update user liabilities
+        totalUserLiabilities += _usdtAmount;
 
         // Record bet
         bets[_questionId][msg.sender] = Bet({
             user: msg.sender,
             outcome: _outcome,
-            ftrAmount: _ftrAmount,
             usdtAmount: _usdtAmount,
             withdrawn: false
         });
@@ -156,17 +153,10 @@ contract BettingPool {
         questionBettors[_questionId].push(msg.sender);
 
         // Update pool totals
-        question.outcomeFtrTotals[_outcome] += _ftrAmount;
         question.outcomeUsdtTotals[_outcome] += _usdtAmount;
         question.outcomeParticipants[_outcome]++;
 
-        emit BetPlaced(
-            _questionId,
-            msg.sender,
-            _outcome,
-            _ftrAmount,
-            _usdtAmount
-        );
+        emit BetPlaced(_questionId, msg.sender, _outcome, _usdtAmount);
     }
 
     function settleQuestion(
@@ -175,39 +165,46 @@ contract BettingPool {
     ) external onlyOwner {
         Question storage question = questions[_questionId];
         require(question.exists, "Question does not exist");
-        require(block.timestamp >= question.deadline, "Deadline not reached");
+        require(
+            block.timestamp >= question.deadline,
+            "Cannot settle before deadline"
+        );
         require(!question.isSettled, "Already settled");
+        require(!question.isCancelled, "Question is cancelled");
         require(_result < question.outcomeCount, "Invalid result index");
 
         question.isSettled = true;
         question.result = _result;
 
         // Calculate fees from losing pools
-        uint256 totalLosingFtr = 0;
         uint256 totalLosingUsdt = 0;
 
         for (uint256 i = 0; i < question.outcomeCount; i++) {
             if (i != _result) {
-                totalLosingFtr += question.outcomeFtrTotals[i];
                 totalLosingUsdt += question.outcomeUsdtTotals[i];
             }
         }
 
-        uint256 winningFtr = question.outcomeFtrTotals[_result];
-
-        uint256 feeFtr;
+        uint256 winningUsdt = question.outcomeUsdtTotals[_result];
         uint256 feeUsdt;
 
-        if (winningFtr == 0) {
+        if (winningUsdt == 0) {
             // No winners. Admin takes ALL losing pool.
-            feeFtr = totalLosingFtr;
             feeUsdt = totalLosingUsdt;
         } else {
-            feeFtr = (totalLosingFtr * ADMIN_FEE_PERCENT) / 100;
             feeUsdt = (totalLosingUsdt * ADMIN_FEE_PERCENT) / 100;
         }
 
-        adminFeesFtr += feeFtr;
+        // Safety: ensure we don't count fees that don't exist in balance
+        // Reduce user liabilities by the amount that is now fee
+        // The rest of losing pool remains in user liabilities as it will be paid to winners
+        // But wait: winners get (their stake) + (share of losing pool - fees)
+        // So total user liabilities should be:
+        // Before settlement: Total Staked (Winners + Losers)
+        // After settlement: Winners' Stake + (Losers' Stake - Fees)
+        // So we reduce liabilities by the Fee amount.
+
+        totalUserLiabilities -= feeUsdt;
         adminFeesUsdt += feeUsdt;
 
         emit QuestionSettled(_questionId, _result);
@@ -216,7 +213,7 @@ contract BettingPool {
     function calculateWinnings(
         uint256 _questionId,
         address _user
-    ) public view returns (uint256 ftrWinnings, uint256 usdtWinnings) {
+    ) public view returns (uint256 usdtWinnings) {
         Question storage question = questions[_questionId];
         Bet storage userBet = bets[_questionId][_user];
 
@@ -225,45 +222,31 @@ contract BettingPool {
             userBet.user == address(0) ||
             userBet.withdrawn
         ) {
-            return (0, 0);
+            return 0;
         }
 
         // Check if user won
         if (userBet.outcome != question.result) {
-            return (0, 0);
+            return 0;
         }
 
         // Get winning pool total
-        uint256 winningFtrTotal = question.outcomeFtrTotals[question.result];
         uint256 winningUsdtTotal = question.outcomeUsdtTotals[question.result];
 
         // Get total losing pool
-        uint256 totalLosingFtr = 0;
         uint256 totalLosingUsdt = 0;
 
         for (uint256 i = 0; i < question.outcomeCount; i++) {
             if (i != question.result) {
-                totalLosingFtr += question.outcomeFtrTotals[i];
                 totalLosingUsdt += question.outcomeUsdtTotals[i];
             }
         }
 
         // Calculate share of losing pool (after admin fee)
-        uint256 losingFtrAfterFee = totalLosingFtr -
-            ((totalLosingFtr * ADMIN_FEE_PERCENT) / 100);
         uint256 losingUsdtAfterFee = totalLosingUsdt -
             ((totalLosingUsdt * ADMIN_FEE_PERCENT) / 100);
 
         // User gets original stake + proportional share of losing pool
-
-        if (winningFtrTotal > 0) {
-            ftrWinnings =
-                userBet.ftrAmount +
-                (losingFtrAfterFee * userBet.ftrAmount) /
-                winningFtrTotal;
-        } else {
-            ftrWinnings = userBet.ftrAmount;
-        }
 
         if (winningUsdtTotal > 0) {
             usdtWinnings =
@@ -274,10 +257,10 @@ contract BettingPool {
             usdtWinnings = userBet.usdtAmount;
         }
 
-        return (ftrWinnings, usdtWinnings);
+        return usdtWinnings;
     }
 
-    function withdrawWinnings(uint256 _questionId) external {
+    function withdrawWinnings(uint256 _questionId) external nonReentrant {
         Question storage question = questions[_questionId];
         Bet storage userBet = bets[_questionId][msg.sender];
 
@@ -286,73 +269,137 @@ contract BettingPool {
         require(!userBet.withdrawn, "Already withdrawn");
         require(userBet.outcome == question.result, "Not a winner");
 
-        (uint256 ftrWinnings, uint256 usdtWinnings) = calculateWinnings(
-            _questionId,
-            msg.sender
-        );
-        require(ftrWinnings > 0 || usdtWinnings > 0, "No winnings");
+        uint256 usdtWinnings = calculateWinnings(_questionId, msg.sender);
+        require(usdtWinnings > 0, "No winnings");
 
         userBet.withdrawn = true;
+        totalUserLiabilities -= usdtWinnings; // Decrease liabilities
 
-        if (ftrWinnings > 0) {
-            require(
-                ftrToken.transfer(msg.sender, ftrWinnings),
-                "FTR transfer failed"
-            );
-        }
         if (usdtWinnings > 0) {
-            require(
-                usdtToken.transfer(msg.sender, usdtWinnings),
-                "USDT transfer failed"
-            );
+            usdtToken.safeTransfer(msg.sender, usdtWinnings);
         }
 
-        emit WinningsWithdrawn(
-            _questionId,
-            msg.sender,
-            ftrWinnings,
-            usdtWinnings
-        );
+        emit WinningsWithdrawn(_questionId, msg.sender, usdtWinnings);
     }
 
     function withdrawAdminFees() external onlyOwner {
-        uint256 ftrAmount = adminFeesFtr;
-        uint256 usdtAmount = adminFeesUsdt;
+        // Safety check: ensure we leave enough for users
+        uint256 contractBalance = usdtToken.balanceOf(address(this));
+        require(
+            contractBalance >= totalUserLiabilities,
+            "Critical: Insolvency risk"
+        );
 
-        require(ftrAmount > 0 || usdtAmount > 0, "No fees to withdraw");
+        // Only allow withdrawing what's truly excess over user liabilities
+        // Or strictly strictly limit to adminFeesUsdt, but capped by available surplus
+        uint256 availableSurplus = contractBalance - totalUserLiabilities;
+        uint256 amountUsdt = adminFeesUsdt;
 
-        adminFeesFtr = 0;
-        adminFeesUsdt = 0;
-
-        if (ftrAmount > 0) {
-            require(ftrToken.transfer(owner, ftrAmount), "FTR transfer failed");
-        }
-        if (usdtAmount > 0) {
-            require(
-                usdtToken.transfer(owner, usdtAmount),
-                "USDT transfer failed"
-            );
+        if (amountUsdt > availableSurplus) {
+            amountUsdt = availableSurplus;
         }
 
-        emit AdminFeesWithdrawn(ftrAmount, usdtAmount);
+        adminFeesUsdt -= amountUsdt;
+
+        if (amountUsdt > 0) {
+            uint256 developerShare = (amountUsdt * 10) / 100;
+            uint256 adminShare = amountUsdt - developerShare;
+
+            if (developerShare > 0) {
+                usdtToken.safeTransfer(developerAddress, developerShare);
+            }
+            if (adminShare > 0) {
+                usdtToken.safeTransfer(owner, adminShare);
+            }
+        }
+
+        emit AdminFeesWithdrawn(amountUsdt);
     }
 
-    function getQuestionBettors(
-        uint256 _questionId
-    ) external view returns (address[] memory) {
-        return questionBettors[_questionId];
+    // Sweep dust or any unaccounted tokens that are NOT user liabilities
+    function sweepDust() external onlyOwner {
+        uint256 contractBalance = usdtToken.balanceOf(address(this));
+        require(
+            contractBalance > totalUserLiabilities + adminFeesUsdt,
+            "No dust to sweep"
+        );
+
+        uint256 dust = contractBalance - (totalUserLiabilities + adminFeesUsdt);
+        // Treat dust as admin fees
+        adminFeesUsdt += dust;
     }
 
-    function getUserBet(
-        uint256 _questionId,
-        address _user
-    ) external view returns (Bet memory) {
-        return bets[_questionId][_user];
-    }
-
+    // Helper to get question details
     function getQuestion(
         uint256 _questionId
-    ) external view returns (Question memory) {
-        return questions[_questionId];
+    )
+        external
+        view
+        returns (
+            string memory title,
+            uint256 deadline,
+            bool isSettled,
+            uint256 result,
+            uint256 outcomeCount,
+            uint256[3] memory outcomeUsdtTotals,
+            uint256[3] memory outcomeParticipants,
+            bool exists,
+            bool isCancelled
+        )
+    {
+        Question storage q = questions[_questionId];
+        return (
+            q.title,
+            q.deadline,
+            q.isSettled,
+            q.result,
+            q.outcomeCount,
+            q.outcomeUsdtTotals,
+            q.outcomeParticipants,
+            q.exists,
+            q.isCancelled
+        );
+    }
+
+    function setDeveloperAddress(address _newDeveloper) external {
+        require(msg.sender == developerAddress, "Not developer");
+        require(_newDeveloper != address(0), "Invalid address");
+        emit DeveloperAddressUpdated(developerAddress, _newDeveloper);
+        developerAddress = _newDeveloper;
+    }
+
+    function setOwnerAddress(address _newOwner) external onlyOwner {
+        require(_newOwner != address(0), "Invalid address");
+        emit OwnerAddressUpdated(owner, _newOwner);
+        owner = _newOwner;
+    }
+
+    function cancelQuestion(uint256 _questionId) external onlyOwner {
+        Question storage question = questions[_questionId];
+        require(question.exists, "Question does not exist");
+        require(!question.isSettled, "Already settled");
+        require(!question.isCancelled, "Already cancelled");
+
+        question.isCancelled = true;
+        question.isSettled = true; // To prevent further betting/settling
+
+        emit QuestionCancelled(_questionId);
+    }
+
+    function claimRefund(uint256 _questionId) external nonReentrant {
+        Question storage question = questions[_questionId];
+        Bet storage userBet = bets[_questionId][msg.sender];
+
+        require(question.isCancelled, "Question not cancelled");
+        require(userBet.user == msg.sender, "No bet found");
+        require(!userBet.withdrawn, "Already withdrawn");
+        require(userBet.usdtAmount > 0, "No amount to refund");
+
+        userBet.withdrawn = true;
+        totalUserLiabilities -= userBet.usdtAmount; // Decrease liabilities
+
+        usdtToken.safeTransfer(msg.sender, userBet.usdtAmount);
+
+        emit RefundClaimed(_questionId, msg.sender, userBet.usdtAmount);
     }
 }

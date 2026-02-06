@@ -39,13 +39,12 @@ const AdminQuestionCard = ({ question, isDark, onSettle, onSync, settling, synci
   const outcomeStats = stats.outcome_stats || [];
   
   const totalParticipants = outcomeStats.reduce((sum, s) => sum + (s.participants || 0), 0);
-  const totalVolumeFtr = outcomeStats.reduce((sum, s) => sum + (s.ftr_total || 0), 0);
   const totalVolumeUsdt = outcomeStats.reduce((sum, s) => sum + (s.usdt_total || 0), 0);
   
   const getPercentage = (index) => {
-    if (totalParticipants === 0) return 0;
-    const participants = outcomeStats[index]?.participants || 0;
-    return (participants / totalParticipants) * 100;
+    if (totalVolumeUsdt === 0) return 0;
+    const volume = outcomeStats[index]?.usdt_total || 0;
+    return (volume / totalVolumeUsdt) * 100;
   };
 
   const isPendingSettlement = question.status !== 'settled' && new Date(question.deadline) < new Date();
@@ -113,8 +112,7 @@ const AdminQuestionCard = ({ question, isDark, onSettle, onSync, settling, synci
           <div className={`p-3 rounded-xl ${isDark ? 'bg-zinc-800/50' : 'bg-zinc-50'}`}>
             <div className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>Total Volume</div>
             <div className={`font-bold text-sm ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-              <div>{totalVolumeFtr.toFixed(2)} FTR</div>
-              <div className="opacity-70">{totalVolumeUsdt.toFixed(2)} USDT</div>
+              <div>{totalVolumeUsdt.toFixed(2)} USDT</div>
             </div>
           </div>
           <div className={`p-3 rounded-xl ${isDark ? 'bg-zinc-800/50' : 'bg-zinc-50'}`}>
@@ -154,7 +152,7 @@ const AdminQuestionCard = ({ question, isDark, onSettle, onSync, settling, synci
                         {getPercentage(index).toFixed(0)}% {outcome}
                     </span>
                     <div className={`text-[10px] ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
-                        {outcomeStats[index]?.ftr_total?.toFixed(1) || 0} FTR / {outcomeStats[index]?.usdt_total?.toFixed(1) || 0} USDT
+                        {outcomeStats[index]?.usdt_total?.toFixed(1) || 0} USDT
                     </div>
                 </div>
             ))}
@@ -242,11 +240,15 @@ export default function AdminPanel({ walletAddress, isLoading, onShowToast, onRe
   const [createMessage, setCreateMessage] = useState('');
   const [settling, setSettling] = useState({});
   const [syncing, setSyncing] = useState({});
+  const [withdrawingFees, setWithdrawingFees] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     category: 'Sports',
+    subcategory: '',
+    country: '',
+    level: '',
     deadline: '',
     outcomes: ['Yes', 'No']
   });
@@ -297,6 +299,20 @@ export default function AdminPanel({ walletAddress, isLoading, onShowToast, onRe
     }
   };
 
+  const handleWithdrawFees = async () => {
+    try {
+      setWithdrawingFees(true);
+      await web3Service.withdrawAdminFees();
+      if (onShowToast) onShowToast(t('admin.toast.feesWithdrawnSuccess') || 'Fees withdrawn successfully', 'success');
+      loadStats();
+    } catch (error) {
+      console.error('Failed to withdraw fees:', error);
+      if (onShowToast) onShowToast(t('admin.toast.feesWithdrawFailed') || 'Failed to withdraw fees', 'error');
+    } finally {
+      setWithdrawingFees(false);
+    }
+  };
+
   const loadStats = async () => {
     try {
       const [platformStats, adminFees] = await Promise.all([
@@ -310,21 +326,30 @@ export default function AdminPanel({ walletAddress, isLoading, onShowToast, onRe
             <div className="flex flex-col">
               <span className="text-2xl font-bold">{platformStats.data.bets.total}</span>
               <div className="flex flex-col mt-1">
-                <span className="text-sm opacity-90">{platformStats.data.bets.totalFtrStaked.toFixed(2)} FTR</span>
                 <span className="text-sm opacity-70">{platformStats.data.bets.totalUsdtStaked.toFixed(2)} USDT</span>
               </div>
             </div>
           ),
           totalWinnings: (
             <div className="flex flex-col">
-              <span>{platformStats.data.withdrawals.totalFtrWithdrawn.toFixed(2)} FTR</span>
               <span className="text-lg opacity-70">{platformStats.data.withdrawals.totalUsdtWithdrawn.toFixed(2)} USDT</span>
             </div>
           ),
           totalFees: (
             <div className="flex flex-col">
-              <span>{parseFloat(adminFees.ftr).toFixed(2)} FTR</span>
               <span className="text-lg opacity-70">{parseFloat(adminFees.usdt).toFixed(2)} USDT</span>
+              {parseFloat(adminFees.usdt) > 0 && (
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleWithdrawFees();
+                  }}
+                  disabled={withdrawingFees}
+                  className="mt-2 text-xs bg-purple-500 hover:bg-purple-600 text-white px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 font-bold"
+                >
+                  {withdrawingFees ? 'Processing...' : 'Withdraw Fees'}
+                </button>
+              )}
             </div>
           )
         });
@@ -428,10 +453,12 @@ export default function AdminPanel({ walletAddress, isLoading, onShowToast, onRe
 
   const handleCreateQuestion = async (e) => {
     e.preventDefault();
+    console.log("[AdminPanel] handleCreateQuestion started");
     setCreating(true);
     setCreateMessage('');
 
     try {
+      console.log("[AdminPanel] Validating inputs...");
       const deadlineDate = new Date(formData.deadline);
       const deadlineTimestamp = Math.floor(deadlineDate.getTime() / 1000);
 
@@ -440,17 +467,21 @@ export default function AdminPanel({ walletAddress, isLoading, onShowToast, onRe
       if (validOutcomes.length < 2) {
           throw new Error("At least 2 outcomes are required");
       }
+      console.log("[AdminPanel] Inputs valid. Outcomes:", validOutcomes.length);
 
       setCreateMessage(t('admin.toast.signTransaction'));
 
+      console.log("[AdminPanel] Calling web3Service.createQuestion...");
       const { transactionHash, contractQuestionId } = await web3Service.createQuestion(
         formData.title,
         deadlineTimestamp,
         validOutcomes.length // Pass outcome count
       );
+      console.log("[AdminPanel] Web3 creation successful:", { transactionHash, contractQuestionId });
 
       setCreateMessage(t('admin.toast.creatingDb'));
 
+      console.log("[AdminPanel] Sending POST to /questions...");
       const response = await fetch(`${API_BASE_URL}/questions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -458,6 +489,9 @@ export default function AdminPanel({ walletAddress, isLoading, onShowToast, onRe
           title: formData.title,
           description: formData.description,
           category: formData.category,
+          subcategory: formData.subcategory,
+          country: formData.country,
+          level: formData.level,
           deadline: deadlineDate.toISOString(),
           outcomes: validOutcomes,
           adminAddress: walletAddress,
@@ -465,14 +499,16 @@ export default function AdminPanel({ walletAddress, isLoading, onShowToast, onRe
           contractQuestionId
         })
       });
+      console.log("[AdminPanel] Backend response status:", response.status);
 
       const data = await response.json();
+      console.log("[AdminPanel] Backend data:", data);
 
       if (data.success) {
         setCreateMessage(t('admin.toast.createSuccess'));
         if (onShowToast) onShowToast(t('admin.toast.createSuccess'));
         if (onRefresh) onRefresh();
-        setFormData({ title: '', description: '', category: 'Sports', deadline: '', outcomes: ['Yes', 'No'] });
+        setFormData({ title: '', description: '', category: 'Sports', subcategory: '', country: '', level: '', deadline: '', outcomes: ['Yes', 'No'] });
         setShowCreateForm(false);
         fetchQuestions(); // Refresh list
         setTimeout(() => setCreateMessage(''), 3000);
@@ -769,7 +805,7 @@ export default function AdminPanel({ walletAddress, isLoading, onShowToast, onRe
                       </label>
                       <select
                         value={formData.category}
-                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        onChange={(e) => setFormData({ ...formData, category: e.target.value, subcategory: '', country: '', level: '' })}
                         className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-yellow-500 outline-none transition-all ${
                           isDark 
                             ? 'bg-gray-900 border-gray-700 text-white' 
@@ -777,11 +813,78 @@ export default function AdminPanel({ walletAddress, isLoading, onShowToast, onRe
                         }`}
                       >
                         <option value="Sports">Sports</option>
-                        <option value="Crypto">Crypto</option>
                         <option value="Politics">Politics</option>
+                        <option value="Crypto">Crypto</option>
                         <option value="Entertainment">Entertainment</option>
                       </select>
                     </div>
+
+                    {formData.category === 'Sports' && (
+                       <div>
+                        <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                            Sport
+                        </label>
+                        <select
+                            value={formData.subcategory}
+                            onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
+                            className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-yellow-500 outline-none transition-all ${
+                            isDark 
+                                ? 'bg-gray-900 border-gray-700 text-white' 
+                                : 'bg-gray-50 border-gray-200 text-gray-900'
+                            }`}
+                        >
+                            <option value="">Select Sport</option>
+                            <option value="Cricket">Cricket</option>
+                            <option value="Football">Football</option>
+                            <option value="Other">Other</option>
+                        </select>
+                       </div>
+                    )}
+
+                    {formData.category === 'Politics' && (
+                        <>
+                        <div>
+                            <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Country
+                            </label>
+                            <select
+                                value={formData.country}
+                                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                                className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-yellow-500 outline-none transition-all ${
+                                isDark 
+                                    ? 'bg-gray-900 border-gray-700 text-white' 
+                                    : 'bg-gray-50 border-gray-200 text-gray-900'
+                                }`}
+                            >
+                                <option value="">Select Country</option>
+                                <option value="USA">USA</option>
+                                <option value="India">India</option>
+                                <option value="UK">UK</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        {formData.country && (
+                            <div>
+                                <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                    Level
+                                </label>
+                                <select
+                                    value={formData.level}
+                                    onChange={(e) => setFormData({ ...formData, level: e.target.value })}
+                                    className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-yellow-500 outline-none transition-all ${
+                                    isDark 
+                                        ? 'bg-gray-900 border-gray-700 text-white' 
+                                        : 'bg-gray-50 border-gray-200 text-gray-900'
+                                    }`}
+                                >
+                                    <option value="">Select Level</option>
+                                    <option value="Government">Government</option>
+                                    <option value="Local">Local</option>
+                                </select>
+                            </div>
+                        )}
+                        </>
+                    )}
 
                     <div>
                       <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>

@@ -27,7 +27,6 @@ const syncStats = async () => {
 
       // Initialize stats based on outcomes
       const outcomeStats = (question.outcomes || []).map(() => ({
-        ftr_total: 0,
         usdt_total: 0,
         participants: 0,
       }));
@@ -42,7 +41,6 @@ const syncStats = async () => {
               : 1; // Legacy support if needed
 
         if (outcomeStats[outcomeIndex]) {
-          outcomeStats[outcomeIndex].ftr_total += bet.ftr_amount || 0;
           outcomeStats[outcomeIndex].usdt_total += bet.usdt_amount || 0;
           outcomeStats[outcomeIndex].participants += 1;
         }

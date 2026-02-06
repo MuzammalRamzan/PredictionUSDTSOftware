@@ -7,14 +7,8 @@ import {ethers} from "ethers";
 
 export const recordBet = async (req, res) => {
   try {
-    const {
-      questionId,
-      userAddress,
-      outcome,
-      transactionHash,
-      ftrAmount,
-      usdtAmount,
-    } = req.body;
+    const {questionId, userAddress, outcome, transactionHash, usdtAmount} =
+      req.body;
 
     if (
       !questionId ||
@@ -45,14 +39,19 @@ export const recordBet = async (req, res) => {
       });
     }
 
-    const betFtrAmount = ftrAmount ? parseFloat(ftrAmount) : 1;
-    const betUsdtAmount = usdtAmount ? parseFloat(usdtAmount) : 1;
+    const betUsdtAmount = usdtAmount ? parseFloat(usdtAmount) : 0;
+
+    if (betUsdtAmount <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid bet amount",
+      });
+    }
 
     const bet = new Bet({
       question_id: questionId,
       user_address: userAddress.toLowerCase(),
       outcome,
-      ftr_amount: betFtrAmount,
       usdt_amount: betUsdtAmount,
       transaction_hash: transactionHash,
     });
@@ -65,18 +64,14 @@ export const recordBet = async (req, res) => {
       // Initialize outcome_stats if not enough elements
       while (stats.outcome_stats.length <= outcome) {
         stats.outcome_stats.push({
-          ftr_total: 0,
           usdt_total: 0,
           participants: 0,
         });
       }
 
-      stats.outcome_stats[outcome].ftr_total =
-        (stats.outcome_stats[outcome].ftr_total || 0) + betFtrAmount;
       stats.outcome_stats[outcome].usdt_total =
         (stats.outcome_stats[outcome].usdt_total || 0) + betUsdtAmount;
-      stats.outcome_stats[outcome].participants =
-        (stats.outcome_stats[outcome].participants || 0) + 1;
+      stats.outcome_stats[outcome].participants += 1;
 
       stats.markModified("outcome_stats");
       stats.updated_at = new Date();
@@ -127,7 +122,6 @@ export const getUserBets = async (req, res) => {
             // If withdrawn, use the recorded withdrawal amounts
             if (withdrawn && withdrawal) {
               payout = {
-                ftr: parseFloat(withdrawal.ftr_amount),
                 usdt: parseFloat(withdrawal.usdt_amount),
               };
             } else {
@@ -137,14 +131,12 @@ export const getUserBets = async (req, res) => {
                 question.contract_question_id !== undefined &&
                 question.contract_question_id !== null
               ) {
-                const [ftrWinnings, usdtWinnings] =
-                  await contract.calculateWinnings(
-                    question.contract_question_id,
-                    userAddress,
-                  );
+                const usdtWinnings = await contract.calculateWinnings(
+                  question.contract_question_id,
+                  userAddress,
+                );
 
                 payout = {
-                  ftr: parseFloat(ethers.formatEther(ftrWinnings)),
                   usdt: parseFloat(ethers.formatEther(usdtWinnings)),
                 };
               }
@@ -214,7 +206,7 @@ export const calculateWinnings = async (req, res) => {
     }
 
     const contract = getContract();
-    const [ftrWinnings, usdtWinnings] = await contract.calculateWinnings(
+    const usdtWinnings = await contract.calculateWinnings(
       question.contract_question_id,
       userAddress,
     );
@@ -222,7 +214,6 @@ export const calculateWinnings = async (req, res) => {
     res.json({
       success: true,
       data: {
-        ftrWinnings: ethers.formatEther(ftrWinnings),
         usdtWinnings: ethers.formatEther(usdtWinnings),
       },
     });
@@ -234,8 +225,7 @@ export const calculateWinnings = async (req, res) => {
 
 export const recordWithdrawal = async (req, res) => {
   try {
-    const {questionId, userAddress, ftrAmount, usdtAmount, transactionHash} =
-      req.body;
+    const {questionId, userAddress, usdtAmount, transactionHash} = req.body;
 
     if (!questionId || !userAddress || !transactionHash) {
       return res.status(400).json({
@@ -255,13 +245,11 @@ export const recordWithdrawal = async (req, res) => {
       });
     }
 
-    const ftrAmountParsed = parseFloat(ftrAmount) || 0;
     const usdtAmountParsed = parseFloat(usdtAmount) || 0;
 
     console.log("Recording withdrawal:", {
       questionId,
       userAddress,
-      ftrAmount: ftrAmountParsed,
       usdtAmount: usdtAmountParsed,
       transactionHash,
     });
@@ -269,7 +257,6 @@ export const recordWithdrawal = async (req, res) => {
     const withdrawal = new Withdrawal({
       question_id: questionId,
       user_address: userAddress.toLowerCase(),
-      ftr_amount: ftrAmountParsed,
       usdt_amount: usdtAmountParsed,
       transaction_hash: transactionHash,
     });

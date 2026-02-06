@@ -17,12 +17,11 @@
   },
   "hero": {
     "poweredBy": "Được hỗ trợ bởi Binance Smart Chain",
-    "titleLine1": "World Cup 2026",
-    "titleLine2": "Dự đoán Pool",
-    "subtitle": "Đặt cược FTR và USDT vào các trận đấu World Cup. Thanh toán minh bạch, không cần tin cậy nhờ hợp đồng thông minh.",
+    "titleLine1": "Thị Trường Dự Đoán",
+    "titleLine2": "Phi Tập Trung",
+    "subtitle": "Đặt cược USDT vào Crypto, Chính trị, Thể thao và hơn thế nữa. Thanh toán minh bạch nhờ hợp đồng thông minh.",
     "exploreMarkets": "Khám phá thị trường",
     "learnMore": "Tìm hiểu thêm",
-    "ftrVolume": "Khối lượng FTR",
     "usdtVolume": "Khối lượng USDT",
     "totalPredictions": "Tổng dự đoán",
     "activeUsers": "Người dùng hoạt động"
@@ -31,11 +30,11 @@
     "title": "Cách hoạt động",
     "subtitle": "Thị trường dự đoán đơn giản, minh bạch và phi tập trung",
     "step1Title": "Kết nối ví",
-    "step1Desc": "Kết nối ví tương thích BSC của bạn với token FTR và USDT.",
+    "step1Desc": "Kết nối ví tương thích BSC của bạn với token USDT.",
     "step2Title": "Chọn Pool",
-    "step2Desc": "Duyệt qua các dự đoán World Cup và chọn kết quả.",
+    "step2Desc": "Duyệt qua các thị trường đa dạng như Crypto, Chính trị, Thể thao và chọn kết quả.",
     "step3Title": "Đặt dự đoán",
-    "step3Desc": "Đặt cược 1 FTR + 1 USDT vào kết quả dự đoán của bạn.",
+    "step3Desc": "Đặt cược 1 USDT vào kết quả dự đoán của bạn.",
     "step4Title": "Rút tiền thắng",
     "step4Desc": "Sau khi thanh toán, người thắng rút phần chia của họ từ pool.",
     "calculatorTitle": "Máy tính lợi nhuận",
@@ -50,7 +49,7 @@
     "feature1Title": "Minh bạch & An toàn",
     "feature1Desc": "Hợp đồng thông minh trên BSC đảm bảo mọi giao dịch đều minh bạch và chống gian lận.",
     "feature2Title": "Hệ thống token kép",
-    "feature2Desc": "Đặt cược cả token FTR và USDT để tham gia cân bằng.",
+    "feature2Desc": "Đặt cược token USDT để tham gia cân bằng.",
     "feature3Title": "Phân phối công bằng",
     "feature3Desc": "Người thắng nhận được phần chia theo tỷ lệ dựa trên số tiền đặt cược.",
     "simpleProcess": "Quy trình đơn giản",
@@ -65,7 +64,7 @@
     "estimatedReturns": "Lợi nhuận ước tính",
     "roi": "ROI",
     "totalPayout": "Tổng thanh toán",
-    "calculatorDisclaimer": "Dựa trên dự đoán tiêu chuẩn 1 FTR + 1 USDT. Phí nền tảng ({{fee}}%) được khấu trừ từ pool thua trước khi phân phối."
+    "calculatorDisclaimer": "Dựa trên dự đoán tiêu chuẩn 1 USDT. Phí nền tảng ({{fee}}%) được khấu trừ từ pool thua trước khi phân phối."
   },
   "positions": {
     "title": "Vị thế của tôi",
@@ -204,7 +203,7 @@
     "noWinnings": "Không có tiền thắng để rút",
     "processingWithdrawal": "Đang xử lý rút tiền...",
     "recordingWithdrawal": "Đang ghi lại giao dịch rút tiền...",
-    "withdrawSuccess": "Rút thành công {{ftr}} FTR + {{usdt}} USDT!",
+    "withdrawSuccess": "Rút thành công {{usdt}} USDT!",
     "withdrawFailed": "Rút tiền thắng thất bại",
     "unableToWithdraw": "Không thể rút: không tìm thấy câu hỏi trên blockchain"
   },

@@ -3,12 +3,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_ftrToken",
+        "name": "_usdtToken",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "_usdtToken",
+        "name": "_developerAddress",
         "type": "address"
       }
     ],
@@ -16,14 +16,24 @@
     "type": "constructor"
   },
   {
-    "anonymous": false,
+    "inputs": [],
+    "name": "ReentrancyGuardReentrantCall",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "ftrAmount",
-        "type": "uint256"
-      },
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "SafeERC20FailedOperation",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
       {
         "indexed": false,
         "internalType": "uint256",
@@ -58,17 +68,62 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "ftrAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
         "name": "usdtAmount",
         "type": "uint256"
       }
     ],
     "name": "BetPlaced",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "oldAddress",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newAddress",
+        "type": "address"
+      }
+    ],
+    "name": "DeveloperAddressUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "oldAddress",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newAddress",
+        "type": "address"
+      }
+    ],
+    "name": "OwnerAddressUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "questionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "QuestionCancelled",
     "type": "event"
   },
   {
@@ -139,8 +194,27 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "ftrAmount",
+        "name": "amount",
         "type": "uint256"
+      }
+    ],
+    "name": "RefundClaimed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "questionId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       },
       {
         "indexed": false,
@@ -167,33 +241,7 @@
   },
   {
     "inputs": [],
-    "name": "MIN_FTR_AMOUNT",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "MIN_USDT_AMOUNT",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "adminFeesFtr",
     "outputs": [
       {
         "internalType": "uint256",
@@ -244,11 +292,6 @@
       },
       {
         "internalType": "uint256",
-        "name": "ftrAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
         "name": "usdtAmount",
         "type": "uint256"
       },
@@ -278,16 +321,37 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "ftrWinnings",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
         "name": "usdtWinnings",
         "type": "uint256"
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_questionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "cancelQuestion",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_questionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "claimRefund",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -321,10 +385,10 @@
   },
   {
     "inputs": [],
-    "name": "ftrToken",
+    "name": "developerAddress",
     "outputs": [
       {
-        "internalType": "contract IERC20",
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -343,126 +407,49 @@
     "name": "getQuestion",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "title",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "deadline",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isSettled",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "result",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "outcomeCount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256[3]",
-            "name": "outcomeFtrTotals",
-            "type": "uint256[3]"
-          },
-          {
-            "internalType": "uint256[3]",
-            "name": "outcomeUsdtTotals",
-            "type": "uint256[3]"
-          },
-          {
-            "internalType": "uint256[3]",
-            "name": "outcomeParticipants",
-            "type": "uint256[3]"
-          },
-          {
-            "internalType": "bool",
-            "name": "exists",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct BettingPool.Question",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
+        "internalType": "string",
+        "name": "title",
+        "type": "string"
+      },
       {
         "internalType": "uint256",
-        "name": "_questionId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getQuestionBettors",
-    "outputs": [
-      {
-        "internalType": "address[]",
-        "name": "",
-        "type": "address[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_questionId",
+        "name": "deadline",
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "_user",
-        "type": "address"
-      }
-    ],
-    "name": "getUserBet",
-    "outputs": [
+        "internalType": "bool",
+        "name": "isSettled",
+        "type": "bool"
+      },
       {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "user",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "outcome",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "ftrAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "usdtAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "withdrawn",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct BettingPool.Bet",
-        "name": "",
-        "type": "tuple"
+        "internalType": "uint256",
+        "name": "result",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "outcomeCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[3]",
+        "name": "outcomeUsdtTotals",
+        "type": "uint256[3]"
+      },
+      {
+        "internalType": "uint256[3]",
+        "name": "outcomeParticipants",
+        "type": "uint256[3]"
+      },
+      {
+        "internalType": "bool",
+        "name": "exists",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isCancelled",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -491,11 +478,6 @@
       {
         "internalType": "uint256",
         "name": "_outcome",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_ftrAmount",
         "type": "uint256"
       },
       {
@@ -585,9 +567,40 @@
         "internalType": "bool",
         "name": "exists",
         "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isCancelled",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_newDeveloper",
+        "type": "address"
+      }
+    ],
+    "name": "setDeveloperAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "setOwnerAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -606,6 +619,26 @@
     "name": "settleQuestion",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "sweepDust",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalUserLiabilities",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

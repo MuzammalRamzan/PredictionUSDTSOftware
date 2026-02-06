@@ -20,7 +20,7 @@ export default function HowItWorks() {
 
   const yourShareRatio = yourBets / totalWinningPool;
   
-  // Winnings (same for both FTR and USDT since logic is identical in this sim)
+  // Winnings (USDT)
   const yourWinnings = netLosingPool * yourShareRatio;
   
   const totalPayout = (yourBets + yourWinnings).toFixed(2);
@@ -180,7 +180,7 @@ export default function HowItWorks() {
                       <div className="space-y-3">
                         <div className="flex justify-between items-end">
                           <span className={`text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>{t('howItWorks.yourStake')}</span>
-                          <span className={`font-mono font-bold ${isDark ? 'text-white' : 'text-zinc-900'}`}>{yourBets} FTR/USDT</span>
+                          <span className={`font-mono font-bold ${isDark ? 'text-white' : 'text-zinc-900'}`}>{yourBets} USDT</span>
                         </div>
                         <input
                           type="range"
@@ -195,7 +195,7 @@ export default function HowItWorks() {
                       <div className="space-y-3">
                         <div className="flex justify-between items-end">
                           <span className={`text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>{t('howItWorks.yourSidePool')}</span>
-                          <span className={`font-mono font-bold ${isDark ? 'text-yellow-400' : 'text-yellow-600'}`}>{othersOnYourSide} FTR/USDT</span>
+                          <span className={`font-mono font-bold ${isDark ? 'text-yellow-400' : 'text-yellow-600'}`}>{othersOnYourSide} USDT</span>
                         </div>
                         <input
                           type="range"
@@ -210,7 +210,7 @@ export default function HowItWorks() {
                       <div className="space-y-3">
                         <div className="flex justify-between items-end">
                           <span className={`text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>{t('howItWorks.otherSidePool')}</span>
-                          <span className={`font-mono font-bold ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>{losingPoolSize} FTR/USDT</span>
+                          <span className={`font-mono font-bold ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>{losingPoolSize} USDT</span>
                         </div>
                         <input
                           type="range"
@@ -247,17 +247,8 @@ export default function HowItWorks() {
                         <div className="space-y-2">
                           <div className={`text-sm font-medium ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>{t('howItWorks.totalPayout')}</div>
                           <div className={`text-6xl font-black tracking-tighter ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-                            {totalPayout}<span className="text-3xl text-yellow-500 ml-2">FTR</span>
+                            {totalPayout}<span className="text-3xl text-emerald-500 ml-2">USDT</span>
                           </div>
-                        </div>
-
-                        <div className={`h-px w-full ${isDark ? 'bg-zinc-800' : 'bg-zinc-100'}`}></div>
-
-                        <div className="flex items-center justify-center space-x-2">
-                          <span className={`text-2xl font-bold ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>+</span>
-                          <span className={`text-3xl font-bold ${isDark ? 'text-emerald-400' : 'text-zinc-600'}`}>
-                            {totalPayout}<span className="text-lg ml-1">USDT</span>
-                          </span>
                         </div>
                       </div>
 

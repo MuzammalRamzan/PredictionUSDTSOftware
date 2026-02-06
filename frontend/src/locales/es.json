@@ -19,10 +19,9 @@
     "poweredBy": "Impulsado por Binance Smart Chain",
     "titleLine1": "Copa Mundial 2026",
     "titleLine2": "Pools de Predicción",
-    "subtitle": "Apuesta FTR y USDT en los partidos del Mundial. Liquidaciones transparentes y sin confianza mediante contratos inteligentes.",
+    "subtitle": "Apuesta USDT en los partidos del Mundial. Liquidaciones transparentes y sin confianza mediante contratos inteligentes.",
     "exploreMarkets": "Explorar Mercados",
     "learnMore": "Saber Más",
-    "ftrVolume": "Volumen FTR",
     "usdtVolume": "Volumen USDT",
     "totalPredictions": "Predicciones Totales",
     "activeUsers": "Usuarios Activos"
@@ -31,11 +30,11 @@
     "title": "Cómo Funciona",
     "subtitle": "Mercados de predicción simples, transparentes y descentralizados",
     "step1Title": "Conectar Wallet",
-    "step1Desc": "Conecta tu billetera compatible con BSC con tokens FTR y USDT.",
+    "step1Desc": "Conecta tu billetera compatible con BSC con tokens USDT.",
     "step2Title": "Elegir Pool",
     "step2Desc": "Explora las predicciones del Mundial y selecciona un resultado.",
     "step3Title": "Hacer Predicción",
-    "step3Desc": "Apuesta 1 FTR + 1 USDT a tu resultado predicho.",
+    "step3Desc": "Apuesta 1 USDT a tu resultado predicho.",
     "step4Title": "Retirar Ganancias",
     "step4Desc": "Tras la liquidación, los ganadores retiran su parte del pool.",
     "calculatorTitle": "Calculadora de Ganancias",
@@ -50,7 +49,7 @@
     "feature1Title": "Transparente y Seguro",
     "feature1Desc": "El contrato inteligente en BSC asegura que todas las transacciones sean transparentes y a prueba de manipulaciones.",
     "feature2Title": "Sistema de Doble Token",
-    "feature2Desc": "Apuesta tanto tokens FTR como USDT para una participación equilibrada.",
+    "feature2Desc": "Apuesta tokens USDT para una participación equilibrada.",
     "feature3Title": "Distribución Justa",
     "feature3Desc": "Los ganadores reciben partes proporcionales basadas en su apuesta.",
     "simpleProcess": "Proceso Simple",
@@ -65,7 +64,7 @@
     "estimatedReturns": "Retornos Estimados",
     "roi": "ROI",
     "totalPayout": "Pago Total",
-    "calculatorDisclaimer": "Basado en una predicción estándar de 1 FTR + 1 USDT. La tarifa de plataforma ({{fee}}%) se deduce del pool perdedor antes de la distribución."
+    "calculatorDisclaimer": "Basado en una predicción estándar de 1 USDT. La tarifa de plataforma ({{fee}}%) se deduce del pool perdedor antes de la distribución."
   },
   "positions": {
     "title": "Mis Posiciones",
@@ -95,7 +94,9 @@
     "placedOn": "Realizado el",
     "withdrawn": "Retirado",
     "withdrawWinnings": "Retirar Ganancias",
-    "activePositionsCard": "Posiciones Activas"
+    "activePositionsCard": "Posiciones Activas",
+    "activeBadge": "Activo",
+    "lostMessage": "¡No te rindas! Inténtalo de nuevo y gana a lo grande."
   },
   "bettingCard": {
     "endsIn": "queda",
@@ -162,7 +163,9 @@
       "signTransaction": "Firma la transacción en MetaMask para crear la pregunta en la blockchain...",
       "creatingDb": "Creando pregunta en base de datos...",
       "createSuccess": "¡Pregunta creada con éxito!",
-      "createFailed": "Error al crear pregunta: {{error}}"
+      "createFailed": "Error al crear pregunta: {{error}}",
+      "feesWithdrawnSuccess": "¡Tarifas de plataforma retiradas con éxito!",
+      "feesWithdrawFailed": "Error al retirar tarifas de plataforma."
     }
   },
   "home": {
@@ -204,7 +207,7 @@
     "noWinnings": "No hay ganancias disponibles para retirar",
     "processingWithdrawal": "Procesando retiro...",
     "recordingWithdrawal": "Registrando retiro...",
-    "withdrawSuccess": "¡Retiro exitoso de {{ftr}} FTR + {{usdt}} USDT!",
+    "withdrawSuccess": "¡Retiro exitoso de {{usdt}} USDT!",
     "withdrawFailed": "Error al retirar ganancias",
     "unableToWithdraw": "No se puede retirar: pregunta no encontrada en blockchain"
   },

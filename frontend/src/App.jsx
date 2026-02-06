@@ -8,6 +8,7 @@ import BettingQuestionCard from './components/BettingQuestion';
 import UserPositions from './components/UserPositions';
 import HowItWorks from './components/HowItWorks';
 import AdminPanel from './components/AdminPanel';
+import FilterBar from './components/FilterBar';
 import { AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from './services/api';
 import { web3Service } from './services/web3';
@@ -21,7 +22,7 @@ function App() {
   const [questions, setQuestions] = useState([]);
   const [userPositions, setUserPositions] = useState([]);
   const [platformStats, setPlatformStats] = useState({
-    totalVolume: { ftr: 0, usdt: 0 },
+    totalVolume: { usdt: 0 },
     totalQuestions: 0,
     activeQuestions: 0,
     totalParticipants: 0,
@@ -30,13 +31,18 @@ function App() {
   const [notificationMessage, setNotificationMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [questionsPage, setQuestionsPage] = useState(0);
+  const [filters, setFilters] = useState({ category: '', subcategory: '', country: '', level: '' });
 
   const [isBettingModalOpen, setIsBettingModalOpen] = useState(false);
   const [selectedBet, setSelectedBet] = useState({ questionId: null, outcomeIndex: null, outcomeName: '' });
-  const [betAmounts, setBetAmounts] = useState({ ftr: '1', usdt: '1' });
+  const [betAmounts, setBetAmounts] = useState({ usdt: '1' });
 
   const activePositionsCount = userPositions.filter(p => p.status === 'active').length;
   const isAdmin = isAdminAddress(walletAddress);
+
+  useEffect(() => {
+    loadQuestions();
+  }, [filters]);
 
   useEffect(() => {
     loadQuestions();
@@ -86,30 +92,18 @@ function App() {
 
   const loadQuestions = async () => {
     try {
-      const data = await api.getAllQuestions('open');
-      const formattedQuestions = data.map(q => {
-        const outcomeStats = q.outcomeStats || [];
-        
-        // Map outcome stats or default to 0
-        const formattedOutcomeStats = (q.outcomes || []).map((outcome, index) => ({
-            name: outcome,
-            ftr: outcomeStats[index]?.ftr_total || 0,
-            usdt: outcomeStats[index]?.usdt_total || 0,
-            participants: outcomeStats[index]?.participants || 0
-        }));
-
-        return {
-          id: q._id,
-          contractQuestionId: q.contractQuestionId,
-          question: q.title,
-          outcomes: q.outcomes,
-          category: q.category,
-          endTime: new Date(q.deadline),
-          status: q.status,
-          outcomeStats: formattedOutcomeStats,
-          result: q.result,
-        };
-      });
+      const data = await api.getAllQuestions('open', filters.category || null, filters);
+      const formattedQuestions = data.map(q => ({
+        id: q._id,
+        contractQuestionId: q.contractQuestionId,
+        question: q.title,
+        outcomes: q.outcomes,
+        category: q.category,
+        endTime: new Date(q.deadline),
+        status: q.status,
+        outcomeStats: q.outcomeStats,
+        result: q.result,
+      }));
       setQuestions(formattedQuestions);
     } catch (error) {
       console.error('Failed to load questions:', error);
@@ -122,7 +116,6 @@ function App() {
       const stats = await api.getPlatformStats();
       setPlatformStats({
         totalVolume: {
-          ftr: stats.totalVolumeFtr || 0,
           usdt: stats.totalVolumeUsdt || 0,
         },
         totalQuestions: stats.totalQuestions || 0,
@@ -144,7 +137,6 @@ function App() {
           question: bet.questionId.title,
           outcomes: bet.questionId.outcomes,
           side: bet.outcome,
-          ftrStaked: bet.ftrAmount,
           usdtStaked: bet.usdtAmount,
           timestamp: new Date(bet.createdAt),
           status: bet.questionId.status === 'settled'
@@ -156,15 +148,14 @@ function App() {
 
         // If won and not withdrawn, but payout is missing or zero, fetch from blockchain
         if (position.status === 'won' && !position.withdrawn && 
-            (!position.payout || (parseFloat(position.payout?.ftr || 0) === 0 && parseFloat(position.payout?.usdt || 0) === 0))) {
+            (!position.payout || (parseFloat(position.payout?.usdt || 0) === 0))) {
             try {
                 // Only if contractQuestionId is valid
                 if (position.contractQuestionId !== undefined && position.contractQuestionId !== null) {
                     const winnings = await web3Service.calculateWinnings(position.contractQuestionId, walletAddress);
                     // Update payout if winnings > 0
-                    if (parseFloat(winnings.ftr) > 0 || parseFloat(winnings.usdt) > 0) {
+                    if (parseFloat(winnings.usdt) > 0) {
                         position.payout = {
-                            ftr: parseFloat(winnings.ftr),
                             usdt: parseFloat(winnings.usdt)
                         };
                     }
@@ -215,18 +206,18 @@ function App() {
       return;
     }
     setSelectedBet({ questionId, outcomeIndex, outcomeName });
-    setBetAmounts({ ftr: '1', usdt: '1' }); // Reset to minimums
+    setBetAmounts({ usdt: '1' }); // Reset to minimums
     setIsBettingModalOpen(true);
   };
 
   const handleConfirmBet = async () => {
     const { questionId, outcomeIndex, outcomeName } = selectedBet;
-    const { ftr, usdt } = betAmounts;
+    const { usdt } = betAmounts;
 
     if (!questionId || outcomeIndex === null) return;
 
-    if (parseFloat(ftr) < 1 || parseFloat(usdt) < 1) {
-        showToast("Minimum bet is 1 FTR and 1 USDT");
+    if (parseFloat(usdt) < 1) {
+        showToast("Minimum bet is 1 USDT");
         return;
     }
 
@@ -236,26 +227,19 @@ function App() {
       const question = questions.find(q => q.id === questionId);
 
       showToast(t('toast.checkingPrediction'));
-      // Note: checkBalances and checkApprovals might need updates if logic changes, 
-      // but assuming they check against 1 unit is fine for now, or we update them to check against input amount.
-      // For now, let's update checkBalances/Approvals to take amount.
       
-      // ... actually web3Service.checkBalances checks for 1 unit hardcoded. 
-      // We should probably update it, but for now let's assume user has enough if they pass that check.
-      // Better to update web3Service later if needed.
-
       showToast(t('toast.checkingBalances'));
-      const balances = await web3Service.checkBalances(walletAddress, ftr, usdt);
+      const balances = await web3Service.checkBalances(walletAddress, usdt);
       if (!balances.hasSufficientBalance) {
-        showToast(`Insufficient balance. Need ${ftr} FTR and ${usdt} USDT.`);
+        showToast(`Insufficient balance. Need ${usdt} USDT.`);
         setIsLoading(false);
         return;
       }
 
       showToast(t('toast.checkingApprovals'));
-      const approvals = await web3Service.checkApprovals(walletAddress, ftr, usdt);
+      const approvals = await web3Service.checkApprovals(walletAddress, usdt);
 
-      if (!approvals.ftrApproved || !approvals.usdtApproved) {
+      if (!approvals.usdtApproved) {
         showToast(t('toast.approving'));
         await web3Service.approveTokens();
         showToast(t('toast.approvedPlacing'));
@@ -263,7 +247,7 @@ function App() {
         showToast(t('toast.placing'));
       }
 
-      const txHash = await web3Service.placeBet(question.contractQuestionId, outcomeIndex, ftr, usdt);
+      const txHash = await web3Service.placeBet(question.contractQuestionId, outcomeIndex, usdt);
 
       showToast(t('toast.recording'));
       await api.recordBet({
@@ -271,7 +255,6 @@ function App() {
         questionId: questionId,
         userAddress: walletAddress,
         outcome: outcomeIndex, // Send index to backend
-        ftrAmount: parseFloat(ftr),
         usdtAmount: parseFloat(usdt),
         transactionHash: txHash,
       });
@@ -285,6 +268,8 @@ function App() {
 
       if (error.reason) {
         errorMessage = error.reason;
+      } else if (error.data && error.data.message) {
+        errorMessage = error.data.message;
       } else if (error.message) {
         if (error.message.includes('Already placed bet')) {
           errorMessage = t('toast.alreadyPlaced');
@@ -293,7 +278,12 @@ function App() {
         } else if (error.message.includes('insufficient funds')) {
           errorMessage = t('toast.insufficientFunds');
         } else {
+          // Clean up error message
           errorMessage = error.message.split('(')[0].trim();
+          // If message is too generic or empty, use default
+          if (!errorMessage || errorMessage === 'execution reverted') {
+             errorMessage = "Transaction failed. Please check console.";
+          }
         }
       }
 
@@ -328,7 +318,7 @@ function App() {
         walletAddress
       );
 
-      if (parseFloat(winnings.ftr) === 0 && parseFloat(winnings.usdt) === 0) {
+      if (parseFloat(winnings.usdt) === 0) {
         showToast(t('toast.noWinnings'));
         setIsLoading(false);
         return;
@@ -341,12 +331,11 @@ function App() {
       await api.recordWithdrawal({
         questionId: questionId,
         userAddress: walletAddress,
-        ftrAmount: winnings.ftr,
         usdtAmount: winnings.usdt,
         transactionHash: txHash,
       });
 
-      showToast(t('toast.withdrawSuccess', { ftr: parseFloat(winnings.ftr).toFixed(2), usdt: parseFloat(winnings.usdt).toFixed(2) }));
+      showToast(t('toast.withdrawSuccess', { usdt: parseFloat(winnings.usdt).toFixed(2) }));
       await loadUserBets();
     } catch (error) {
       console.error('Failed to withdraw:', error);
@@ -442,7 +431,12 @@ function App() {
                       {t('home.description')}
                     </p>
                   </div>
+                </div>
+
+                {/* Advanced Filters */}
+                <FilterBar filters={filters} setFilters={setFilters} />
                   
+                <div className="flex justify-end mb-6">
                   {questions.length > 6 && (
                     <div className={`flex space-x-3 p-1.5 rounded-2xl backdrop-blur-sm border ${
                       isDark 
@@ -550,22 +544,6 @@ function App() {
             </h3>
             
             <div className="space-y-4">
-              <div>
-                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                  FTR Amount (Min 1)
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  step="0.1"
-                  value={betAmounts.ftr}
-                  onChange={(e) => setBetAmounts(prev => ({ ...prev, ftr: e.target.value }))}
-                  className={`w-full p-3 rounded-xl border outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all ${
-                    isDark ? 'bg-zinc-800 border-zinc-700 text-white' : 'bg-zinc-50 border-zinc-200 text-zinc-900'
-                  }`}
-                />
-              </div>
-
               <div>
                 <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
                   USDT Amount (Min 1)

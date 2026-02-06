@@ -19,10 +19,9 @@
     "poweredBy": "Binance Smart Chain 기반",
     "titleLine1": "2026 월드컵",
     "titleLine2": "예측 풀",
-    "subtitle": "FTR과 USDT를 스테이킹하여 월드컵 경기 결과를 예측하세요. 스마트 계약을 통한 투명하고 신뢰할 수 있는 정산.",
+    "subtitle": "USDT를 스테이킹하여 월드컵 경기 결과를 예측하세요. 스마트 계약을 통한 투명하고 신뢰할 수 있는 정산.",
     "exploreMarkets": "시장 탐색",
     "learnMore": "더 알아보기",
-    "ftrVolume": "FTR 거래량",
     "usdtVolume": "USDT 거래량",
     "totalPredictions": "총 예측",
     "activeUsers": "활성 사용자"
@@ -31,11 +30,11 @@
     "title": "이용 방법",
     "subtitle": "간단하고 투명한 탈중앙화 예측 시장",
     "step1Title": "지갑 연결",
-    "step1Desc": "FTR 및 USDT 토큰을 지원하는 BSC 호환 지갑을 연결하세요.",
+    "step1Desc": "USDT 토큰을 지원하는 BSC 호환 지갑을 연결하세요.",
     "step2Title": "풀 선택",
     "step2Desc": "월드컵 예측을 둘러보고 결과를 선택하세요.",
     "step3Title": "예측하기",
-    "step3Desc": "예측한 결과에 1 FTR + 1 USDT를 스테이킹하세요.",
+    "step3Desc": "예측한 결과에 1 USDT를 스테이킹하세요.",
     "step4Title": "상금 인출",
     "step4Desc": "정산 후 승자는 풀에서 자신의 몫을 인출합니다.",
     "calculatorTitle": "수익 계산기",
@@ -50,7 +49,7 @@
     "feature1Title": "투명성과 보안",
     "feature1Desc": "BSC 기반 스마트 계약으로 모든 거래가 투명하고 위변조가 불가능합니다.",
     "feature2Title": "듀얼 토큰 시스템",
-    "feature2Desc": "균형 잡힌 참여를 위해 FTR과 USDT 토큰을 모두 스테이킹합니다.",
+    "feature2Desc": "균형 잡힌 참여를 위해 USDT 토큰을 스테이킹합니다.",
     "feature3Title": "공정한 분배",
     "feature3Desc": "승자는 스테이킹 비율에 따라 비례적으로 배분받습니다.",
     "simpleProcess": "간단한 절차",
@@ -65,7 +64,7 @@
     "estimatedReturns": "예상 수익률",
     "roi": "투자 수익률(ROI)",
     "totalPayout": "총 지급액",
-    "calculatorDisclaimer": "표준 1 FTR + 1 USDT 예측 기준입니다. 플랫폼 수수료({{fee}}%)는 분배 전 패배 풀에서 공제됩니다."
+    "calculatorDisclaimer": "표준 1 USDT 예측 기준입니다. 플랫폼 수수료({{fee}}%)는 분배 전 패배 풀에서 공제됩니다."
   },
   "positions": {
     "title": "나의 포지션",
@@ -204,7 +203,7 @@
     "noWinnings": "인출할 상금이 없습니다",
     "processingWithdrawal": "인출 처리 중...",
     "recordingWithdrawal": "인출 기록 중...",
-    "withdrawSuccess": "{{ftr}} FTR + {{usdt}} USDT 인출 성공!",
+    "withdrawSuccess": "{{usdt}} USDT 인출 성공!",
     "withdrawFailed": "상금 인출 실패",
     "unableToWithdraw": "인출 불가: 블록체인에서 질문을 찾을 수 없습니다"
   },
