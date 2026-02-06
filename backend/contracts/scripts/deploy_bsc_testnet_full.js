@@ -5,7 +5,7 @@ async function main() {
 
   console.log("Deploying contracts with the account:", deployer.address);
   
-  const expectedDeployer = "0xE3A21A584AC9FeA2ef99F2d7bdB62Ff4d3B30bAb";
+  const expectedDeployer = "0x2686AD7C841A81170b8b2DC3D747682D1dbbE63b";
   if (deployer.address.toLowerCase() !== expectedDeployer.toLowerCase()) {
     console.error(`WARNING: Deployer address ${deployer.address} does not match expected ${expectedDeployer}`);
     // Proceeding anyway as verified by key check, but good to note.

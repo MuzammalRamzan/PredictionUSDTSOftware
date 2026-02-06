@@ -6,7 +6,7 @@ As an admin, you are responsible for settling questions after their deadline has
 
 ## Prerequisites
 
-1. You must use the **admin wallet address**: `0xE3A21A584AC9FeA2ef99F2d7bdB62Ff4d3B30bAb`
+1. You must use the **admin wallet address**: `0x2686AD7C841A81170b8b2DC3D747682D1dbbE63b`
 2. The Admin Panel is **only visible** when the admin wallet is connected
 3. Make sure you have enough BNB for gas fees
 

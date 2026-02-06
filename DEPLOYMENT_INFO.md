@@ -23,7 +23,7 @@ BSC Testnet (Chain ID: 97)
 - USDT Token: `0x7026eC8ed277Ae6dda4628357cE2885423b9B3ce`
 
 ## Deployer Account
-**Address:** `0xE3A21A584AC9FeA2ef99F2d7bdB62Ff4d3B30bAb`
+**Address:** `0x2686AD7C841A81170b8b2DC3D747682D1dbbE63b`
 **Private Key:** `9a729ea1f2a12dbddc151cab410898e71828ace35fc6f5c59a9e7a924de5f6c1`
 
 ## Configuration Files Updated

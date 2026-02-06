@@ -3,7 +3,7 @@ const hre = require("hardhat");
 async function main() {
   const usdtAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
   const poolAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-  const userAddress = "0xE3A21A584AC9FeA2ef99F2d7bdB62Ff4d3B30bAb";
+  const userAddress = "0x2686AD7C841A81170b8b2DC3D747682D1dbbE63b";
 
   console.log("Starting System Health Check...");
 

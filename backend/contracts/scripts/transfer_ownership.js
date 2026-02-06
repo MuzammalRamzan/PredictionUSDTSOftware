@@ -2,7 +2,7 @@ const hre = require("hardhat");
 
 async function main() {
   const contractAddress = process.env.CONTRACT_ADDRESS;
-  const newOwner = "0xE3A21A584AC9FeA2ef99F2d7bdB62Ff4d3B30bAb"; // User's address
+  const newOwner = "0x2686AD7C841A81170b8b2DC3D747682D1dbbE63b"; // User's address
 
   if (!contractAddress) {
     console.error("Please set CONTRACT_ADDRESS env var");
