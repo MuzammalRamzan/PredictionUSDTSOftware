@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { Filter, ChevronDown, Check, Globe } from 'lucide-react';
 import Select from 'react-select';
@@ -6,11 +7,16 @@ import { getData } from 'country-list';
 
 export default function FilterBar({ filters, setFilters }) {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const categories = ['All', 'Sports', 'Politics'];
   const sports = ['Cricket', 'Football', 'Other'];
   const levels = ['Government', 'Local'];
   const allCountries = getData().map(c => ({ value: c.name, label: c.name }));
+
+  const getCategoryLabel = (val) => val === 'All' ? t('filter.all') : t(`categories.${val}`);
+  const getSportLabel = (val) => val ? t(`filter.${val}`) : '';
+  const getLevelLabel = (val) => val ? t(`filter.${val}`) : '';
 
   const handleCategoryChange = (cat) => {
     setFilters(prev => ({
@@ -78,7 +84,7 @@ export default function FilterBar({ filters, setFilters }) {
     })
   };
 
-  const Dropdown = ({ label, value, options, onChange, icon: Icon, placeholder = "Select" }) => {
+  const Dropdown = ({ label, value, options, onChange, icon: Icon, placeholder = "Select", getLabel = (v) => v }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -92,7 +98,7 @@ export default function FilterBar({ filters, setFilters }) {
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const displayValue = value || placeholder;
+    const displayValue = value ? getLabel(value) : placeholder;
 
     return (
       <div className="relative" ref={dropdownRef}>
@@ -129,13 +135,13 @@ export default function FilterBar({ filters, setFilters }) {
                     setIsOpen(false);
                   }}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    (value === option || (option === 'All' && !value && label === 'Category'))
+                    (value === option || (option === 'All' && !value && label === t('filter.category')))
                       ? isDark ? 'bg-yellow-500/10 text-yellow-500' : 'bg-yellow-50 text-yellow-600'
                       : isDark ? 'text-zinc-300 hover:bg-zinc-800' : 'text-zinc-600 hover:bg-zinc-50'
                   }`}
                 >
-                  <span>{option}</span>
-                  {(value === option || (option === 'All' && !value && label === 'Category')) && (
+                  <span>{getLabel(option)}</span>
+                  {(value === option || (option === 'All' && !value && label === t('filter.category'))) && (
                     <Check className="w-3.5 h-3.5" />
                   )}
                 </button>
@@ -160,10 +166,11 @@ export default function FilterBar({ filters, setFilters }) {
 
         {/* Main Category Dropdown */}
         <Dropdown 
-            label="Category"
+            label={t('filter.category')}
             value={filters.category || 'All'}
             options={categories}
             onChange={handleCategoryChange}
+            getLabel={getCategoryLabel}
         />
 
         {/* Dynamic Sub-filters */}
@@ -171,10 +178,11 @@ export default function FilterBar({ filters, setFilters }) {
             <div className="flex items-center gap-4 animate-slide-in-right">
                 <div className="h-8 w-px bg-zinc-300 dark:bg-zinc-700 hidden md:block"></div>
                 <Dropdown 
-                    label="Sport"
+                    label={t('filter.sport')}
                     value={filters.subcategory}
                     options={sports}
-                    placeholder="All Sports"
+                    placeholder={t('filter.allSports')}
+                    getLabel={getSportLabel}
                     onChange={(val) => setFilters(prev => ({ ...prev, subcategory: val === filters.subcategory ? '' : val }))}
                 />
             </div>
@@ -193,7 +201,7 @@ export default function FilterBar({ filters, setFilters }) {
                         country: option ? option.value : '',
                         level: '' 
                     }))}
-                    placeholder="Select Country"
+                    placeholder={t('filter.selectCountry')}
                     styles={selectStyles}
                     isClearable
                     components={{
@@ -204,10 +212,11 @@ export default function FilterBar({ filters, setFilters }) {
                 
                 {filters.country && (
                     <Dropdown 
-                        label="Level"
+                        label={t('filter.level')}
                         value={filters.level}
                         options={levels}
-                        placeholder="All Levels"
+                        placeholder={t('filter.allLevels')}
+                        getLabel={getLevelLabel}
                         onChange={(val) => setFilters(prev => ({ ...prev, level: val === filters.level ? '' : val }))}
                     />
                 )}

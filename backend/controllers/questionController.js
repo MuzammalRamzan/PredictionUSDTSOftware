@@ -15,9 +15,16 @@ export const getAllQuestions = async (req, res) => {
       search,
       page = 1,
       limit = 10,
+      includeHidden = "false",
     } = req.query;
 
     const filter = {};
+
+    // By default hide hidden questions unless includeHidden is true
+    if (includeHidden !== "true") {
+      filter.isHidden = {$ne: true};
+    }
+
     if (status) {
       const now = new Date();
       if (status === "active") {
@@ -27,6 +34,8 @@ export const getAllQuestions = async (req, res) => {
         // Pending settlement: Open but deadline passed
         filter.status = "open";
         filter.deadline = {$lte: now};
+      } else if (status === "disabled") {
+        filter.isHidden = true;
       } else {
         filter.status = status;
       }
@@ -130,6 +139,8 @@ export const createQuestion = async (req, res) => {
       adminAddress,
       transactionHash,
       contractQuestionId,
+      totalLimit,
+      betAmountLimit,
     } = req.body;
 
     if (!title || !deadline) {
@@ -146,14 +157,14 @@ export const createQuestion = async (req, res) => {
       });
     }
 
-    const adminAddresses =
-      process.env.ADMIN_ADDRESSES?.split(",").map((addr) =>
+    const superAdminAddresses =
+      process.env.SUPER_ADMIN_ADDRESSES?.split(",").map((addr) =>
         addr.toLowerCase(),
       ) || [];
-    if (!adminAddresses.includes(adminAddress.toLowerCase())) {
+    if (!superAdminAddresses.includes(adminAddress.toLowerCase())) {
       return res.status(403).json({
         success: false,
-        error: "Unauthorized: Not an admin address",
+        error: "Unauthorized: Only super admins can create questions",
       });
     }
 
@@ -175,6 +186,9 @@ export const createQuestion = async (req, res) => {
       contract_question_id: contractQuestionId,
       status: "open",
       outcomes: outcomes || ["Yes", "No"],
+      totalLimit: totalLimit || 0,
+      betAmountLimit: betAmountLimit || 0,
+      minBetAmount: req.body.minBetAmount || 0,
     });
 
     await question.save();
@@ -199,6 +213,57 @@ export const createQuestion = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating question:", error);
+    res.status(500).json({success: false, error: error.message});
+  }
+};
+
+export const updateQuestion = async (req, res) => {
+  try {
+    const {id} = req.params;
+    const {
+      title,
+      description,
+      deadline,
+      category,
+      subcategory,
+      country,
+      level,
+      isHidden,
+      totalLimit,
+      betAmountLimit,
+      minBetAmount,
+      outcomes,
+    } = req.body;
+
+    const question = await Question.findById(id);
+    if (!question) {
+      return res
+        .status(404)
+        .json({success: false, error: "Question not found"});
+    }
+
+    // Update fields
+    if (title !== undefined) question.title = title;
+    if (description !== undefined) question.description = description;
+    if (deadline !== undefined) question.deadline = deadline;
+    if (category !== undefined) question.category = category;
+    if (subcategory !== undefined) question.subcategory = subcategory;
+    if (country !== undefined) question.country = country;
+    if (level !== undefined) question.level = level;
+    if (isHidden !== undefined) question.isHidden = isHidden;
+    if (totalLimit !== undefined) question.totalLimit = totalLimit;
+    if (betAmountLimit !== undefined) question.betAmountLimit = betAmountLimit;
+    if (minBetAmount !== undefined) question.minBetAmount = minBetAmount;
+    if (outcomes !== undefined) question.outcomes = outcomes;
+
+    await question.save();
+
+    res.json({
+      success: true,
+      data: {...question.toObject(), id: question._id},
+    });
+  } catch (error) {
+    console.error("Error updating question:", error);
     res.status(500).json({success: false, error: error.message});
   }
 };
@@ -232,18 +297,18 @@ export const settleQuestion = async (req, res) => {
       });
     }
 
-    const adminAddresses =
-      process.env.ADMIN_ADDRESSES?.split(",").map((addr) =>
+    const superAdminAddresses =
+      process.env.SUPER_ADMIN_ADDRESSES?.split(",").map((addr) =>
         addr.toLowerCase(),
       ) || [];
-    console.log("Configured admin addresses:", adminAddresses);
+    console.log("Configured super admin addresses:", superAdminAddresses);
     console.log("Provided admin address:", adminAddress.toLowerCase());
 
-    if (!adminAddresses.includes(adminAddress.toLowerCase())) {
+    if (!superAdminAddresses.includes(adminAddress.toLowerCase())) {
       console.log("Unauthorized admin address");
       return res.status(403).json({
         success: false,
-        error: "Unauthorized: Not an admin address",
+        error: "Unauthorized: Only super admins can settle questions",
       });
     }
 
@@ -326,55 +391,6 @@ export const settleQuestion = async (req, res) => {
   }
 };
 
-export const updateQuestion = async (req, res) => {
-  try {
-    const {id} = req.params;
-    const {title, description, category, deadline} = req.body;
-
-    const question = await Question.findById(id);
-
-    if (!question) {
-      return res
-        .status(404)
-        .json({success: false, error: "Question not found"});
-    }
-
-    if (question.status === "settled") {
-      return res
-        .status(400)
-        .json({success: false, error: "Cannot update settled question"});
-    }
-
-    if (title) question.title = title;
-    if (description) question.description = description;
-    if (category) question.category = category;
-    if (deadline) {
-      const newDeadline = new Date(deadline);
-      if (newDeadline <= new Date()) {
-        return res
-          .status(400)
-          .json({success: false, error: "Deadline must be in the future"});
-      }
-      question.deadline = newDeadline;
-    }
-
-    question.updated_at = new Date();
-    await question.save();
-
-    const data = {...question.toObject(), id: question._id};
-
-    res.json({
-      success: true,
-      data,
-      warning:
-        "Note: Blockchain deadline remains unchanged. Only database record updated.",
-    });
-  } catch (error) {
-    console.error("Error updating question:", error);
-    res.status(500).json({success: false, error: error.message});
-  }
-};
-
 export const syncQuestionFromBlockchain = async (req, res) => {
   try {
     const {contractQuestionId} = req.params;
@@ -382,38 +398,83 @@ export const syncQuestionFromBlockchain = async (req, res) => {
     const contract = getContract();
     const questionData = await contract.getQuestion(contractQuestionId);
 
+    // If contractQuestionId is 0, MongoDB might treat it as false in a simple boolean check,
+    // but findOne should handle Number(0) correctly.
     const question = await Question.findOne({
-      contract_question_id: contractQuestionId,
+      contract_question_id: Number(contractQuestionId),
     });
 
     if (!question) {
+      console.log(
+        `Question with contract_question_id ${contractQuestionId} not found in DB.`,
+      );
+      // If not found, we cannot sync it.
       return res
         .status(404)
         .json({success: false, error: "Question not found in database"});
     }
 
-    if (questionData.isSettled && question.status !== "settled") {
-      question.status = "settled";
-      question.result = Number(questionData.result);
-      if (!question.settlement_date) {
-        question.settlement_date = new Date();
-      }
+    // --- CHECK FOR DEADLINE UPDATE ---
+    const contractDeadline = new Date(Number(questionData.deadline) * 1000);
+    const dbDeadline = new Date(question.deadline);
+
+    // Allow for a small time difference (e.g. 1 minute) to avoid trivial updates
+    // or just check if they are different.
+    if (Math.abs(contractDeadline.getTime() - dbDeadline.getTime()) > 60000) {
+      console.log(
+        `Syncing deadline for question ${contractQuestionId}. Contract: ${contractDeadline}, DB: ${dbDeadline}`,
+      );
+      question.deadline = contractDeadline;
+      question.updated_at = new Date();
+      await question.save();
+    }
+    // ----------------------------------
+
+    if (questionData.isCancelled && question.status !== "cancelled") {
+      question.status = "cancelled";
+      question.settlement_date = new Date();
       question.updated_at = new Date();
       await question.save();
 
-      await Bet.updateMany(
-        {question_id: question._id, outcome: question.result},
-        {is_winner: true},
-      );
-
-      await Bet.updateMany(
-        {question_id: question._id, outcome: {$ne: question.result}},
-        {is_winner: false},
-      );
-
       console.log(
-        `Synced settlement status for question ${contractQuestionId}: ${question.result}`,
+        `Synced cancellation status for question ${contractQuestionId}`,
       );
+    } else if (questionData.isSettled) {
+      // Check if it's a NEW settlement OR a CHANGED outcome
+      const contractResult = Number(questionData.result);
+
+      if (question.status !== "settled" || question.result !== contractResult) {
+        console.log(
+          `Syncing settlement/outcome change for question ${contractQuestionId}. Old Result: ${question.result}, New Result: ${contractResult}`,
+        );
+
+        question.status = "settled";
+        question.result = contractResult;
+        if (!question.settlement_date) {
+          question.settlement_date = new Date();
+        }
+        question.updated_at = new Date();
+        await question.save();
+
+        // Reset all bets first (optional but safer) or just update based on new result
+        // Winner logic: outcome == result -> true, others -> false
+
+        // Set new winners
+        await Bet.updateMany(
+          {question_id: question._id, outcome: question.result},
+          {is_winner: true},
+        );
+
+        // Set losers (everyone else)
+        await Bet.updateMany(
+          {question_id: question._id, outcome: {$ne: question.result}},
+          {is_winner: false},
+        );
+
+        console.log(
+          `Synced settlement/outcome status for question ${contractQuestionId}: ${question.result}`,
+        );
+      }
     }
 
     const outcomeStats = [];

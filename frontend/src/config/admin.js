@@ -1,6 +1,25 @@
-export const ADMIN_ADDRESS = '0x2686AD7C841A81170b8b2DC3D747682D1dbbE63b';
+export const SUPER_ADMINS = (import.meta.env.VITE_SUPER_ADMIN_ADDRESSES || "")
+  .split(",")
+  .map((addr) => addr.trim())
+  .filter((addr) => addr);
+
+export const VIEWER_ADMINS = (import.meta.env.VITE_VIEWER_ADMIN_ADDRESSES || "")
+  .split(",")
+  .map((addr) => addr.trim())
+  .filter((addr) => addr);
 
 export const isAdminAddress = (address) => {
   if (!address) return false;
-  return address.toLowerCase() === ADMIN_ADDRESS.toLowerCase();
+  const lowerAddr = address.toLowerCase();
+  return (
+    SUPER_ADMINS.some((admin) => admin.toLowerCase() === lowerAddr) ||
+    VIEWER_ADMINS.some((admin) => admin.toLowerCase() === lowerAddr)
+  );
+};
+
+export const isSuperAdmin = (address) => {
+  if (!address) return false;
+  return SUPER_ADMINS.some(
+    (admin) => admin.toLowerCase() === address.toLowerCase(),
+  );
 };

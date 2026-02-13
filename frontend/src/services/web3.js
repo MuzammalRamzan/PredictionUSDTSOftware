@@ -62,7 +62,14 @@ export const web3Service = {
     } else if (import.meta.env.VITE_NETWORK === "testnet") {
       expectedChainId = "0x61";
       networkName = "BSC Testnet";
-      rpcUrls = ["https://data-seed-prebsc-1-s1.binance.org:8545/"];
+      rpcUrls = [
+        "https://data-seed-prebsc-1-s1.binance.org:8545/",
+        "https://data-seed-prebsc-2-s1.binance.org:8545/",
+        "https://data-seed-prebsc-1-s2.binance.org:8545/",
+        "https://data-seed-prebsc-2-s2.binance.org:8545/",
+        "https://data-seed-prebsc-1-s3.binance.org:8545/",
+        "https://data-seed-prebsc-2-s3.binance.org:8545/",
+      ];
       nativeCurrency = {
         name: "BNB",
         symbol: "tBNB",
@@ -320,9 +327,23 @@ export const web3Service = {
     };
   },
 
+  async updateQuestionDeadline(questionId, newDeadline) {
+    const contract = await this.getContract();
+    const tx = await contract.updateQuestionDeadline(questionId, newDeadline);
+    await tx.wait();
+    return tx.hash;
+  },
+
   async settleQuestion(questionId, result) {
     const contract = await this.getContract();
     const tx = await contract.settleQuestion(questionId, result);
+    await tx.wait();
+    return tx.hash;
+  },
+
+  async changeOutcome(questionId, newResult) {
+    const contract = await this.getContract();
+    const tx = await contract.changeOutcome(questionId, newResult);
     await tx.wait();
     return tx.hash;
   },
@@ -340,6 +361,58 @@ export const web3Service = {
       outcomeUsdtTotals: data[5],
       outcomeParticipants: data[6],
       exists: data[7],
+      isCancelled: data[8],
+    };
+  },
+
+  async cancelQuestion(questionId) {
+    const contract = await this.getContract();
+    const tx = await contract.cancelQuestion(questionId);
+    await tx.wait();
+    return tx.hash;
+  },
+
+  async setWithdrawalDelay(delaySeconds) {
+    const contract = await this.getContract();
+    const tx = await contract.setWithdrawalDelay(delaySeconds);
+    await tx.wait();
+    return tx.hash;
+  },
+
+  async setGlobalWithdrawalPaused(paused) {
+    const contract = await this.getContract();
+    const tx = await contract.setGlobalWithdrawalPaused(paused);
+    await tx.wait();
+    return tx.hash;
+  },
+
+  async setUserWithdrawalPaused(user, paused) {
+    const contract = await this.getContract();
+    const tx = await contract.setUserWithdrawalPaused(user, paused);
+    await tx.wait();
+    return tx.hash;
+  },
+
+  async claimRefund(questionId) {
+    const contract = await this.getContract();
+    const tx = await contract.claimRefund(questionId);
+    await tx.wait();
+    return tx.hash;
+  },
+
+  async getWithdrawalSettings(userAddress) {
+    const contract = await this.getContract();
+    const delay = await contract.withdrawalDelay();
+    const globalPaused = await contract.globalWithdrawalPaused();
+    let userPaused = false;
+    if (userAddress) {
+      userPaused = await contract.userWithdrawalPaused(userAddress);
+    }
+
+    return {
+      withdrawalDelay: Number(delay),
+      globalWithdrawalPaused: globalPaused,
+      userWithdrawalPaused: userPaused,
     };
   },
 

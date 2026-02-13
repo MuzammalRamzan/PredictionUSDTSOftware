@@ -1,5 +1,5 @@
 export const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+  import.meta.env.VITE_API_URL || "https://usdtgame-api.nakshtech.info/api";
 
 const handleResponse = async (response) => {
   const data = await response.json();
@@ -56,6 +56,9 @@ export const api = {
         deadline: q.deadline,
         status: q.status,
         result: q.result,
+        totalLimit: q.totalLimit,
+        betAmountLimit: q.betAmountLimit,
+        isHidden: q.isHidden,
       };
     });
   },

@@ -14,10 +14,12 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const handleNavigation = (e, item) => {
+  const handleNavigation = (e, item, href) => {
     e.preventDefault();
     if (item === 'Admin') {
       navigate('/admin');
+    } else if (href) {
+      navigate(href);
     } else {
       const hash = item === 'How It Works' ? '#how' : `#${item.toLowerCase()}`;
       if (location.pathname !== '/') {
@@ -57,6 +59,8 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
     { id: 'Positions', label: t('header.positions') },
     { id: 'Admin', label: t('header.admin') },
     { id: 'How It Works', label: t('header.howItWorks') },
+    { id: 'AboutUs', label: t('header.aboutUs'), href: '/aboutus' },
+
   ];
 
   return (
@@ -71,24 +75,24 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
           <div className="flex items-center space-x-3 group cursor-pointer">
             <div className="relative transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
               <div className={`absolute inset-0 rounded-full blur-3xl opacity-20 group-hover:opacity-60 transition-opacity duration-500 ${isDark ? 'bg-yellow-500' : 'bg-yellow-400'}`}></div>
-              <img src="/ProPred.png" alt="ProPred" className="relative h-12 w-auto object-contain drop-shadow-lg" />
+              <img src="/ProPred.png" alt="PerBet" className="relative h-12 w-auto object-contain drop-shadow-lg" />
             </div>
-            <span className="text-2xl font-black bg-gradient-to-r from-yellow-500 to-yellow-600 text-transparent bg-clip-text tracking-tighter group-hover:from-yellow-400 group-hover:to-yellow-500 transition-all duration-300 drop-shadow-sm">
-              ProPred
-            </span>
+            {/* <span className="text-2xl font-black bg-gradient-to-r from-yellow-500 to-yellow-600 text-transparent bg-clip-text tracking-tighter group-hover:from-yellow-400 group-hover:to-yellow-500 transition-all duration-300 drop-shadow-sm">
+              PerBet
+            </span> */}
           </div>
 
           <div className="hidden md:flex items-center space-x-2">
             {navItems.map((item) => {
               if (item.id === 'Admin' && !isAdmin) return null;
               
-              const href = item.id === 'Admin' ? '/admin' : (item.id === 'How It Works' ? '/#how' : `/#${item.id.toLowerCase()}`);
+              const href = item.href || (item.id === 'Admin' ? '/admin' : (item.id === 'How It Works' ? '/#how' : `/#${item.id.toLowerCase()}`));
               
               return (
                 <a
                   key={item.id}
                   href={href}
-                  onClick={(e) => handleNavigation(e, item.id)}
+                  onClick={(e) => handleNavigation(e, item.id, item.href)}
                   className={`relative px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 group ${
                     isDark 
                       ? 'text-zinc-400 hover:text-white hover:bg-white/5' 
@@ -169,7 +173,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
                 className="flex items-center space-x-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-8 py-3 rounded-full font-bold hover:from-yellow-400 hover:to-yellow-500 transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/40 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed disabled:shadow-none"
               >
                 <Wallet className="w-5 h-5" />
-                <span>{isLoading ? 'Connecting...' : t('header.connectWallet')}</span>
+                <span>{isLoading ? t('header.connecting') : t('header.connectWallet')}</span>
               </button>
             )}
           </div>
@@ -192,7 +196,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
           <div className="px-4 py-6 space-y-4">
             {navItems.map((item) => {
               if (item.id === 'Admin' && !isAdmin) return null;
-              const href = item.id === 'Admin' ? '/admin' : (item.id === 'How It Works' ? '/#how' : `/#${item.id.toLowerCase()}`);
+              const href = item.href || (item.id === 'Admin' ? '/admin' : (item.id === 'How It Works' ? '/#how' : `/#${item.id.toLowerCase()}`));
               return (
                 <a
                   key={item.id}
@@ -200,7 +204,7 @@ export default function Header({ walletAddress, onConnectWallet, onDisconnectWal
                   className={`block py-3 transition-colors font-semibold ${
                     isDark ? 'text-gray-300 hover:text-yellow-400' : 'text-gray-700 hover:text-yellow-600'
                   }`}
-                  onClick={(e) => handleNavigation(e, item.id)}
+                  onClick={(e) => handleNavigation(e, item.id, item.href)}
                 >
                   {item.label}
                 </a>

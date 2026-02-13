@@ -4,7 +4,12 @@ import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import Hero from './components/Hero';
+import AboutUs from './components/AboutUs';
+import Contactus from './components/Contactus';
 import BettingQuestionCard from './components/BettingQuestion';
+import TermsandPolicy from "./components/TermsandPolicy"
+import AboutsPage from "./components/AboutsPage"
+import { Facebook, Instagram, Youtube, Twitter } from "lucide-react";
 import UserPositions from './components/UserPositions';
 import HowItWorks from './components/HowItWorks';
 import AdminPanel from './components/AdminPanel';
@@ -103,11 +108,14 @@ function App() {
         status: q.status,
         outcomeStats: q.outcomeStats,
         result: q.result,
+        totalLimit: q.totalLimit,
+        betAmountLimit: q.betAmountLimit,
+        minBetAmount: q.minBetAmount,
       }));
       setQuestions(formattedQuestions);
     } catch (error) {
       console.error('Failed to load questions:', error);
-      showToast('Failed to load questions');
+      showToast(t('toast.loadQuestionsFailed'));
     }
   };
 
@@ -139,29 +147,38 @@ function App() {
           side: bet.outcome,
           usdtStaked: bet.usdtAmount,
           timestamp: new Date(bet.createdAt),
-          status: bet.questionId.status === 'settled'
-            ? (bet.questionId.result === bet.outcome ? 'won' : 'lost')
-            : 'active',
+          status: bet.questionId.status === 'cancelled'
+            ? 'cancelled'
+            : bet.questionId.status === 'settled'
+              ? (bet.questionId.result === bet.outcome ? 'won' : 'lost')
+              : 'active',
           payout: bet.payout,
           withdrawn: bet.withdrawn || false,
         };
 
         // If won and not withdrawn, but payout is missing or zero, fetch from blockchain
-        if (position.status === 'won' && !position.withdrawn && 
+        if ((position.status === 'won' || position.status === 'cancelled') && !position.withdrawn && 
             (!position.payout || (parseFloat(position.payout?.usdt || 0) === 0))) {
             try {
-                // Only if contractQuestionId is valid
+                // Only if contractQuestionId is valid (including 0)
                 if (position.contractQuestionId !== undefined && position.contractQuestionId !== null) {
-                    const winnings = await web3Service.calculateWinnings(position.contractQuestionId, walletAddress);
-                    // Update payout if winnings > 0
-                    if (parseFloat(winnings.usdt) > 0) {
-                        position.payout = {
-                            usdt: parseFloat(winnings.usdt)
-                        };
+                    if (position.status === 'won') {
+                        const winnings = await web3Service.calculateWinnings(position.contractQuestionId, walletAddress);
+                        // Update payout if winnings > 0
+                        if (parseFloat(winnings.usdt) > 0) {
+                            position.payout = {
+                                usdt: parseFloat(winnings.usdt)
+                            };
+                        }
+                    } else if (position.status === 'cancelled') {
+                         // For cancelled, the refund is the staked amount
+                         position.payout = {
+                            usdt: position.usdtStaked
+                         };
                     }
                 }
             } catch (err) {
-                console.warn('Failed to fetch winnings from blockchain for position:', position.questionId, err);
+                console.warn('Failed to fetch winnings/refund for position:', position.questionId, err);
             }
         }
         return position;
@@ -197,7 +214,7 @@ function App() {
   const handleDisconnectWallet = () => {
     setWalletAddress(null);
     setUserPositions([]);
-    showToast('Wallet disconnected');
+    showToast(t('toast.walletDisconnected'));
   };
 
   const handlePlaceBetClick = (questionId, outcomeIndex, outcomeName) => {
@@ -216,22 +233,46 @@ function App() {
 
     if (!questionId || outcomeIndex === null) return;
 
-    if (parseFloat(usdt) < 1) {
-        showToast("Minimum bet is 1 USDT");
+    const question = questions.find(q => q.id === questionId);
+    const minBet = question.minBetAmount > 0 ? question.minBetAmount : 0; // 0 means any amount > 0
+
+    if (parseFloat(usdt) <= 0) {
+        showToast("Bet amount must be greater than 0");
+        return;
+    }
+
+    if (minBet > 0 && parseFloat(usdt) < minBet) {
+        showToast(t('toast.minBetLimit', { amount: minBet }) || `Minimum bet amount is ${minBet} USDT`);
         return;
     }
 
     try {
       setIsLoading(true);
       setIsBettingModalOpen(false); // Close modal
-      const question = questions.find(q => q.id === questionId);
+
+      // Enforce Limits
+      if (question.betAmountLimit > 0 && parseFloat(usdt) > question.betAmountLimit) {
+        showToast(`Bet amount exceeds limit of ${question.betAmountLimit} USDT`);
+        setIsLoading(false);
+        return;
+      }
+
+      const currentParticipants = question.outcomeStats
+        ? question.outcomeStats.reduce((acc, stat) => acc + (stat.participants || 0), 0)
+        : 0;
+
+      if (question.totalLimit > 0 && (currentParticipants + 1) > question.totalLimit) {
+        showToast(`Total participants limit of ${question.totalLimit} reached for this question`);
+        setIsLoading(false);
+        return;
+      }
 
       showToast(t('toast.checkingPrediction'));
       
       showToast(t('toast.checkingBalances'));
       const balances = await web3Service.checkBalances(walletAddress, usdt);
       if (!balances.hasSufficientBalance) {
-        showToast(`Insufficient balance. Need ${usdt} USDT.`);
+        showToast(t('toast.insufficientBalanceNeed', { usdt }));
         setIsLoading(false);
         return;
       }
@@ -282,7 +323,7 @@ function App() {
           errorMessage = error.message.split('(')[0].trim();
           // If message is too generic or empty, use default
           if (!errorMessage || errorMessage === 'execution reverted') {
-             errorMessage = "Transaction failed. Please check console.";
+             errorMessage = t('toast.txFailed');
           }
         }
       }
@@ -300,7 +341,7 @@ function App() {
     }
 
     const position = userPositions.find(p => p.questionId === questionId);
-    if (!position || position.status !== 'won' || position.withdrawn) {
+    if (!position || (position.status !== 'won' && position.status !== 'cancelled') || position.withdrawn) {
       return;
     }
 
@@ -311,31 +352,41 @@ function App() {
 
     try {
       setIsLoading(true);
-      showToast(t('toast.calculatingWinnings'));
+      
+      let txHash;
+      let amount;
 
-      const winnings = await web3Service.calculateWinnings(
-        position.contractQuestionId,
-        walletAddress
-      );
+      if (position.status === 'cancelled') {
+        showToast(t('toast.processingRefund') || "Processing refund...");
+        txHash = await web3Service.claimRefund(position.contractQuestionId);
+        amount = position.usdtStaked;
+      } else {
+        showToast(t('toast.calculatingWinnings'));
+        const winnings = await web3Service.calculateWinnings(
+          position.contractQuestionId,
+          walletAddress
+        );
 
-      if (parseFloat(winnings.usdt) === 0) {
-        showToast(t('toast.noWinnings'));
-        setIsLoading(false);
-        return;
+        if (parseFloat(winnings.usdt) === 0) {
+          showToast(t('toast.noWinnings'));
+          setIsLoading(false);
+          return;
+        }
+        amount = winnings.usdt;
+        
+        showToast(t('toast.processingWithdrawal'));
+        txHash = await web3Service.withdrawWinnings(position.contractQuestionId);
       }
-
-      showToast(t('toast.processingWithdrawal'));
-      const txHash = await web3Service.withdrawWinnings(position.contractQuestionId);
 
       showToast(t('toast.recordingWithdrawal'));
       await api.recordWithdrawal({
         questionId: questionId,
         userAddress: walletAddress,
-        usdtAmount: winnings.usdt,
+        usdtAmount: amount,
         transactionHash: txHash,
       });
 
-      showToast(t('toast.withdrawSuccess', { usdt: parseFloat(winnings.usdt).toFixed(2) }));
+      showToast(t('toast.withdrawSuccess', { usdt: parseFloat(amount).toFixed(2) }));
       await loadUserBets();
     } catch (error) {
       console.error('Failed to withdraw:', error);
@@ -394,7 +445,7 @@ function App() {
       />
 
       {showNotification && (
-        <div className="fixed top-24 right-6 z-50 animate-slide-in-right">
+        <div className="fixed top-24 right-6 z-[100] animate-slide-in-right">
           <div className={`glass-card border-l-4 border-yellow-500 rounded-xl shadow-2xl p-5 flex items-center space-x-4 max-w-md ${
             isDark ? 'bg-zinc-800/90' : 'bg-white/90'
           }`}>
@@ -480,7 +531,7 @@ function App() {
                       <div className={`absolute inset-0 border-4 rounded-full ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}></div>
                       <div className="absolute inset-0 border-4 border-yellow-500 rounded-full border-t-transparent animate-spin"></div>
                     </div>
-                    <p className={`text-sm font-medium animate-pulse ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Loading markets...</p>
+                    <p className={`text-sm font-medium animate-pulse ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>{t('home.loading')}</p>
                   </div>
                 ) : questions.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -519,7 +570,9 @@ function App() {
               onConnectWallet={handleConnectWallet}
             />
 
+            <AboutUs />
             <HowItWorks />
+           
           </>
         } />
         
@@ -530,7 +583,11 @@ function App() {
             onShowToast={showToast}
             onRefresh={loadQuestions}
           />
+          
         } />
+        <Route path="/TermsandPolicy" element={<TermsandPolicy />} />
+         <Route path="/aboutus" element={<AboutsPage />} />
+
       </Routes>
 
       {/* Betting Modal */}
@@ -540,13 +597,13 @@ function App() {
             isDark ? 'bg-zinc-900 border border-zinc-800' : 'bg-white border border-zinc-200'
           }`}>
             <h3 className={`text-xl font-bold mb-4 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-              Place Bet on {selectedBet.outcomeName}
+              {t('modal.placeBetTitle', { outcomeName: selectedBet.outcomeName })}
             </h3>
             
             <div className="space-y-4">
               <div>
                 <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                  USDT Amount (Min 1)
+                  {t('modal.usdtAmountLabel')}
                 </label>
                 <input
                   type="number"
@@ -554,7 +611,7 @@ function App() {
                   step="0.1"
                   value={betAmounts.usdt}
                   onChange={(e) => setBetAmounts(prev => ({ ...prev, usdt: e.target.value }))}
-                  className={`w-full p-3 rounded-xl border outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all ${
+                  className={`w-full p-3 rounded-xl border outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all no-spinner ${
                     isDark ? 'bg-zinc-800 border-zinc-700 text-white' : 'bg-zinc-50 border-zinc-200 text-zinc-900'
                   }`}
                 />
@@ -567,91 +624,242 @@ function App() {
                     isDark ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300' : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-600'
                   }`}
                 >
-                  Cancel
+                  {t('modal.cancel')}
                 </button>
                 <button
                   onClick={handleConfirmBet}
                   disabled={isLoading}
                   className="flex-1 py-3 rounded-xl font-bold bg-yellow-500 hover:bg-yellow-600 text-white shadow-lg shadow-yellow-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? 'Processing...' : 'Confirm Bet'}
+                  {isLoading ? t('modal.processing') : t('modal.confirmBet')}
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
+      <Contactus />
 
-      <footer className={`py-16 border-t transition-colors duration-300 ${
-        isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-zinc-200'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-12 mb-16">
-            <div className="md:col-span-2 space-y-6">
-              <div className="flex items-center space-x-3">
-                <img src="/ProPred.png" alt="ProPred" className="w-10 h-10 object-contain" />
-                <span className="text-2xl font-black bg-gradient-to-r from-yellow-500 to-yellow-600 text-transparent bg-clip-text tracking-tight">ProPred</span>
-              </div>
-              <p className={`leading-relaxed max-w-sm ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                {t('footer.description')}
-              </p>
-              <div className="inline-flex items-center space-x-3 bg-yellow-500/10 px-4 py-2 rounded-full border border-yellow-500/20">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-                <span className="text-xs font-bold uppercase tracking-wider text-yellow-600 dark:text-yellow-500">{t('footer.poweredBy')}</span>
-              </div>
-            </div>
+    <footer className={`py-16 border-t transition-colors duration-300 ${ isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-zinc-200'}`}>
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="grid md:grid-cols-4 gap-12 mb-16">
 
-            <div>
-              <h4 className={`font-bold mb-6 text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{t('footer.platform')}</h4>
-              <ul className="space-y-4">
-                <li><a href="#active" className={`transition-colors hover:translate-x-1 inline-block ${
-                  isDark ? 'text-zinc-400 hover:text-yellow-400' : 'text-zinc-600 hover:text-yellow-600'
-                }`}>{t('footer.activeMarkets')}</a></li>
-                <li><a href="#positions" className={`transition-colors hover:translate-x-1 inline-block ${
-                  isDark ? 'text-zinc-400 hover:text-yellow-400' : 'text-zinc-600 hover:text-yellow-600'
-                }`}>{t('footer.myPositions')}</a></li>
-                <li><a href="#how" className={`transition-colors hover:translate-x-1 inline-block ${
-                  isDark ? 'text-zinc-400 hover:text-yellow-400' : 'text-zinc-600 hover:text-yellow-600'
-                }`}>{t('footer.howItWorks')}</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className={`font-bold mb-6 text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{t('footer.resources')}</h4>
-              <ul className="space-y-4">
-                <li><a href="#" className={`transition-colors hover:translate-x-1 inline-block ${
-                  isDark ? 'text-zinc-400 hover:text-yellow-400' : 'text-zinc-600 hover:text-yellow-600'
-                }`}>{t('footer.documentation')}</a></li>
-                <li><a href="#" className={`transition-colors hover:translate-x-1 inline-block ${
-                  isDark ? 'text-zinc-400 hover:text-yellow-400' : 'text-zinc-600 hover:text-yellow-600'
-                }`}>{t('footer.contract')}</a></li>
-                <li><a href="#" className={`transition-colors hover:translate-x-1 inline-block ${
-                  isDark ? 'text-zinc-400 hover:text-yellow-400' : 'text-zinc-600 hover:text-yellow-600'
-                }`}>{t('footer.support')}</a></li>
-              </ul>
-            </div>
+      {/* LEFT SECTION */}
+      <div className="md:col-span-2 space-y-6 flex flex-col justify-between">
+        <div className="space-y-6">
+          <div className="flex items-center space-x-3">
+            <span className="text-2xl font-black bg-gradient-to-r from-yellow-500 to-yellow-600 text-transparent bg-clip-text tracking-tight">
+              PerBet
+            </span>
           </div>
-          
-          <div className={`pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4 ${
-            isDark ? 'border-zinc-800' : 'border-gray-100'
-          }`}>
-            <p className={`text-sm ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
-              &copy; {new Date().getFullYear()} {t('footer.rightsReserved')}
-            </p>
-            <div className="flex items-center gap-6">
-              <div className="flex space-x-6">
-                <a href="#" className={`text-sm transition-colors ${
-                  isDark ? 'text-zinc-500 hover:text-zinc-300' : 'text-zinc-400 hover:text-zinc-600'
-                }`}>{t('footer.privacyPolicy')}</a>
-                <a href="#" className={`text-sm transition-colors ${
-                  isDark ? 'text-zinc-500 hover:text-zinc-300' : 'text-zinc-400 hover:text-zinc-600'
-                }`}>{t('footer.termsOfService')}</a>
-              </div>
-              <LanguageSwitcher direction="up" />
-            </div>
+
+          <p
+            className={`leading-relaxed max-w-sm ${
+              isDark ? 'text-zinc-400' : 'text-zinc-600'
+            }`}
+          >
+            {t('footer.description')}
+          </p>
+
+          <div className="inline-flex items-center space-x-3 bg-yellow-500/10 px-4 py-2 rounded-full border border-yellow-500/20">
+            <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+            <span className="text-xs font-bold uppercase tracking-wider text-yellow-600 dark:text-yellow-500">
+              {t('footer.poweredBy')}
+            </span>
           </div>
         </div>
-      </footer>
+
+        {/* ✅ SOCIAL MEDIA LINKS (BOTTOM LEFT) */}
+          <div className="flex items-center gap-4 pt-6">
+            <a
+              href="https://www.facebook.com/perbet.live"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`p-2 rounded-full transition-colors ${
+                isDark
+                  ? 'text-zinc-500 hover:text-yellow-400 hover:bg-zinc-800'
+                  : 'text-zinc-500 hover:text-yellow-600 hover:bg-zinc-100'
+              }`}
+            >
+              <Facebook size={18} />
+            </a>
+
+            <a
+              href="https://www.instagram.com/perbet.live/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`p-2 rounded-full transition-colors ${
+                isDark
+                  ? 'text-zinc-500 hover:text-yellow-400 hover:bg-zinc-800'
+                  : 'text-zinc-500 hover:text-yellow-600 hover:bg-zinc-100'
+              }`}
+            >
+              <Instagram size={18} />
+            </a>
+
+            <a href="https://www.youtube.com/@PerBetlive" target="_blank" rel="noopener noreferrer" className={`p-2 rounded-full transition-colors ${
+                isDark
+                  ? 'text-zinc-500 hover:text-yellow-400 hover:bg-zinc-800'
+                  : 'text-zinc-500 hover:text-yellow-600 hover:bg-zinc-100'
+              }`}
+            >
+              <Youtube size={18} />
+            </a>
+
+            <a
+              href="https://x.com/perbetlive"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`p-2 rounded-full transition-colors ${
+                isDark
+                  ? 'text-zinc-500 hover:text-yellow-400 hover:bg-zinc-800'
+                  : 'text-zinc-500 hover:text-yellow-600 hover:bg-zinc-100'
+              }`}
+            >
+              <Twitter size={18} />
+            </a>
+          </div>
+
+      </div>
+
+      {/* PLATFORM */}
+      <div>
+        <h4
+          className={`font-bold mb-6 text-lg ${
+            isDark ? 'text-white' : 'text-gray-900'
+          }`}
+        >
+          {t('footer.platform')}
+        </h4>
+        <ul className="space-y-4">
+          <li>
+            <a
+              href="#active"
+              className={`transition-colors hover:translate-x-1 inline-block ${
+                isDark
+                  ? 'text-zinc-400 hover:text-yellow-400'
+                  : 'text-zinc-600 hover:text-yellow-600'
+              }`}
+            >
+              {t('footer.activeMarkets')}
+            </a>
+          </li>
+          <li>
+            <a
+              href="#positions"
+              className={`transition-colors hover:translate-x-1 inline-block ${
+                isDark
+                  ? 'text-zinc-400 hover:text-yellow-400'
+                  : 'text-zinc-600 hover:text-yellow-600'
+              }`}
+            >
+              {t('footer.myPositions')}
+            </a>
+          </li>
+          <li>
+            <a
+              href="#how"
+              className={`transition-colors hover:translate-x-1 inline-block ${
+                isDark
+                  ? 'text-zinc-400 hover:text-yellow-400'
+                  : 'text-zinc-600 hover:text-yellow-600'
+              }`}
+            >
+              {t('footer.howItWorks')}
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      {/* RESOURCES */}
+      <div>
+        <h4
+          className={`font-bold mb-6 text-lg ${
+            isDark ? 'text-white' : 'text-gray-900'
+          }`}
+        >
+          {t('footer.resources')}
+        </h4>
+        <ul className="space-y-4">
+          <li>
+            <a
+              href="#"
+              className={`transition-colors hover:translate-x-1 inline-block ${
+                isDark
+                  ? 'text-zinc-400 hover:text-yellow-400'
+                  : 'text-zinc-600 hover:text-yellow-600'
+              }`}
+            >
+              {t('footer.documentation')}
+            </a>
+          </li>
+          <li>
+            <a
+              href="#"
+              className={`transition-colors hover:translate-x-1 inline-block ${
+                isDark
+                  ? 'text-zinc-400 hover:text-yellow-400'
+                  : 'text-zinc-600 hover:text-yellow-600'
+              }`}
+            >
+              {t('footer.contract')}
+            </a>
+          </li>
+          <li>
+            <a
+              href="#"
+              className={`transition-colors hover:translate-x-1 inline-block ${
+                isDark
+                  ? 'text-zinc-400 hover:text-yellow-400'
+                  : 'text-zinc-600 hover:text-yellow-600'
+              }`}
+            >
+              {t('footer.support')}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    {/* BOTTOM BAR (UNCHANGED) */}
+    <div
+      className={`pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4 ${
+        isDark ? 'border-zinc-800' : 'border-gray-100'
+      }`}
+    >
+      <p className={`text-sm ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
+        &copy; {new Date().getFullYear()} {t('footer.rightsReserved')}
+      </p>
+
+      <div className="flex items-center gap-6">
+        <div className="flex space-x-6">
+          <a
+            href="/TermsandPolicy"
+            className={`text-sm transition-colors ${
+              isDark
+                ? 'text-zinc-500 hover:text-zinc-300'
+                : 'text-zinc-400 hover:text-zinc-600'
+            }`}
+          >
+            {t('footer.privacyPolicy')}
+          </a>
+          {/* <a
+            href="#"
+            className={`text-sm transition-colors ${
+              isDark
+                ? 'text-zinc-500 hover:text-zinc-300'
+                : 'text-zinc-400 hover:text-zinc-600'
+            }`}
+          >
+            {t('footer.termsOfService')}
+          </a> */}
+        </div>
+        <LanguageSwitcher direction="up" />
+      </div>
+    </div>
+  </div>
+</footer>
+
     </div>
   );
 }

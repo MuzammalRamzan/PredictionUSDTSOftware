@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TrendingUp, Clock, Trophy, CheckCircle2, XCircle, Wallet, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { TrendingUp, Clock, Trophy, CheckCircle2, XCircle, Wallet, ChevronLeft, ChevronRight, Sparkles, AlertCircle } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 
@@ -297,6 +297,17 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
             : 'bg-yellow-100 text-yellow-800 border border-yellow-200',
           icon: <Clock className="w-3.5 h-3.5" />,
         };
+      case 'cancelled':
+        return {
+          badge: t('positions.cancelled') || 'Cancelled',
+          containerClass: isDark 
+            ? 'glass-card border-red-500/50 hover:border-red-500/70 bg-gradient-to-br from-red-900/20 to-red-800/20' 
+            : 'glass-card border-red-400/60 hover:border-red-500 bg-gradient-to-br from-red-100/90 to-red-200/90',
+          statusBadge: isDark 
+            ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
+            : 'bg-red-200 text-red-900 border border-red-300',
+          icon: <AlertCircle className="w-3.5 h-3.5" />,
+        };
       case 'won':
         return {
           badge: t('positions.wonBadge'),
@@ -414,7 +425,7 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
               <CheckCircle2 className="w-4 h-4" />
               <span>{t('positions.withdrawn')}</span>
             </div>
-          ) : (
+          ) : (!position.payout || position.payout.usdt > 0) && (
             <button
               onClick={() => onWithdraw(position.questionId)}
               disabled={isLoading}
@@ -422,6 +433,28 @@ function PositionCard({ position, onWithdraw, isLoading = false }) {
             >
               <span>{t('positions.withdrawWinnings')}</span>
               <Trophy className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            </button>
+          )}
+        </div>
+      )}
+
+      {position.status === 'cancelled' && (
+        <div className={`px-6 pb-6 pt-0`}>
+          {position.withdrawn ? (
+            <div className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl text-sm font-semibold border ${
+              isDark ? 'bg-zinc-800/50 text-gray-400 border-zinc-700/50' : 'bg-gray-50 text-gray-500 border-gray-200'
+            }`}>
+              <CheckCircle2 className="w-4 h-4" />
+              <span>{t('positions.refunded') || "Refunded"}</span>
+            </div>
+          ) : (!position.payout || position.payout.usdt > 0) && (
+            <button
+              onClick={() => onWithdraw(position.questionId)}
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-red-500/20 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 group"
+            >
+              <span>{t('positions.claimRefund') || "Claim Refund"}</span>
+              <AlertCircle className="w-4 h-4 group-hover:scale-110 transition-transform" />
             </button>
           )}
         </div>

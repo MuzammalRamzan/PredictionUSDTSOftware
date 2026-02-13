@@ -22,6 +22,21 @@ export const recordBet = async (req, res) => {
       });
     }
 
+    const question = await Question.findById(questionId);
+    if (!question) {
+      return res.status(404).json({
+        success: false,
+        error: "Question not found",
+      });
+    }
+
+    if (question.isHidden) {
+      return res.status(400).json({
+        success: false,
+        error: "Betting is disabled for this question",
+      });
+    }
+
     // Outcome is now an index (number)
     if (typeof outcome !== "number" || outcome < 0) {
       return res.status(400).json({
@@ -46,6 +61,47 @@ export const recordBet = async (req, res) => {
         success: false,
         error: "Invalid bet amount",
       });
+    }
+
+    // Check bet amount limit (Max)
+    if (
+      question.betAmountLimit > 0 &&
+      betUsdtAmount > question.betAmountLimit
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: `Bet amount exceeds the limit of ${question.betAmountLimit} USDT`,
+      });
+    }
+
+    // Check bet amount limit (Min)
+    if (question.minBetAmount > 0 && betUsdtAmount < question.minBetAmount) {
+      return res.status(400).json({
+        success: false,
+        error: `Bet amount is lower than the minimum limit of ${question.minBetAmount} USDT`,
+      });
+    }
+
+    // Check total pool limit (Participants)
+    if (question.totalLimit > 0) {
+      const stats = await PoolStat.findOne({question_id: questionId});
+      let currentParticipants = 0;
+      if (stats && stats.outcome_stats) {
+        currentParticipants = stats.outcome_stats.reduce(
+          (sum, outcomeStat) => sum + (outcomeStat.participants || 0),
+          0,
+        );
+      }
+
+      // Check if adding this bet (1 participant) would exceed the limit
+      // Note: A user betting again on the same outcome might be counted as 1 participant or multiple depending on logic.
+      // Current logic in recordBet increments participants count for every bet.
+      if (currentParticipants + 1 > question.totalLimit) {
+        return res.status(400).json({
+          success: false,
+          error: `Total participants limit of ${question.totalLimit} reached`,
+        });
+      }
     }
 
     const bet = new Bet({
@@ -104,11 +160,11 @@ export const getUserBets = async (req, res) => {
         let payout = null;
         let withdrawn = false;
 
-        // If question is settled and user won, calculate payout
+        // If question is settled and user won OR question is cancelled, calculate payout
         if (
           question &&
-          question.status === "settled" &&
-          question.result === bet.outcome
+          ((question.status === "settled" && question.result === bet.outcome) ||
+            question.status === "cancelled")
         ) {
           try {
             // Check if user has withdrawn first
@@ -131,6 +187,7 @@ export const getUserBets = async (req, res) => {
                 question.contract_question_id !== undefined &&
                 question.contract_question_id !== null
               ) {
+                // For cancelled questions, contract.calculateWinnings returns the refund amount
                 const usdtWinnings = await contract.calculateWinnings(
                   question.contract_question_id,
                   userAddress,

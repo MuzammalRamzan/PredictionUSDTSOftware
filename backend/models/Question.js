@@ -51,6 +51,22 @@ const questionSchema = new mongoose.Schema(
       type: [String],
       default: ["Yes", "No"],
     },
+    isHidden: {
+      type: Boolean,
+      default: false,
+    },
+    totalLimit: {
+      type: Number,
+      default: 0, // 0 means unlimited
+    },
+    betAmountLimit: {
+      type: Number,
+      default: 0, // 0 means unlimited (Max Bet Amount)
+    },
+    minBetAmount: {
+      type: Number,
+      default: 0, // 0 means no minimum
+    },
   },
   {
     timestamps: {createdAt: "created_at", updatedAt: "updated_at"},

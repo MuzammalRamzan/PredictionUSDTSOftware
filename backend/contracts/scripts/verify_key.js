@@ -10,13 +10,19 @@ async function main() {
 
   const wallet = new hre.ethers.Wallet(envPrivateKey);
   console.log(`Private Key Address: ${wallet.address}`);
-  
-  const requestedAddress = "0x2686AD7C841A81170b8b2DC3D747682D1dbbE63b";
-  
+
+  const requestedAddress = (
+    process.env.ADMIN_ADDRESSES || "0x2686AD7C841A81170b8b2DC3D747682D1dbbE63b"
+  )
+    .split(",")[0]
+    .trim();
+
   if (wallet.address.toLowerCase() === requestedAddress.toLowerCase()) {
     console.log("MATCH: The private key belongs to the requested address.");
   } else {
-    console.log("MISMATCH: The private key does NOT belong to the requested address.");
+    console.log(
+      "MISMATCH: The private key does NOT belong to the requested address.",
+    );
   }
 }
 

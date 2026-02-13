@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock, Users, CheckCircle2, XCircle, TrendingUp, Coins } from 'lucide-react';
+import { Clock, Users, CheckCircle2, XCircle, TrendingUp, Coins, AlertTriangle } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 
@@ -166,7 +166,16 @@ export default function BettingQuestionCard({
         </div>
 
         <div className="mt-8 pt-6 border-t border-dashed border-zinc-200 dark:border-zinc-700/50">
-          {question.status === 'open' || question.status === 'active' ? (
+          {question.status === 'cancelled' ? (
+            <div className={`flex items-center justify-center space-x-2 px-4 py-4 rounded-xl font-bold border ${
+              isDark
+                ? 'bg-red-500/10 text-red-500 border-red-500/20'
+                : 'bg-red-50 text-red-600 border-red-200'
+            }`}>
+              <AlertTriangle className="w-5 h-5" />
+              <span>{t('bettingCard.cancelled') || "Cancelled - Refund Available"}</span>
+            </div>
+          ) : question.status === 'open' || question.status === 'active' ? (
             <div className={`grid gap-4 ${question.outcomes?.length > 2 ? 'grid-cols-3' : 'grid-cols-2'}`}>
               {question.outcomes?.map((outcome, index) => (
                   <button
@@ -215,14 +224,34 @@ export default function BettingQuestionCard({
           isDark ? 'border-zinc-700/30' : 'border-zinc-200'
         }`}>
           <div className="flex items-center justify-between">
-            <span className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>{t('bettingCard.stakeAmount')}</span>
+            <div className="flex flex-col">
+                <span className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>{t('bettingCard.stakeAmount')}</span>
+                {question.betAmountLimit > 0 && (
+                     <span className={`text-[10px] ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>
+                        Max: {question.betAmountLimit} USDT
+                     </span>
+                )}
+            </div>
             <div className="flex items-center space-x-2">
               <div className={`p-1.5 rounded-full ${isDark ? 'bg-yellow-500/10' : 'bg-yellow-100'}`}>
                 <TrendingUp className="w-3 h-3 text-yellow-500" />
               </div>
-              <span className={`text-sm font-black ${isDark ? 'text-white' : 'text-zinc-900'}`}>Flexible (Min 1 USDT)</span>
+              <span className={`text-sm font-black ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+                {question.minBetAmount > 0 
+                  ? `Min: ${question.minBetAmount} USDT`
+                  : 'Flexible (Any amount)'}
+              </span>
             </div>
           </div>
+          {question.totalLimit > 0 && (
+             <div className={`mt-2 text-xs text-center ${
+                 totalParticipants >= question.totalLimit 
+                 ? 'text-red-500 font-bold' 
+                 : (isDark ? 'text-zinc-500' : 'text-zinc-500')
+             }`}>
+                 Participants Limit: {totalParticipants} / {question.totalLimit}
+             </div>
+          )}
         </div>
       </div>
     </div>

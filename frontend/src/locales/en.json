@@ -4,6 +4,7 @@
     "positions": "Positions",
     "admin": "Admin",
     "howItWorks": "How It Works",
+    "aboutUs": "About Us",
     "connectWallet": "Connect Wallet",
     "disconnect": "Disconnect",
     "copied": "Copied!",
@@ -95,6 +96,9 @@
     "withdrawWinnings": "Withdraw Winnings",
     "activePositionsCard": "Active Positions",
     "activeBadge": "Active",
+    "cancelled": "Cancelled",
+    "refunded": "Refunded",
+    "claimRefund": "Claim Refund",
     "lostMessage": "Don't give up! Try again and win big."
   },
   "bettingCard": {
@@ -151,6 +155,8 @@
     "justNow": "Just now",
     "toast": {
       "syncComplete": "Sync complete! {{synced}} questions synced successfully.{{failed}}",
+      "updatingBlockchain": "Updating deadline on blockchain...",
+      "blockchainUpdated": "Blockchain deadline updated",
       "syncFailed": "Failed to sync questions: {{error}}",
       "questionNotFound": "Question not found",
       "alreadySettledBlockchain": "This question is already settled on the blockchain. Syncing database...",
@@ -204,11 +210,171 @@
     "insufficientFunds": "Insufficient funds",
     "calculatingWinnings": "Calculating winnings...",
     "noWinnings": "No winnings available to withdraw",
+    "processingRefund": "Processing refund...",
     "processingWithdrawal": "Processing withdrawal...",
     "recordingWithdrawal": "Recording withdrawal...",
     "withdrawSuccess": "Successfully withdrawn {{usdt}} USDT!",
     "withdrawFailed": "Failed to withdraw winnings",
-    "unableToWithdraw": "Unable to withdraw: question not found on blockchain"
+    "unableToWithdraw": "Unable to withdraw: question not found on blockchain",
+    "minBet": "Minimum bet is 1 USDT",
+    "insufficientBalanceNeed": "Insufficient balance. Need {{usdt}} USDT.",
+    "txFailed": "Transaction failed. Please check console."
+  },
+  "modal": {
+    "placeBetTitle": "Place Bet on {{outcomeName}}",
+    "usdtAmountLabel": "USDT Amount (Min 1)",
+    "cancel": "Cancel",
+    "confirmBet": "Confirm Bet",
+    "processing": "Processing..."
+  },
+  "filter": {
+    "category": "Category",
+    "sport": "Sport",
+    "all": "All",
+    "allSports": "All Sports",
+    "selectCountry": "Select Country",
+    "level": "Level",
+    "allLevels": "All Levels",
+    "Cricket": "Cricket",
+    "Football": "Football",
+    "Other": "Other",
+    "Government": "Government",
+    "Local": "Local"
+  },
+  "aboutUs": {
+    "badge": "About PerBet",
+    "title": "About Us",
+    "subtitle": "Simple, secure, and user-friendly betting experience",
+    "welcome": "Welcome to perbet.live. We are an online platform that provides betting-related services in a simple, clear, and user-friendly manner.",
+    "design": "Our website is designed for users who want an easy experience without confusion or complex steps.",
+    "focus": "We focus on clarity, safety, and smooth performance so users can use our platform with confidence and comfort.",
+    "readMore": "Read More About Us"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "intro1": "Welcome to the perbet.live Contact Page. If you have any questions or need assistance, we're here to help.",
+    "intro2": "You can reach out to us using the form below or via the contact details provided. We aim to respond to all genuine enquiries as quickly as possible.",
+    "contactInfo": "Contact Information",
+    "generalSupport": "General Support",
+    "infoBusiness": "Info & Business Inquiries",
+    "supportHours": "Customer Support Hours",
+    "mondayToSunday": "Monday to Sunday",
+    "hoursDetail": "9:00 AM – 9:00 PM (local time)",
+    "emailNote": "Please ensure that your email address is correct so we can reply promptly.",
+    "formTitle": "Contact Form",
+    "formDesc": "Please fill out the form below with your details and message. We will review your request and get back to you soon.",
+    "fullName": "Full Name",
+    "emailAddress": "Email Address",
+    "subject": "Subject",
+    "message": "Message",
+    "placeholderFullName": "Enter your full name",
+    "placeholderEmail": "Enter your email address",
+    "placeholderSubject": "Enter subject",
+    "placeholderMessage": "Write your message here...",
+    "fullNameHint": "Enter your full name as it appears on your account.",
+    "emailHint": "Enter a valid email address where we can contact you.",
+    "subjectHint": "Choose or type the main reason for contacting us.",
+    "messageHint": "Describe your question or concern in detail so we can assist you better.",
+    "sendMessage": "Send Message"
+  },
+  "terms": {
+    "title": "Terms & Policy",
+    "lastUpdated": "Last Updated: 09-Feb-2026",
+    "intro": "Welcome to perbet.live. By using this website, you agree to follow the terms and policies written below. Please read them carefully.",
+    "acceptanceTitle": "1. Acceptance of Terms",
+    "acceptanceBody": "By accessing or using perbet.live, you agree to these Terms & Policy. If you do not agree, please do not use our website.",
+    "eligibilityTitle": "2. Eligibility",
+    "eligibility1": "You must be 18 years or older to use this website.",
+    "eligibility2": "You must follow the gambling laws of your country or region.",
+    "eligibility3": "It is your responsibility to check if online betting is legal in your location.",
+    "userAccountTitle": "3. User Account",
+    "userAccount1": "You may need to create an account to use our services.",
+    "userAccount2": "All information provided by you must be true and correct.",
+    "userAccount3": "You are responsible for keeping your login details safe.",
+    "userAccount4": "We are not responsible for any loss caused by unauthorized access to your account.",
+    "bettingRulesTitle": "4. Betting Rules",
+    "bettingRules1": "All bets are placed at your own risk.",
+    "bettingRules2": "Once a bet is confirmed, it cannot be cancelled or changed.",
+    "bettingRules3": "Results and outcomes are decided according to our system rules.",
+    "bettingRules4": "Our decision will be final in case of any dispute.",
+    "depositsTitle": "5. Deposits and Withdrawals",
+    "deposits1": "You can deposit money using available payment methods.",
+    "deposits2": "Withdrawals are subject to verification and approval.",
+    "deposits3": "Processing time may vary depending on the payment method.",
+    "deposits4": "We reserve the right to reject or delay withdrawals if suspicious activity is found.",
+    "responsibleTitle": "6. Responsible Gaming",
+    "responsible1": "Gambling involves financial risk. Please play responsibly.",
+    "responsible2": "Do not gamble money you cannot afford to lose.",
+    "responsible3": "If you feel gambling is becoming a problem, please stop using the service.",
+    "privacyTitle": "7. Privacy Policy",
+    "privacy1": "We collect personal information to provide and improve our services.",
+    "privacy2": "Your data is kept secure and confidential.",
+    "privacy3": "We do not sell your personal data to third parties.",
+    "privacy4": "Information may be shared only when required by law.",
+    "prohibitedTitle": "8. Prohibited Activities",
+    "prohibitedIntro": "You are not allowed to:",
+    "prohibited1": "Use the website for illegal activities",
+    "prohibited2": "Cheat, hack, or misuse the system",
+    "prohibited3": "Create multiple accounts for unfair advantage",
+    "prohibitedOutro": "We may suspend or permanently block accounts that violate these rules.",
+    "ipTitle": "9. Intellectual Property",
+    "ip1": "All content, logos, designs, and software on perbet.live belong to us.",
+    "ip2": "You may not copy, reuse, or distribute any content without permission.",
+    "liabilityTitle": "10. Limitation of Liability",
+    "liability1": "We are not responsible for any losses, errors, or technical issues.",
+    "liability2": "Use of the website is at your own risk.",
+    "changesTitle": "11. Changes to Terms",
+    "changes1": "We may update or change these Terms & Policy at any time.",
+    "changes2": "Changes will be effective once posted on this page.",
+    "changes3": "Continued use of the website means you accept the updated terms.",
+    "contactTitle": "12. Contact Us",
+    "contactBody": "If you have any questions about these Terms & Policy, please contact us through the website."
+  },
+  "aboutPage": {
+    "pageTitle": "About PerBet",
+    "pageSubtitle": "Learn more about who we are, what we offer, and how we operate",
+    "sections": {
+      "whoWeAre": {
+        "title": "Who We Are",
+        "content": ["perbet.live is a digital betting platform built to offer a reliable online service to users. We aim to create a platform where users can place bets in a clear and structured environment.", "We understand that trust is very important in online services. That is why we work continuously to keep our systems stable, transparent, and easy to understand.", "Our team focuses on maintaining fairness and improving the overall experience for users."]
+      },
+      "ourPurpose": {
+        "title": "Our Purpose",
+        "content": ["Our purpose is to provide a platform where users can participate in online betting responsibly.", "We want users to clearly understand how our website works, what rules apply, and how they can use our services safely.", "We aim to reduce confusion by offering clear information, simple navigation, and straightforward processes."]
+      },
+      "whatWeOffer": {
+        "title": "What We Offer",
+        "content": ["On perbet.live, users have access to a range of online betting services designed for ease of use.", "Users can create accounts, manage profiles, deposit funds, and request withdrawals through supported methods.", "We provide clear rules, terms, and policies so users know what to expect at every step."]
+      },
+      "easyToUsePlatform": {
+        "title": "Easy to Use Platform",
+        "content": ["We design our platform with simplicity in mind. Our website layout is clear and easy to navigate.", "We regularly update and improve the platform to ensure better speed, performance, and reliability."]
+      },
+      "responsibleGaming": {
+        "title": "Responsible Gaming",
+        "content": ["We strongly encourage responsible gaming on perbet.live.", "Users should always play within their limits and treat betting as entertainment, not guaranteed income."]
+      },
+      "safetyAndPrivacy": {
+        "title": "Safety and Privacy",
+        "content": ["User safety and privacy are important to us. We take reasonable steps to protect personal information.", "Data collected is used only to operate services, provide support, and improve the platform."]
+      },
+      "fairPlay": {
+        "title": "Fair Play",
+        "content": ["We aim to maintain fairness for all users.", "All betting rules are explained clearly to avoid misunderstandings and ensure transparency."]
+      },
+      "continuousImprovement": {
+        "title": "Continuous Improvement",
+        "content": ["We believe in continuous improvement.", "User feedback helps us enhance reliability, security, and ease of use."]
+      },
+      "legalUse": {
+        "title": "Legal Use",
+        "content": ["Users are responsible for following local laws while using perbet.live.", "Online betting laws may differ by country or region."]
+      },
+      "supportAndAssistance": {
+        "title": "Support and Assistance",
+        "content": ["We provide support to help users with genuine questions or issues.", "Users can reach us through the Contact Us page for assistance.", "By using perbet.live, you agree to follow our Terms & Policies."]
+      }
+    }
   },
   "footer": {
     "description": "Decentralized prediction pools on Binance Smart Chain with transparent, trustless settlements.",
@@ -221,8 +387,8 @@
     "documentation": "Documentation",
     "contract": "Contract",
     "support": "Support",
-    "rightsReserved": "ProPred. All rights reserved.",
-    "privacyPolicy": "Privacy Policy",
+    "rightsReserved": "PerBet. All rights reserved.",
+    "privacyPolicy": "Terms & Policy",
     "termsOfService": "Terms of Service"
   }
 }

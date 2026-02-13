@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 
 async function main() {
-  const usdtAddress = "0x7026eC8ed277Ae6dda4628357cE2885423b9B3ce"; // User provided address
+  const usdtAddress = "0x51D659D585D37F2dE55678e2972Bdc1C2D88ffbd"; // BSC Testnet USDT
   const developerAddress = "0x9A85Ea37365Af51583F41F89D75A1733524b4148";
 
   console.log("Deploying BettingPool with existing USDT:", usdtAddress);

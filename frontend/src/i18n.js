@@ -22,6 +22,9 @@ i18n
       vi: { translation: vi }
     },
     fallbackLng: 'en',
+    react: {
+      useSuspense: false
+    },
     interpolation: {
       escapeValue: false // react already safes from xss
     },

@@ -4,10 +4,16 @@ async function main() {
   const [deployer] = await hre.ethers.getSigners();
 
   console.log("Deploying contracts with the account:", deployer.address);
-  
-  const expectedDeployer = "0x2686AD7C841A81170b8b2DC3D747682D1dbbE63b";
+
+  const expectedDeployer = (
+    process.env.ADMIN_ADDRESSES || "0x2686AD7C841A81170b8b2DC3D747682D1dbbE63b"
+  )
+    .split(",")[0]
+    .trim();
   if (deployer.address.toLowerCase() !== expectedDeployer.toLowerCase()) {
-    console.error(`WARNING: Deployer address ${deployer.address} does not match expected ${expectedDeployer}`);
+    console.error(
+      `WARNING: Deployer address ${deployer.address} does not match expected ${expectedDeployer}`,
+    );
     // Proceeding anyway as verified by key check, but good to note.
   }
 

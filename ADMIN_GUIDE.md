@@ -7,8 +7,11 @@ As an admin, you are responsible for settling questions after their deadline has
 ## Prerequisites
 
 1. You must use the **admin wallet address**: `0x2686AD7C841A81170b8b2DC3D747682D1dbbE63b`
-2. The Admin Panel is **only visible** when the admin wallet is connected
-3. Make sure you have enough BNB for gas fees
+2. **Admin Roles**:
+   - **Super Admin**: Can Create, Settle, and Sync questions (Full Access).
+   - **Viewer Admin**: Can only VIEW the Admin Dashboard (Read-Only).
+3. The Admin Panel is **only visible** when an admin wallet is connected
+4. Make sure you have enough BNB for gas fees
 
 **Note**: Regular users will not see the Admin link in the navigation or the Admin Panel section. These features are exclusively available to the admin address.
 
